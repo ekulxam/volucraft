@@ -1,0 +1,34 @@
+{
+	"schemaVersion": 1,
+	"id": "volucraft",
+	"version": "${version}",
+	"name": "Volucraft",
+	"description": "3D Crafting",
+	"authors": [
+		"Survivalblock"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "ARR",
+	"icon": "assets/volucraft/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"survivalblock.volucraft.Volucraft"
+		],
+		"fabric-datagen": [
+			"survivalblock.volucraft.VolucraftDataGenerator"
+		]
+	},
+	"mixins": [
+		"volucraft.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.18.6",
+		"minecraft": "~26.1.2",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}
