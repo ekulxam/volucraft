@@ -13,7 +13,7 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
     private static final Identifier CRAFTING_TABLE_LOCATION = Volucraft.id("textures/gui/container/img.png");
 
     public AmalgamationScreen(AmalgamationMenu menu, Inventory inventory, Component title) {
-        super(menu, inventory, title, 256, 166);
+        super(menu, inventory, title, 320, 166);
     }
 
     @Override
@@ -21,6 +21,6 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         super.extractBackground(graphics, mouseX, mouseY, a);
         int xo = this.leftPos;
         int yo = (this.height - this.imageHeight) / 2;
-        graphics.blit(RenderPipelines.GUI_TEXTURED, CRAFTING_TABLE_LOCATION, xo, yo, 0.0F, 0.0F, this.imageWidth, this.imageHeight, 256, 256);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, CRAFTING_TABLE_LOCATION, xo, yo, 0.0F, 0.0F, this.imageWidth, this.imageHeight, 512, 512);
     }
 }
