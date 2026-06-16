@@ -16,6 +16,7 @@ import survivalblock.volucraft.common.init.VolucraftMenuTypes;
 import survivalblock.volucraft.common.init.VolucraftRecipeTypes;
 import survivalblock.volucraft.common.menu.recipe.AmalgamationInput;
 import survivalblock.volucraft.common.menu.recipe.AmalgamationRecipe;
+import survivalblock.volucraft.common.menu.slot.AmalgamationResultSlot;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,10 +39,19 @@ public class AmalgamationMenu extends AbstractContainerMenu {
         super(VolucraftMenuTypes.AMALGAMATING, containerId);
         this.access = access;
         this.player = inventory.player;
+        this.addResultSlot(this.player, 124, 35);
+        for (int i = 0; i < Volucraft.SLOTS; i++) {
+            this.addSlot(new Slot(this.craftSlots, i, i, 0));
+        }
+        this.addStandardInventorySlots(inventory, 8, 84);
     }
 
     public AmalgamationMenu(int containerId, Inventory inventory) {
         this(containerId, inventory, ContainerLevelAccess.NULL);
+    }
+
+    protected Slot addResultSlot(final Player player, final int x, final int y) {
+        return this.addSlot(new AmalgamationResultSlot(player, this.craftSlots, this.resultSlots, 0, x, y));
     }
 
     @SuppressWarnings("SameParameterValue")
