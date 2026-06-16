@@ -36,7 +36,7 @@ public final class VolucraftBlocks {
         //noinspection CodeBlock2Expr
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS)
                 .register(output -> {
-                    output.insertAfter(AMALGAMATION_TABLE, Blocks.CRAFTING_TABLE);
+                    output.insertAfter(Blocks.CRAFTING_TABLE, AMALGAMATION_TABLE);
                 });
     }
 }
