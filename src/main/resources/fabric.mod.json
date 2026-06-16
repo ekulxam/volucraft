@@ -18,6 +18,9 @@
 		"main": [
           "survivalblock.volucraft.common.Volucraft"
 		],
+        "client": [
+          "survivalblock.volucraft.client.VolucraftClient"
+        ],
 		"fabric-datagen": [
           "survivalblock.volucraft.client.datagen.VolucraftDataGenerator"
 		]
