@@ -81,11 +81,6 @@ public class TransientAmalgamationContainer implements AmalgamationContainer {
 	}
 
     @Override
-    public AmalgamationInput.Positioned asPositionedCraftInput() {
-        return null;
-    }
-
-    @Override
 	public void fillStackedContents(final StackedItemContents contents) {
 		for (ItemStack itemStack : this.items) {
 			contents.accountSimpleStack(itemStack);

@@ -40,7 +40,7 @@ public class AmalgamationMenu extends AbstractContainerMenu {
         super(VolucraftMenuTypes.AMALGAMATING, containerId);
         this.access = access;
         this.player = inventory.player;
-        this.addResultSlot(this.player, 124, 35);
+        this.addResultSlot(this.player, 81, 35);
         for (int i = 0; i < Volucraft.SLOTS; i++) {
             this.addSlot(new Slot(this.craftSlots, i, i, 0));
         }
