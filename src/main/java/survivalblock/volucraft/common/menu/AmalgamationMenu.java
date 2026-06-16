@@ -12,6 +12,7 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 import org.jspecify.annotations.Nullable;
 import survivalblock.volucraft.common.Volucraft;
+import survivalblock.volucraft.common.init.VolucraftBlocks;
 import survivalblock.volucraft.common.init.VolucraftMenuTypes;
 import survivalblock.volucraft.common.init.VolucraftRecipeTypes;
 import survivalblock.volucraft.common.menu.recipe.AmalgamationInput;
@@ -101,7 +102,7 @@ public class AmalgamationMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(final Player player) {
-        return stillValid(this.access, player, Blocks.CRAFTING_TABLE);
+        return stillValid(this.access, player, VolucraftBlocks.AMALGAMATION_TABLE);
     }
 
     @Override

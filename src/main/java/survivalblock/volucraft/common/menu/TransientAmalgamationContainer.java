@@ -8,6 +8,7 @@ import net.minecraft.world.entity.player.StackedItemContents;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import survivalblock.volucraft.common.Volucraft;
+import survivalblock.volucraft.common.menu.recipe.AmalgamationInput;
 
 public class TransientAmalgamationContainer implements AmalgamationContainer {
 	private final NonNullList<ItemStack> items;
@@ -79,7 +80,12 @@ public class TransientAmalgamationContainer implements AmalgamationContainer {
 		return List.copyOf(this.items);
 	}
 
-	@Override
+    @Override
+    public AmalgamationInput.Positioned asPositionedCraftInput() {
+        return null;
+    }
+
+    @Override
 	public void fillStackedContents(final StackedItemContents contents) {
 		for (ItemStack itemStack : this.items) {
 			contents.accountSimpleStack(itemStack);

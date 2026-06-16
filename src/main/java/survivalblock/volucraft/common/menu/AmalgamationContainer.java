@@ -11,9 +11,13 @@ import java.util.List;
 public interface AmalgamationContainer extends Container, StackedContentsCompatible {
     List<ItemStack> getItems();
 
-    AmalgamationInput asCraftInput();
+    default AmalgamationInput asCraftInput() {
+        return this.asPositionedCraftInput().input();
+    }
 
-    AmalgamationInput.Positioned asPositionedCraftInput();
+    default AmalgamationInput.Positioned asPositionedCraftInput() {
+        return AmalgamationInput.ofPositioned(this.getLength(), this.getWidth(), this.getHeight(), this.getItems());
+    }
 
     default int getLength() {
         return Volucraft.SIDE_LENGTH;
