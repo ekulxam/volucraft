@@ -7,8 +7,6 @@ import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TextureSlot;
-import net.minecraft.client.data.models.model.TexturedModel;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Blocks;
 import survivalblock.volucraft.common.init.VolucraftBlocks;
 

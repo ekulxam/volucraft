@@ -15,5 +15,9 @@ public class VolucraftEnUsLangGenerator extends FabricLanguageProvider {
     @Override
     public void generateTranslations(HolderLookup.Provider provider, TranslationBuilder translationBuilder) {
         translationBuilder.add(VolucraftBlocks.AMALGAMATION_TABLE, "Amalgamation Table");
+
+        translationBuilder.add(VolucraftBlocks.INTERACT_WITH_AMALGAMATION_TABLE_STAT, "Interactions with Amalgamation Table");
+
+        translationBuilder.add("container.volucraft.amalgamating", "Magicking");
     }
 }

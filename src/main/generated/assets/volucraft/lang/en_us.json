@@ -1,3 +1,5 @@
 {
-  "block.volucraft.amalgamation_table": "Amalgamation Table"
+  "block.volucraft.amalgamation_table": "Amalgamation Table",
+  "container.volucraft.amalgamating": "Magicking",
+  "volucraft.interact_with_amalgamation_table": "Interactions with Amalgamation Table"
 }
