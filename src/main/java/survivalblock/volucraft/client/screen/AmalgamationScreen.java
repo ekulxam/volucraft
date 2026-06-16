@@ -13,7 +13,7 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
     private static final Identifier CRAFTING_TABLE_LOCATION = Volucraft.id("textures/gui/container/img.png");
 
     public AmalgamationScreen(AmalgamationMenu menu, Inventory inventory, Component title) {
-        super(menu, inventory, title, 320, 166);
+        super(menu, inventory, title, 344, 166);
     }
 
     @Override
