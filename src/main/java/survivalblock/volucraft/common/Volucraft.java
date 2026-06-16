@@ -11,16 +11,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import survivalblock.volucraft.common.init.VolucraftBlocks;
 import survivalblock.volucraft.common.init.VolucraftItems;
+import survivalblock.volucraft.common.init.VolucraftMenuTypes;
 
 public class Volucraft implements ModInitializer {
 	public static final String MOD_ID = "volucraft";
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
+    public static final int SIDE_LENGTH = 3;
+    public static final int SLOTS = SIDE_LENGTH * SIDE_LENGTH * SIDE_LENGTH;
+
 	@Override
 	public void onInitialize() {
         VolucraftBlocks.init();
         VolucraftItems.init();
+        VolucraftMenuTypes.init();
 	}
 
     public static Identifier id(String path) {
