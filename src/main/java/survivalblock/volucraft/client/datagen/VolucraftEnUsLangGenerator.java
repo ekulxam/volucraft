@@ -18,6 +18,6 @@ public class VolucraftEnUsLangGenerator extends FabricLanguageProvider {
 
         translationBuilder.add(VolucraftBlocks.INTERACT_WITH_AMALGAMATION_TABLE_STAT.toLanguageKey("stat."), "Interactions with Amalgamation Table");
 
-        translationBuilder.add("container.volucraft.amalgamating", "Magicking");
+        translationBuilder.add("container.volucraft.amalgamating", "Amalgamation");
     }
 }
