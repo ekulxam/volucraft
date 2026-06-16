@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import survivalblock.volucraft.common.init.VolucraftBlocks;
 import survivalblock.volucraft.common.init.VolucraftItems;
 import survivalblock.volucraft.common.init.VolucraftMenuTypes;
+import survivalblock.volucraft.common.init.VolucraftRecipeTypes;
 
 public class Volucraft implements ModInitializer {
 	public static final String MOD_ID = "volucraft";
@@ -23,6 +24,7 @@ public class Volucraft implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+        VolucraftRecipeTypes.init();
         VolucraftBlocks.init();
         VolucraftItems.init();
         VolucraftMenuTypes.init();

@@ -9,5 +9,6 @@ public class VolucraftDataGenerator implements DataGeneratorEntrypoint {
         FabricDataGenerator.Pack pack = fabricDataGenerator.createPack();
         pack.addProvider(VolucraftModelGenerator::new);
         pack.addProvider(VolucraftEnUsLangGenerator::new);
+        pack.addProvider(VolucraftLootTableGenerator::new);
 	}
 }

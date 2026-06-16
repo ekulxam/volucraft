@@ -16,6 +16,10 @@ public final class VolucraftRecipeTypes {
 
     public static final RecipeType<AmalgamationRecipe> AMALGAMATION = REGISTRANT.register("amalgamation");
 
+    public static void init() {
+        // NO-OP
+    }
+
     public static class RecipeTypeRegistrant extends Registrant<RecipeType<?>> {
 
         public RecipeTypeRegistrant(String modId, Registry<RecipeType<?>> registry) {
