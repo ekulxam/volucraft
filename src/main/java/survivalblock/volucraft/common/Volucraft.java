@@ -1,0 +1,25 @@
+package survivalblock.volucraft.common;
+
+import net.fabricmc.api.ModInitializer;
+
+import net.minecraft.resources.Identifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import survivalblock.volucraft.common.init.VolucraftBlocks;
+import survivalblock.volucraft.common.init.VolucraftItems;
+
+public class Volucraft implements ModInitializer {
+	public static final String MOD_ID = "volucraft";
+
+	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+
+	@Override
+	public void onInitialize() {
+        VolucraftBlocks.init();
+        VolucraftItems.init();
+	}
+
+    public static Identifier id(String path) {
+        return Identifier.fromNamespaceAndPath(MOD_ID, path);
+    }
+}
