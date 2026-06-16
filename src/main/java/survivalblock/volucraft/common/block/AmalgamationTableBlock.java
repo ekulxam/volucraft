@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import survivalblock.volucraft.common.init.VolucraftBlocks;
+import survivalblock.volucraft.common.menu.AmalgamationMenu;
 
 public class AmalgamationTableBlock extends Block {
 	public static final MapCodec<AmalgamationTableBlock> CODEC = simpleCodec(AmalgamationTableBlock::new);
@@ -42,7 +43,7 @@ public class AmalgamationTableBlock extends Block {
 	@Override
 	protected MenuProvider getMenuProvider(final BlockState state, final Level level, final BlockPos pos) {
 		return new SimpleMenuProvider(
-			(containerId, inventory, player) -> new CraftingMenu(containerId, inventory, ContainerLevelAccess.create(level, pos)), CONTAINER_TITLE
+			(containerId, inventory, player) -> new AmalgamationMenu(containerId, inventory, ContainerLevelAccess.create(level, pos)), CONTAINER_TITLE
 		);
 	}
 }
