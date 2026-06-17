@@ -2,7 +2,10 @@ package survivalblock.volucraft.client.render;
 
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.renderer.state.gui.pip.PictureInPictureRenderState;
+import net.minecraft.core.NonNullList;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
+import org.joml.Quaternionfc;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -14,10 +17,11 @@ import org.jspecify.annotations.Nullable;
 public record CubeOfSlotsRenderState(
         CubeModel unit,
         Identifier texture,
-        Identifier highlightedTextureFront,
-        Identifier highlightedTextureBack,
+        Identifier highlightTexture,
+        NonNullList<ItemStack> items,
         int selected,
         float lerpExpansion,
+        Quaternionfc rotation,
         int x0,
         int y0,
         int x1,
@@ -29,10 +33,11 @@ public record CubeOfSlotsRenderState(
     public CubeOfSlotsRenderState(
             CubeModel model,
             Identifier texture,
-            Identifier highlightedTextureFront,
-            Identifier highlightedTextureBack,
+            Identifier highlightTexture,
+            NonNullList<ItemStack> items,
             int selected,
             float lerpExpansion,
+            Quaternionfc rotation,
             int x0,
             int y0,
             int x1,
@@ -40,6 +45,6 @@ public record CubeOfSlotsRenderState(
             float scale,
             @Nullable ScreenRectangle scissorArea
     ) {
-        this(model, texture, highlightedTextureFront, highlightedTextureBack, selected, lerpExpansion, x0, y0, x1, y1, scale, scissorArea, PictureInPictureRenderState.getBounds(x0, y0, x1, y1, scissorArea));
+        this(model, texture, highlightTexture, items, selected, lerpExpansion, rotation, x0, y0, x1, y1, scale, scissorArea, PictureInPictureRenderState.getBounds(x0, y0, x1, y1, scissorArea));
     }
 }

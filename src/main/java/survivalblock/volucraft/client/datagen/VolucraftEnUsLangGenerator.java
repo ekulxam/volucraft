@@ -19,5 +19,8 @@ public class VolucraftEnUsLangGenerator extends FabricLanguageProvider {
         translationBuilder.add(VolucraftBlocks.INTERACT_WITH_AMALGAMATION_TABLE_STAT.toLanguageKey("stat."), "Interactions with Amalgamation Table");
 
         translationBuilder.add("container.volucraft.amalgamating", "Amalgamation");
+        translationBuilder.add("container.volucraft.amalgamating.expandbutton", "Expansion");
+        translationBuilder.add("container.volucraft.amalgamating.expandbutton.expand", "Expand");
+        translationBuilder.add("container.volucraft.amalgamating.expandbutton.shrink", "Shrink");
     }
 }

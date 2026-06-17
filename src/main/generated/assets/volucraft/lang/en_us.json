@@ -1,5 +1,8 @@
 {
   "block.volucraft.amalgamation_table": "Amalgamation Table",
   "container.volucraft.amalgamating": "Amalgamation",
+  "container.volucraft.amalgamating.expandbutton": "Expansion",
+  "container.volucraft.amalgamating.expandbutton.expand": "Expand",
+  "container.volucraft.amalgamating.expandbutton.shrink": "Shrink",
   "stat..volucraft.interact_with_amalgamation_table": "Interactions with Amalgamation Table"
 }

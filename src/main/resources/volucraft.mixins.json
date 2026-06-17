@@ -6,6 +6,7 @@
     "SharedConstantsMixin"
   ],
   "client": [
+    "client.AbstractContainerScreenAccessor",
     "client.AbstractContainerScreenMixin"
   ],
   "injectors": {

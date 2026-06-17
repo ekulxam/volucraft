@@ -20,7 +20,7 @@ public class CubeModel extends Model<CubeModel.State> {
     }
 
     public CubeModel(ModelPart root) {
-        super(root, RenderTypes::entitySolid);
+        super(root, RenderTypes::entityTranslucent);
     }
 
     public static LayerDefinition createBodyLayer() {
