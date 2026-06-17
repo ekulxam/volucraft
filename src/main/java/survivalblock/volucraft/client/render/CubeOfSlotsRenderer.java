@@ -33,13 +33,16 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
     protected void renderToTexture(CubeOfSlotsRenderState renderState, PoseStack poseStack) {
         CubeModel model = renderState.unit();
         Minecraft.getInstance().gameRenderer.getLighting().setupFor(Lighting.Entry.ENTITY_IN_UI);
-        //poseStack.translate(0, -9, 0); // pivot point
-        poseStack.mulPose(new Quaternionf().rotateZ((float) Math.PI).rotateY((Util.getMillis() / 10F) * (float) Math.PI / 180F));
-        poseStack.translate(0, 1, 0);
-        //poseStack.mulPose(Axis.YP.rotationDegrees(45));
-        //poseStack.mulPose(Axis.XP.rotationDegrees(Util.getMillis() / 10F));
-        VertexConsumer buffer = this.bufferSource.getBuffer(model.renderType(renderState.texture()));
+        poseStack.mulPose(new Quaternionf().rotateZ((float) Math.PI)); // GuiEntityRenderer does it too and it works
+        poseStack.translate(0, 7.5, 0); // translate to center
+        poseStack.pushPose(); // push
+        poseStack.translate(0, (9 / 16F), 0); // pivot point
+        poseStack.mulPose(Axis.XP.rotationDegrees(Util.getMillis() / 10F)); // rotate around pivot point
+        poseStack.mulPose(Axis.YP.rotationDegrees(Util.getMillis() / 10F));
+        poseStack.translate(0, -9 / 16F, 0); // unpivot point
+        VertexConsumer buffer = this.bufferSource.getBuffer(model.renderType(renderState.texture())); // render
         model.renderToBuffer(poseStack, buffer, 15728880, OverlayTexture.NO_OVERLAY);
+        poseStack.popPose(); // pop
     }
 
     @Override

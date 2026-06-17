@@ -15,7 +15,7 @@ import survivalblock.volucraft.common.menu.AmalgamationMenu;
 
 public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu> {
     public static final Identifier CRAFTING_TABLE_LOCATION = Volucraft.id("textures/gui/container/amalgamation_alt.png");
-    public static final Identifier SLOT_SPRITE = Volucraft.id("textures/gui/container/slots_debug.png");
+    public static final Identifier SLOT_SPRITE = Volucraft.id("textures/gui/container/slots.png");
     private static final Identifier SLOT_HIGHLIGHT_BACK_SPRITE = Identifier.withDefaultNamespace("container/slot_highlight_back");
     private static final Identifier SLOT_HIGHLIGHT_FRONT_SPRITE = Identifier.withDefaultNamespace("container/slot_highlight_front");
 
@@ -50,7 +50,7 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
                         cubeY0,
                         cubeX0 + 150,
                         cubeY0 + 150,
-                        40F,
+                        10F,
                         graphics.scissorStack.peek()
                 )
         );
