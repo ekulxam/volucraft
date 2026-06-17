@@ -7,14 +7,15 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
+import survivalblock.volucraft.client.VolucraftClient;
 import survivalblock.volucraft.client.render.CubeModel;
 import survivalblock.volucraft.client.render.CubeOfSlotsRenderState;
 import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.menu.AmalgamationMenu;
 
 public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu> {
-    public static final Identifier CRAFTING_TABLE_LOCATION = Volucraft.id("textures/gui/container/amalgamation.png");
-    public static final Identifier SLOT_SPRITE = Volucraft.id("textures/gui/container/slots.png");
+    public static final Identifier CRAFTING_TABLE_LOCATION = Volucraft.id("textures/gui/container/amalgamation_alt.png");
+    public static final Identifier SLOT_SPRITE = Volucraft.id("textures/gui/container/slots_debug.png");
     private static final Identifier SLOT_HIGHLIGHT_BACK_SPRITE = Identifier.withDefaultNamespace("container/slot_highlight_back");
     private static final Identifier SLOT_HIGHLIGHT_FRONT_SPRITE = Identifier.withDefaultNamespace("container/slot_highlight_front");
 
@@ -22,7 +23,7 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
 
     public AmalgamationScreen(AmalgamationMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, 344, 166);
-        this.cubeModel = new CubeModel(this.minecraft.getEntityModels().bakeLayer(ModelLayers.BOOK));
+        this.cubeModel = new CubeModel(this.minecraft.getEntityModels().bakeLayer(VolucraftClient.CUBE));
     }
 
     @Override
@@ -35,6 +36,8 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         // render cube (center at 261, 83) in a 150x150 area
         //graphics. // DEATH
         int selected = 0;
+        int cubeX0 = xo + 186;
+        int cubeY0 = yo + 8;
         graphics.guiRenderState.addPicturesInPictureState(
                 new CubeOfSlotsRenderState(
                         this.cubeModel,
@@ -43,12 +46,12 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
                         SLOT_HIGHLIGHT_BACK_SPRITE,
                         selected,
                         0,
-                        186,
-                        8,
-                        336, // 186 + 150
-                        158, // 8 + 150
-                        100F,
-                        null
+                        cubeX0,
+                        cubeY0,
+                        cubeX0 + 150,
+                        cubeY0 + 150,
+                        40F,
+                        graphics.scissorStack.peek()
                 )
         );
     }

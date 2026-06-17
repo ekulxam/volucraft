@@ -3,6 +3,7 @@
   "package": "survivalblock.volucraft.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
+    "SharedConstantsMixin"
   ],
   "client": [
     "client.AbstractContainerScreenMixin"

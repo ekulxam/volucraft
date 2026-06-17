@@ -12,6 +12,7 @@ import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.Util;
+import org.joml.Quaternionf;
 
 @Environment(EnvType.CLIENT)
 public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRenderState> {
@@ -31,8 +32,12 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
     @Override
     protected void renderToTexture(CubeOfSlotsRenderState renderState, PoseStack poseStack) {
         CubeModel model = renderState.unit();
-        Minecraft.getInstance().gameRenderer.getLighting().setupFor(Lighting.Entry.ITEMS_3D);
-        poseStack.mulPose(Axis.XP.rotationDegrees(Util.getMillis() / 10F));
+        Minecraft.getInstance().gameRenderer.getLighting().setupFor(Lighting.Entry.ENTITY_IN_UI);
+        //poseStack.translate(0, -9, 0); // pivot point
+        poseStack.mulPose(new Quaternionf().rotateZ((float) Math.PI).rotateY((Util.getMillis() / 10F) * (float) Math.PI / 180F));
+        poseStack.translate(0, 1, 0);
+        //poseStack.mulPose(Axis.YP.rotationDegrees(45));
+        //poseStack.mulPose(Axis.XP.rotationDegrees(Util.getMillis() / 10F));
         VertexConsumer buffer = this.bufferSource.getBuffer(model.renderType(renderState.texture()));
         model.renderToBuffer(poseStack, buffer, 15728880, OverlayTexture.NO_OVERLAY);
     }
