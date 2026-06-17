@@ -47,10 +47,6 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
         final NonNullList<ItemStack> items = renderState.items();
         final int selected = renderState.selected();
         final Identifier texture = renderState.texture();
-        ItemStack stack = items.get(1);
-        if (!stack.isEmpty()) {
-            renderItem(poseStack, stack);
-        }
         poseStack.mulPose(flip); // because LivingEntity model(?)
         poseStack.translate(0, centerFromScale(renderState.scale()), 0); // translate to center
         for (int i = 0; i < Volucraft.SLOTS; i++) {
@@ -62,12 +58,10 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
             poseStack.mulPose(rot); // rotate around pivot point
             poseStack.translate(0, -9 / 16F, 0); // unpivot point
             transformByIndex(i,  translator);
-            /*{
+            {
                 VertexConsumer buffer = this.bufferSource.getBuffer(model.renderType(texture));
                 model.renderToBuffer(poseStack, buffer, 15728880, OverlayTexture.NO_OVERLAY);
             }
-
-             */
             if (i == selected) {
                 poseStack.pushPose();
                 poseStack.translate(0, (9 / 16F), 0); // pivot point
@@ -77,6 +71,10 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
                 model.renderToBuffer(poseStack, buffer, -1, OverlayTexture.NO_OVERLAY);
                 poseStack.popPose();
             }
+            ItemStack stack = items.get(i);
+            if (!stack.isEmpty()) {
+                renderItem(poseStack, stack);
+            }
             poseStack.popPose(); // pop1
             poseStack.popPose(); // pop0
         }
@@ -84,7 +82,7 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
 
     private void renderItem(PoseStack poseStack, ItemStack stack) {
         poseStack.pushPose();
-        poseStack.scale(1, 1, -1);
+        //poseStack.scale(1, 1, -1);
         TrackingItemStackRenderState itemStackRenderState = new TrackingItemStackRenderState();
         ItemDisplayContext displayContext = ItemDisplayContext.NONE;
         this.minecraft.getItemModelResolver().updateForTopItem(itemStackRenderState, stack, displayContext, this.minecraft.level, this.minecraft.player, 0);
