@@ -1,0 +1,28 @@
+{
+  "type": "volucraft:amalgamation",
+  "pattern": [
+    [
+      "V V",
+      "   ",
+      "  V"
+    ],
+    [
+      "   ",
+      " / ",
+      "   "
+    ],
+    [
+      "   ",
+      "   ",
+      "/  "
+    ]
+  ],
+  "key": {
+    "V": "minecraft:bone",
+    "/": "minecraft:prismarine_shard"
+  },
+  "result": {
+    "id": "minecraft:trident",
+    "count": 1
+  }
+}

@@ -23,6 +23,7 @@ import net.minecraft.world.level.Level;
 import survivalblock.volucraft.common.init.VolucraftItems;
 import survivalblock.volucraft.common.recipe.AmalgamationInput;
 
+@SuppressWarnings("unused")
 public class ShapedAmalgamationRecipe extends NormalAmalgamationRecipe {
     public static final MapCodec<ShapedAmalgamationRecipe> MAP_CODEC = RecordCodecBuilder.mapCodec(
             (instance) -> instance.group(
