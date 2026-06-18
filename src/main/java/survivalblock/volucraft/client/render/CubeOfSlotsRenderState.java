@@ -6,7 +6,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Quaternionfc;
-import org.joml.Vector2f;
+import org.joml.Vector3f;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
@@ -18,7 +18,7 @@ import java.util.Map;
  * @param lerpExpansion A value between 0 and 1 that represents how far the cube has been expanded
  */
 public record CubeOfSlotsRenderState(
-        Map<Integer, Vector2f> slotScreenPositions,
+        Map<Integer, Vector3f> slotScreenPositions,
         CubeModel unit,
         CubeModel unitWithItem,
         Identifier texture,
@@ -37,7 +37,7 @@ public record CubeOfSlotsRenderState(
         @Nullable ScreenRectangle bounds
 ) implements PictureInPictureRenderState {
     public CubeOfSlotsRenderState(
-            Map<Integer, Vector2f> slotScreenPositions,
+            Map<Integer, Vector3f> slotScreenPositions,
             CubeModel model,
             CubeModel model1,
             Identifier texture,

@@ -64,34 +64,20 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
             poseStack.translate(0, -9 / 16F, 0); // unpivot point
             transformByIndex(i, translator);
             {
-                // We need the window/PIP bounds to convert from the PoseStack's coordinate system
-                // to absolute screen pixels (mouseX/mouseY space).
-                float xOffset = renderState.x0(); // Left bound of your PIP box (xo + 186)
-                float yOffset = renderState.y0(); // Top bound of your PIP box (yo + 8)
-                float pipWidth = renderState.x1() - renderState.x0();   // 150
-                float pipHeight = renderState.y1() - renderState.y0();  // 150
+                try {
+                    // 1. Grab the current ModelView and Projection matrices directly from the active GPU state
+                    org.joml.Matrix4f modelViewMatrix = new org.joml.Matrix4f(poseStack.last().pose());
 
-                // Grab the current top matrix of the PoseStack
-                Matrix4f currentMatrix = poseStack.last().pose();
+                    // 2. Transform the local center (0,0,0) of this slot into clip space
+                    org.joml.Vector4f clipSpacePos = new org.joml.Vector4f(0, 0, 0, 1.0F);
+                    modelViewMatrix.transform(clipSpacePos);
 
-                // Transform the local origin (0,0,0) of this slot through the current matrix stack
-                Vector3f projectedPos = new Vector3f(0, 0, 0);
-                currentMatrix.transformPosition(projectedPos);
-
-// 1. Get the game window's current GUI scale factor
-                double guiScale = this.minecraft.getWindow().getGuiScale();
-                if (guiScale <= 0) guiScale = 1; // Safeguard division by zero
-
-// 2. Map the rendering coordinates out to absolute 2D window pixels
-                float windowX = xOffset + (pipWidth / 2.0F) * (projectedPos.x + 1.0F);
-                float windowY = yOffset + (pipHeight / 2.0F) * (1.0F - projectedPos.y);
-
-// 3. Convert from Window Space to GUI / Mouse Space
-                float finalMouseSpaceX = (float) (projectedPos.x / guiScale);
-                float finalMouseSpaceY = (float) (projectedPos.y / guiScale);
-
-// Store the normalized mouse-space coordinates
-                renderState.slotScreenPositions().put(i, new Vector2f(finalMouseSpaceX, finalMouseSpaceY));
+                    // 3. Store the raw transformed coordinates
+                    // We keep x, y, and z (depth) to handle accurate mouse intersections later
+                    renderState.slotScreenPositions().put(i, new org.joml.Vector3f(clipSpacePos.x, clipSpacePos.y, clipSpacePos.z));
+                } catch (Exception e) {
+                    // Safeguard against any unexpected matrix state flakiness
+                }
 
                 VertexConsumer buffer = this.bufferSource.getBuffer(modelToUse.renderType(stack.isEmpty() ? texture : translucentTexture));
                 model.renderToBuffer(poseStack, buffer, 15728880, OverlayTexture.NO_OVERLAY);

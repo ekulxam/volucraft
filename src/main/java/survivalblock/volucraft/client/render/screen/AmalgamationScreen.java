@@ -36,7 +36,7 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
     private final CubeModel cubeModel;
     private final CubeModel cubeModelWithItem;
 
-    public final Map<Integer, Vector2f> slotScreenPositions = new ConcurrentHashMap<>();
+    public final Map<Integer, Vector3f> slotScreenPositions = new ConcurrentHashMap<>();
 
     @SuppressWarnings({"FieldCanBeLocal", "unused", "NotNullFieldNotInitialized"})
     private CycleButton<Boolean> expansionButton;
@@ -147,20 +147,49 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
 
     // begin credit: AI (what the heck is this)
     public int getHovered3DSlot(double mouseX, double mouseY) {
-        int closestSlot = -1;
-        double closestDistanceSq = 200.0; // Hitbox radius threshold squared
+        int xo = this.leftPos + 186;
+        int yo = ((this.height - this.imageHeight) / 2) + 8;
+        int pipSize = 150;
 
-        for (Map.Entry<Integer, Vector2f> entry : this.slotScreenPositions.entrySet()) {
-            Vector2f pos = entry.getValue();
-            double dx = mouseX - pos.x;
-            double dy = mouseY - pos.y;
+        // 1. Core boundary check
+        if (mouseX < xo || mouseX > xo + pipSize || mouseY < yo || mouseY > yo + pipSize) {
+            return -1;
+        }
+
+        // Find the absolute visual pixel center of your 3D cube render view box
+        float renderCenterX = xo + (pipSize / 2.0F);
+        float renderCenterY = yo + (pipSize / 2.0F);
+
+        int closestSlot = -1;
+        float closestDepth = Float.NEGATIVE_INFINITY;
+        double closestDistanceSq = Double.MAX_VALUE;
+
+        // Adjust this multiplier based on your visual target size
+        // Start at 1.0F, scale up if your mouse selection area feels too small/shrunken inside the cube
+        float customGeometricScale = 45.0F;
+
+        for (Map.Entry<Integer, org.joml.Vector3f> entry : this.slotScreenPositions.entrySet()) {
+            org.joml.Vector3f pos = entry.getValue();
+
+            // Map the GPU clip space coordinates directly to actual GUI mouse pixels
+            float calculatedMouseX = renderCenterX + (pos.x * customGeometricScale);
+            float calculatedMouseY = renderCenterY - (pos.y * customGeometricScale); // Invert Y for MC GUI flow
+
+            double dx = mouseX - calculatedMouseX;
+            double dy = mouseY - calculatedMouseY;
             double distanceSq = (dx * dx) + (dy * dy);
 
-            if (distanceSq < closestDistanceSq) {
-                closestDistanceSq = distanceSq;
-                closestSlot = entry.getKey();
+            // Selection radius: Is the cursor close enough to this slot's projected center point?
+            if (distanceSq < 256.0) { // 16 pixel radius squared
+                // Prioritize the slot physically closest to the front of the screen
+                if (pos.z > closestDepth) {
+                    closestDepth = pos.z;
+                    closestDistanceSq = distanceSq;
+                    closestSlot = entry.getKey();
+                }
             }
         }
+
         return closestSlot;
     }
     // end credit: AI
