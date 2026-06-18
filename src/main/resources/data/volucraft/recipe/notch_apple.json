@@ -2,14 +2,19 @@
   "type": "volucraft:amalgamation",
   "pattern": [
     [
-      " G ",
-      "GAG",
-      " G "
+      "GGG",
+      "GGG",
+      "GGG"
     ],
     [
-      "   ",
-      " G ",
-      "   "
+      "GGG",
+      "GAG",
+      "GGG"
+    ],
+    [
+      "GGG",
+      "GGG",
+      "GGG"
     ]
   ],
   "key": {

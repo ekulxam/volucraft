@@ -31,7 +31,6 @@ public abstract class NormalAmalgamationRecipe implements AmalgamationRecipe {
 
     protected abstract PlacementInfo createPlacementInfo();
 
-    @NotNull
     @Override
     public final PlacementInfo placementInfo() {
         if (this.placementInfo == null) {

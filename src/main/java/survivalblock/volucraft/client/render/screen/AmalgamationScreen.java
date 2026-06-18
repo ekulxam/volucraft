@@ -48,7 +48,8 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
     public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
         boolean original = super.mouseDragged(event, dx, dy);
         // handle rotation if within bounds of cube area
-        if (((AbstractContainerScreenAccessor) this).volucraft$getClickedSlot() != null) {
+        AbstractContainerScreenAccessor accessor = (AbstractContainerScreenAccessor) this;
+        if (accessor.volucraft$getClickedSlot() != null || !accessor.volucraft$getDraggingItem().isEmpty()) {
             return original;
         }
         final double x = event.x();
