@@ -64,21 +64,6 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
             poseStack.translate(0, -9 / 16F, 0); // unpivot point
             transformByIndex(i, translator);
             {
-                try {
-                    // 1. Grab the current ModelView and Projection matrices directly from the active GPU state
-                    org.joml.Matrix4f modelViewMatrix = new org.joml.Matrix4f(poseStack.last().pose());
-
-                    // 2. Transform the local center (0,0,0) of this slot into clip space
-                    org.joml.Vector4f clipSpacePos = new org.joml.Vector4f(0, 0, 0, 1.0F);
-                    modelViewMatrix.transform(clipSpacePos);
-
-                    // 3. Store the raw transformed coordinates
-                    // We keep x, y, and z (depth) to handle accurate mouse intersections later
-                    renderState.slotScreenPositions().put(i, new org.joml.Vector3f(clipSpacePos.x, clipSpacePos.y, clipSpacePos.z));
-                } catch (Exception e) {
-                    // Safeguard against any unexpected matrix state flakiness
-                }
-
                 VertexConsumer buffer = this.bufferSource.getBuffer(modelToUse.renderType(stack.isEmpty() ? texture : translucentTexture));
                 model.renderToBuffer(poseStack, buffer, 15728880, OverlayTexture.NO_OVERLAY);
             }

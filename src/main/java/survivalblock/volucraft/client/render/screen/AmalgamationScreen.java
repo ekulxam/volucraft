@@ -20,10 +20,6 @@ import survivalblock.volucraft.common.menu.AmalgamationMenu;
 import survivalblock.volucraft.mixin.client.AbstractContainerScreenAccessor;
 
 import java.lang.Math;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import static survivalblock.volucraft.client.render.CubeOfSlotsRenderer.centerFromScale;
 
 public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu> {
     public static final Identifier CRAFTING_TABLE_LOCATION = Volucraft.id("textures/gui/container/amalgamation_alt.png");
@@ -35,8 +31,6 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
 
     private final CubeModel cubeModel;
     private final CubeModel cubeModelWithItem;
-
-    public final Map<Integer, Vector3f> slotScreenPositions = new ConcurrentHashMap<>();
 
     @SuppressWarnings({"FieldCanBeLocal", "unused", "NotNullFieldNotInitialized"})
     private CycleButton<Boolean> expansionButton;
@@ -120,7 +114,6 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         }
         graphics.guiRenderState.addPicturesInPictureState(
                 new CubeOfSlotsRenderState(
-                        this.slotScreenPositions,
                         this.cubeModel,
                         this.cubeModelWithItem,
                         SLOT_CUBE_TEXTURE,
@@ -156,7 +149,7 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
             return -1;
         }
 
-        int guiScale = (int) this.minecraft.getWindow().getGuiScale();
+        int guiScale = this.minecraft.getWindow().getGuiScale();
         if (guiScale <= 0) guiScale = 1;
 
         float fboWidth = pipWidth * guiScale;

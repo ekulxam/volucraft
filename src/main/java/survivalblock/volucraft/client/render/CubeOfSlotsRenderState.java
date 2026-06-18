@@ -6,10 +6,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Quaternionfc;
-import org.joml.Vector3f;
 import org.jspecify.annotations.Nullable;
-
-import java.util.Map;
 
 /**
  * Renders a 3x3x3 collection of slots as cubes
@@ -18,7 +15,6 @@ import java.util.Map;
  * @param lerpExpansion A value between 0 and 1 that represents how far the cube has been expanded
  */
 public record CubeOfSlotsRenderState(
-        Map<Integer, Vector3f> slotScreenPositions,
         CubeModel unit,
         CubeModel unitWithItem,
         Identifier texture,
@@ -37,7 +33,6 @@ public record CubeOfSlotsRenderState(
         @Nullable ScreenRectangle bounds
 ) implements PictureInPictureRenderState {
     public CubeOfSlotsRenderState(
-            Map<Integer, Vector3f> slotScreenPositions,
             CubeModel model,
             CubeModel model1,
             Identifier texture,
@@ -54,6 +49,6 @@ public record CubeOfSlotsRenderState(
             float scale,
             @Nullable ScreenRectangle scissorArea
     ) {
-        this(slotScreenPositions, model, model1, texture, translucent, highlightTexture, items, selected, lerpExpansion, rotation, x0, y0, x1, y1, scale, scissorArea, PictureInPictureRenderState.getBounds(x0, y0, x1, y1, scissorArea));
+        this(model, model1, texture, translucent, highlightTexture, items, selected, lerpExpansion, rotation, x0, y0, x1, y1, scale, scissorArea, PictureInPictureRenderState.getBounds(x0, y0, x1, y1, scissorArea));
     }
 }
