@@ -145,51 +145,56 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         int xo = this.leftPos + 186;
         int yo = ((this.height - this.imageHeight) / 2) + 8;
 
-        // 1. Viewport Boundary Check
+        // 1. Viewport Boundary Check (150x150 region)
         if (mouseX < xo || mouseX > xo + 150 || mouseY < yo || mouseY > yo + 150) {
             return -1;
         }
 
-        // 2. Map 2D Screen Pixel offsets to a normalized (-1.0 to 1.0) viewport plane
+        // 2. Normalized Device Coordinates [-1.0 to 1.0]
         float ndcX = (float) (((mouseX - xo) / 150.0) * 2.0 - 1.0);
-        float ndcY = (float) (((mouseY - yo) / 150.0) * 2.0 - 1.0); // REMOVED the "1.0 -" inversion to match your flip matrix
+        // Explicitly re-invert the screen coordinate so moving mouse DOWN moves ray DOWN
+        float ndcY = (float) (1.0 - ((mouseY - yo) / 150.0) * 2.0);
 
-        // 3. Establish standard orthographic projection boundaries based on your scale (11F)
-        // Adjust these multipliers if your 3D cube model feels slightly offset from your cursor tip
-        float scaleFactor = 11.0F / 4.0F;
-        Vector3f rayOrigin = new Vector3f(ndcX * scaleFactor, ndcY * scaleFactor, 10.0F);
+        // 3. Orthographic Frame Projection Scale Alignment
+        // At scale 11F, the 150x150 viewport spans exactly from -1.375 to 1.375 in model space
+        float orthoSize = 11.0F / 8.0F; // 1.375F
+        Vector3f rayOrigin = new Vector3f(ndcX * orthoSize, ndcY * orthoSize, 10.0F);
         Vector3f rayDir = new Vector3f(0, 0, -1);
 
-        // 4. UN-ROTATE the Ray using your inverse quaternion matrix setup
+        // 4. UN-ROTATE the Ray
         Quaternionf invRot = new Quaternionf().rotateX(rot.y).rotateY(-rot.x).invert();
         rayOrigin.rotate(invRot);
         rayDir.rotate(invRot);
 
-        // 5. Apply the exact inverted space translation offsets applied by CubeOfSlotsRenderer
+        // 5. Align with Renderer Transforms
         float expand = (Math.clamp(this.expansion, 0, 1) * 1.5F + 1) * 1.2F;
-        float pivotY = 9 / 16F;
-        float renderCenterOffset = centerFromScale(11F); // Matches your 11F layout setting (6.5F)
+        float pivotY = 9 / 16F;          // 0.5625F
+        float renderCenter = 6.5F;       // centerFromScale(11F)
 
-        // Translate the ray to match the "flip" and "centerFromScale" rendering modifications
-        rayOrigin.y += renderCenterOffset;
-        rayOrigin.y -= pivotY;
+        // Because your renderer uses mulPose(flip) on the matrix, it flips Y model signs.
+        // We adjust our ray center tracking to mirror that model offset:
+        rayOrigin.y += (renderCenter - pivotY);
 
         int closestSlot = -1;
         float closestDistance = Float.MAX_VALUE;
 
-        // 6. Test intersections with the 27 grid boxes
+        // 6. Test intersections with all 27 boxes
         for (int i = 0; i < Volucraft.SLOTS; i++) {
             int slotX = (i % Volucraft.SIDE_LENGTH) - 1;
             int slotZ = ((i / Volucraft.SIDE_LENGTH) % Volucraft.SIDE_LENGTH) - 1;
             int slotY = (i / (Volucraft.SIDE_LENGTH * Volucraft.SIDE_LENGTH)) - 1;
 
-            // Bounding limits accounting for layout expansion space
-            float minX = (slotX * expand) - 0.5F;
-            float maxX = (slotX * expand) + 0.5F;
-            float minY = (slotY * expand) - 0.5F;
-            float maxY = (slotY * expand) + 0.5F;
-            float minZ = (slotZ * expand) - 0.5F;
-            float maxZ = (slotZ * expand) + 0.5F;
+            // Bounding box construction matching transformByIndex
+            float cx = slotX * expand;
+            float cy = slotY * expand;
+            float cz = slotZ * expand;
+
+            float minX = cx - 0.5F;
+            float maxX = cx + 0.5F;
+            float minY = cy - 0.5F;
+            float maxY = cy + 0.5F;
+            float minZ = cz - 0.5F;
+            float maxZ = cz + 0.5F;
 
             float t = intersectRayAABB(rayOrigin, rayDir, minX, maxX, minY, maxY, minZ, maxZ);
             if (t >= 0 && t < closestDistance) {
