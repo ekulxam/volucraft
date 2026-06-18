@@ -151,21 +151,15 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         int yo = ((this.height - this.imageHeight) / 2) + 8;
         int pipSize = 150;
 
-        // 1. Core window bounds check
         if (mouseX < xo || mouseX > xo + pipSize || mouseY < yo || mouseY > yo + pipSize) {
             return -1;
         }
 
         float expand = (Math.clamp(this.expansion, 0, 1) * 1.5F + 1) * 1.2F;
-        float pivotY = 9.0F / 16.0F; // 0.5625F
+        float pivotY = 9.0F / 16.0F;
 
-        // 2. Generate the view transformation matrix matching your render pipeline exactly
         Matrix4f transformMatrix = new Matrix4f();
-
-        // Step A: Base Entity Flip (Y = -Y, Z = -Z)
         transformMatrix.scale(1.0F, -1.0F, -1.0F);
-
-        // Step B: Pivot manipulation and Rotation
         transformMatrix.translate(0, pivotY, 0);
         transformMatrix.rotate(new Quaternionf().rotateX(rot.y).rotateY(-rot.x));
         transformMatrix.translate(0, -pivotY, 0);
@@ -174,44 +168,41 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         double closestDistanceSq = Double.MAX_VALUE;
         float closestZ = Float.NEGATIVE_INFINITY;
 
-        // Find the visual pixel center of your 150x150 PIP area
+        // --- FINE TUNING CALIBRATION ---
         float renderCenterX = xo + (pipSize / 2.0F);
-        float renderCenterY = yo + (pipSize / 2.0F);
 
-        // --- THE TUNING LEVERS ---
-        // Since 11F * 4.5F gave massive progress on X, let's keep the baseline scale,
-        // but separate them into X and Y multipliers to fix the vertical compression/inversion.
-        float baseScale = 11.0F * 4.5F;
-        float scaleX = baseScale;
-        float scaleY = baseScale; // Adjust this if the rows feel too squished or too far apart!
+        // Shift the center calculation slightly UPWARD (subtracting pixels)
+        // to fix having to drag your mouse too far down for the front slot
+        float renderCenterY = yo + (pipSize / 2.0F) - 12.0F;
 
-        // 3. Loop through every slot to project its 3D space out into 2D UI coordinates
+        // Keep X stable since it hits the center column perfectly
+        float scaleX = 11.0F * 4.5F;
+
+        // Aggressively amplify Y scale to unpack the squashed top/bottom row calculations
+        float scaleY = scaleX * 1.65F;
+
         for (int i = 0; i < Volucraft.SLOTS; i++) {
             int slotX = (i % Volucraft.SIDE_LENGTH) - 1;
             int slotZ = ((i / Volucraft.SIDE_LENGTH) % Volucraft.SIDE_LENGTH) - 1;
             int slotY = (i / (Volucraft.SIDE_LENGTH * Volucraft.SIDE_LENGTH)) - 1;
 
-            // Position determined via transformByIndex(i, translator)
             Vector4f projectedPos = new Vector4f(slotX * expand, slotY * expand, slotZ * expand, 1.0F);
-
-            // Transform our local point using the compiled view matrix state
             projectedPos.mul(transformMatrix);
 
-            // Convert the transformed positions directly into UI Screen Pixels
             float screenX = renderCenterX + (projectedPos.x * scaleX);
-            float screenY = renderCenterY - (projectedPos.y * scaleY); // Fllipped in matrix step A
+            float screenY = renderCenterY + (projectedPos.y * scaleY);
 
-            // Calculate proximity to the mouse cursor pointer
             double dx = mouseX - screenX;
             double dy = mouseY - screenY;
             double distanceSq = (dx * dx) + (dy * dy);
 
-            // Increased hit detection threshold radius to be more forgiving for 3D bounds
-            if (distanceSq < 400.0) { // 20-pixel radius bounds
-                // Prioritize slots physically closest to the foreground screen
+            // Open up the hitbox radius significantly (roughly a 26-pixel radius)
+            // to accommodate the newly stretched vertical rows
+            if (distanceSq < 676.0) {
                 if (projectedPos.z > closestZ) {
                     closestZ = projectedPos.z;
                     closestSlot = i;
+                    closestDistanceSq = distanceSq;
                 }
             }
         }
