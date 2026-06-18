@@ -151,63 +151,62 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         int yo = ((this.height - this.imageHeight) / 2) + 8;
         int pipSize = 150;
 
+        // 1. Frame boundaries check
         if (mouseX < xo || mouseX > xo + pipSize || mouseY < yo || mouseY > yo + pipSize) {
             return -1;
         }
 
-        float localCenterX = xo + (pipSize / 2.0F);
-        float localCenterY = yo + (pipSize / 2.0F);
+        // 2. Convert mouse screen pixels directly to NDC space [-1.0, 1.0]
+        float ndcX = (float) (((mouseX - xo) / (double) pipSize) * 2.0 - 1.0);
+        // Invert Y because Minecraft GUI space grows downward, but standard NDC grows upward
+        float ndcY = (float) (1.0 - ((mouseY - yo) / (double) pipSize) * 2.0);
 
-        // Matches your exact expansion math
+        // 3. Match the exact orthographic bounds used by the 11F rendering scale
+        // This scales the picking plane to map perfectly against the unit size of the blocks
+        float orthoScale = 11.0F / 8.0F;
+        float rayX = ndcX * orthoScale;
+        float rayY = ndcY * orthoScale;
+
         float expand = (Math.clamp(this.expansion, 0, 1) * 1.5F + 1) * 1.2F;
         float pivotY = 9.0F / 16.0F;
 
-        Matrix4f viewMatrix = new Matrix4f();
-        viewMatrix.rotateX(rot.y);
-        viewMatrix.rotateY(-rot.x);
+        // 4. Construct a unified slot transform matrix
+        Matrix4f localTransform = new Matrix4f();
+        localTransform.rotateX(rot.y);
+        localTransform.rotateY(-rot.x);
 
         int closestSlot = -1;
         float closestDepth = Float.NEGATIVE_INFINITY;
-
-        // --- THE SCALE TUNING LEVERS ---
-        // 1. Base translation scale: Controls the overall size of the selection area
-        float viewProjectionScale = 38.0F;
-
-        // 2. Expansion multiplier: Adjust this if rows are out of sync when expanded vs shrunk
-        float stretchFactor = 1.0F;
 
         for (int i = 0; i < Volucraft.SLOTS; i++) {
             int slotX = (i % Volucraft.SIDE_LENGTH) - 1;
             int slotZ = ((i / Volucraft.SIDE_LENGTH) % Volucraft.SIDE_LENGTH) - 1;
             int slotY = (i / (Volucraft.SIDE_LENGTH * Volucraft.SIDE_LENGTH)) - 1;
 
-            // Apply stretch factor directly to local spatial layouts
-            Vector3f localPos = new Vector3f(
-                    slotX * expand * stretchFactor,
-                    slotY * expand * stretchFactor,
-                    slotZ * expand * stretchFactor
-            );
+            // Trace the exact placement vector geometry of the slot block
+            Vector3f transformedCenter = new Vector3f(slotX * expand, slotY * expand, slotZ * expand);
 
-            localPos.y -= pivotY;
-            viewMatrix.transformPosition(localPos);
-            localPos.y += pivotY;
+            // Run the rotation sequence around the target pivot point
+            transformedCenter.y -= pivotY;
+            localTransform.transformPosition(transformedCenter);
+            transformedCenter.y += pivotY;
 
-            // Strip renderCenter completely—keep the clean, unshifted core that gave you huge progress
-            float finalX = localPos.x;
-            float finalY = -localPos.y; // Keep the working inversion check
-            float finalZ = -localPos.z;
+            // Apply the LivingEntity render pipeline flip adjustment (Y = -Y, Z = -Z)
+            transformedCenter.y = -transformedCenter.y;
+            transformedCenter.z = -transformedCenter.z;
 
-            float screenX = localCenterX + (finalX * viewProjectionScale);
-            float screenY = localCenterY + (finalY * viewProjectionScale);
+            // 5. Check if our unprojected ray points cross the boundaries of the slot block
+            // A standard block hitbox boundary radius spans roughly 0.5F units
+            float hitRadius = 0.5F;
+            float minX = transformedCenter.x - hitRadius;
+            float maxX = transformedCenter.x + hitRadius;
+            float minY = transformedCenter.y - hitRadius;
+            float maxY = transformedCenter.y + hitRadius;
 
-            double dx = mouseX - screenX;
-            double dy = mouseY - screenY;
-            double distanceSq = (dx * dx) + (dy * dy);
-
-            // Increase the capture footprint (e.g., 400.0 = 20px radius) to make selections more forgiving
-            if (distanceSq < 400.0) {
-                if (finalZ > closestDepth) {
-                    closestDepth = finalZ;
+            if (rayX >= minX && rayX <= maxX && rayY >= minY && rayY <= maxY) {
+                // Sort by depth ordering to capture the block elements visually in the foreground
+                if (transformedCenter.z > closestDepth) {
+                    closestDepth = transformedCenter.z;
                     closestSlot = i;
                 }
             }
