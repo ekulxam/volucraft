@@ -21,6 +21,8 @@ import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.menu.AmalgamationMenu;
 import survivalblock.volucraft.mixin.client.AbstractContainerScreenAccessor;
 
+import static survivalblock.volucraft.client.render.CubeOfSlotsRenderer.centerFromScale;
+
 public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu> {
     public static final Identifier CRAFTING_TABLE_LOCATION = Volucraft.id("textures/gui/container/amalgamation_alt.png");
     public static final Identifier SLOT_CUBE_TEXTURE = Volucraft.id("textures/gui/container/slots.png");
@@ -143,47 +145,49 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         int xo = this.leftPos + 186;
         int yo = ((this.height - this.imageHeight) / 2) + 8;
 
-        // Check if mouse is within the 150x150 3D viewport region
+        // 1. Viewport Boundary Check
         if (mouseX < xo || mouseX > xo + 150 || mouseY < yo || mouseY > yo + 150) {
             return -1;
         }
 
-        // Normalize mouse coordinates to Normalized Device Coordinates (NDC) [-1 to 1]
+        // 2. Map 2D Screen Pixel offsets to a normalized (-1.0 to 1.0) viewport plane
         float ndcX = (float) (((mouseX - xo) / 150.0) * 2.0 - 1.0);
-        float ndcY = (float) (1.0 - ((mouseY - yo) / 150.0) * 2.0); // Flip Y for OpenGL/JOML standard
+        float ndcY = (float) (((mouseY - yo) / 150.0) * 2.0 - 1.0); // REMOVED the "1.0 -" inversion to match your flip matrix
 
-        // Reconstruct the Ray from the viewpoint projection matrix.
-        // Assuming an Orthographic view style for UI panels, the ray direction is straight forward (Z-negative)
-        Vector3f rayOrigin = new Vector3f(ndcX * 2.5F, ndcY * 2.5F, 5.0F); // Scale factor matches your rendering scale
+        // 3. Establish standard orthographic projection boundaries based on your scale (11F)
+        // Adjust these multipliers if your 3D cube model feels slightly offset from your cursor tip
+        float scaleFactor = 11.0F / 4.0F;
+        Vector3f rayOrigin = new Vector3f(ndcX * scaleFactor, ndcY * scaleFactor, 10.0F);
         Vector3f rayDir = new Vector3f(0, 0, -1);
 
-        // UN-ROTATE the ray by the screen's inverse rotation quaternion
-        // This allows us to test intersections against a perfectly flat, aligned 3D grid!
+        // 4. UN-ROTATE the Ray using your inverse quaternion matrix setup
         Quaternionf invRot = new Quaternionf().rotateX(rot.y).rotateY(-rot.x).invert();
         rayOrigin.rotate(invRot);
         rayDir.rotate(invRot);
 
-        // Account for pivot and model centering scale adjustments matching CubeOfSlotsRenderer
+        // 5. Apply the exact inverted space translation offsets applied by CubeOfSlotsRenderer
         float expand = (Math.clamp(this.expansion, 0, 1) * 1.5F + 1) * 1.2F;
         float pivotY = 9 / 16F;
+        float renderCenterOffset = centerFromScale(11F); // Matches your 11F layout setting (6.5F)
 
-        rayOrigin.y += pivotY; // Adjust for the model's pivot translation offset
+        // Translate the ray to match the "flip" and "centerFromScale" rendering modifications
+        rayOrigin.y += renderCenterOffset;
+        rayOrigin.y -= pivotY;
 
         int closestSlot = -1;
         float closestDistance = Float.MAX_VALUE;
 
-        // Loop through all 27 slots to find the closest bounding-box hit
+        // 6. Test intersections with the 27 grid boxes
         for (int i = 0; i < Volucraft.SLOTS; i++) {
-            // Find local slot 3D offsets exactly like Phanastrae's algorithm
             int slotX = (i % Volucraft.SIDE_LENGTH) - 1;
             int slotZ = ((i / Volucraft.SIDE_LENGTH) % Volucraft.SIDE_LENGTH) - 1;
             int slotY = (i / (Volucraft.SIDE_LENGTH * Volucraft.SIDE_LENGTH)) - 1;
 
-            // Apply scale expansion offset
+            // Bounding limits accounting for layout expansion space
             float minX = (slotX * expand) - 0.5F;
             float maxX = (slotX * expand) + 0.5F;
-            float minY = (slotY * expand) - 0.5F + pivotY;
-            float maxY = (slotY * expand) + 0.5F + pivotY;
+            float minY = (slotY * expand) - 0.5F;
+            float maxY = (slotY * expand) + 0.5F;
             float minZ = (slotZ * expand) - 0.5F;
             float maxZ = (slotZ * expand) + 0.5F;
 

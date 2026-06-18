@@ -115,7 +115,7 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
         translator.translate(x, y, z);
     }
 
-    protected static float centerFromScale(float scale) {
+    public static float centerFromScale(float scale) {
         if (scale == 40F) {
             return 1.5F;
         }
