@@ -184,21 +184,28 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
             // Establish the un-rotated local point vector based on slot positioning
             Vector3f localPos = new Vector3f(slotX * expand, slotY * expand, slotZ * expand);
 
-            // Mimic pivot shift: translate down by pivot before rotating
+            // 1. Pivot manipulation (shift down by pivot before rotating)
             localPos.y -= pivotY;
 
-            // Apply our reliable rotation matrix
+            // 2. Apply our reliable rotation matrix
             viewMatrix.transformPosition(localPos);
 
-            // Restore pivot offset
+            // 3. Restore pivot offset
             localPos.y += pivotY;
 
-            // Standard LivingEntity master flip correction (Y = -Y, Z = -Z)
+            // --- CRITICAL CORRECTION TO MATCH YOUR RENDERER STACK ---
+            // In your renderer:
+            // poseStack.mulPose(flip) -> Flips Y and Z
+            // poseStack.translate(0, 6.5F, 0) -> Shuts the position on the flipped axis
+
+            float renderCenter = 6.5F; // centerFromScale(11F)
+
+            // Apply the Master Flip *and* the center translation offset together
             float finalX = localPos.x;
-            float finalY = -localPos.y;
+            float finalY = -(localPos.y + renderCenter); // Flip the entire shifted Y position
             float finalZ = -localPos.z;
 
-            // Project the local 3D points directly into clear, reliable UI pixel destinations
+            // Project the local 3D points directly into UI pixel destinations
             float screenX = localCenterX + (finalX * viewProjectionScale);
             float screenY = localCenterY + (finalY * viewProjectionScale);
 
