@@ -151,13 +151,14 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         }
 
         // 2. Map 2D mouse to NDC space [-1, 1]
-        // Note: Minecraft GUI Y-axis goes downwards, standard NDC Y goes upwards.
         float ndcX = (float) (((mouseX - xo) / 150.0) * 2.0 - 1.0);
         float ndcY = (float) (((mouseY - yo) / 150.0) * 2.0 - 1.0);
 
         // 3. Scale matching your orthographic viewport representation
-        // Assuming scale 11F maps to this specific sizing ratio:
-        float orthoScale = 11.0F / 8.0F;
+        // Since the rendering pipeline scales the matrices by 11F,
+        // we divide our ray coordinates by 11F to map back into local space.
+        float renderingScale = 11.0F;
+        float orthoScale = (11.0F / 8.0F) / renderingScale; // effectively 1.0F / 8.0F now
         float rayX = ndcX * orthoScale;
         float rayY = ndcY * orthoScale;
 
