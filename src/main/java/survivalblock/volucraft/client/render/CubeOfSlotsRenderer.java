@@ -24,6 +24,9 @@ import java.lang.Math;
 @Environment(EnvType.CLIENT)
 public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRenderState> {
 
+    public static final Quaternionfc FLIP = new Quaternionf().rotateZ((float) Math.PI);
+    public static final float CUBE_CENTER_OFFSET = 9 / 16F; // cubes are 18x18 in blockbench, so half that and div by 16
+
     private final Minecraft minecraft;
 
     public CubeOfSlotsRenderer(PictureInPictureRendererRegistry.Context context) {
@@ -42,15 +45,14 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
         final CubeModel model = renderState.unit();
         final CubeModel modelWithItem = renderState.unitWithItem();
         final Quaternionfc rot = renderState.rotation();
-        final Quaternionfc flip = new Quaternionf().rotateZ((float) Math.PI);
-        final float expand = (Math.clamp(renderState.lerpExpansion(), 0, 1) * 1.5F + 1) * 1.2F;
+        final float expand = calculateExpansion(renderState.lerpExpansion());
         final Translator translator = (x, y, z) -> poseStack.translate(x * expand, y * expand, z * expand);
         final NonNullList<ItemStack> items = renderState.items();
         final int selected = renderState.selected();
         final Identifier texture = renderState.texture();
         final Identifier translucentTexture = renderState.translucent();
 
-        poseStack.mulPose(flip); // because LivingEntity model(?)
+        poseStack.mulPose(FLIP); // because LivingEntity model(?)
         poseStack.translate(0, centerFromScale(renderState.scale()), 0); // translate to center
         for (int i = 0; i < Volucraft.SLOTS; i++) {
             ItemStack stack = items.get(i);
@@ -58,10 +60,10 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
             this.minecraft.gameRenderer.getLighting().setupFor(Lighting.Entry.ENTITY_IN_UI);
             poseStack.pushPose(); // push0
             poseStack.pushPose(); // push1
-            poseStack.translate(0, (9 / 16F), 0); // pivot point
-            poseStack.mulPose(flip);
+            poseStack.translate(0, CUBE_CENTER_OFFSET, 0); // pivot point
+            poseStack.mulPose(FLIP);
             poseStack.mulPose(rot); // rotate around pivot point
-            poseStack.translate(0, -9 / 16F, 0); // unpivot point
+            poseStack.translate(0, -CUBE_CENTER_OFFSET, 0); // unpivot point
             transformByIndex(i, translator);
             {
                 VertexConsumer buffer = this.bufferSource.getBuffer(modelToUse.renderType(stack.isEmpty() ? texture : translucentTexture));
@@ -69,9 +71,9 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
             }
             if (i == selected) {
                 poseStack.pushPose();
-                poseStack.translate(0, (9 / 16F), 0); // pivot point
+                poseStack.translate(0, CUBE_CENTER_OFFSET, 0); // pivot point
                 poseStack.scale(1.1F, 1.1F, 1.1F);
-                poseStack.translate(0, -9 / 16F, 0); // unpivot point
+                poseStack.translate(0, -CUBE_CENTER_OFFSET, 0); // unpivot point
                 VertexConsumer buffer = this.bufferSource.getBuffer(modelToUse.renderType(renderState.highlightTexture()));
                 model.renderToBuffer(poseStack, buffer, -1, OverlayTexture.NO_OVERLAY);
                 poseStack.popPose();
@@ -105,13 +107,17 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
         poseStack.popPose();
     }
 
+    public static float calculateExpansion(float lerpExpansion) {
+        return (Math.clamp(lerpExpansion, 0, 1) * 1.5F + 1) * 1.2F;
+    }
+
     /**
      * Phanastrae's algorithm
      */
-    protected static void transformByIndex(int index, Translator translator) {
+    public static void transformByIndex(int index, Translator translator) {
         int x = (index % Volucraft.SIDE_LENGTH) - 1;
-        int z = ((index / Volucraft.SIDE_LENGTH) % Volucraft.SIDE_LENGTH) - 1;
         int y = (index / (Volucraft.SIDE_LENGTH * Volucraft.SIDE_LENGTH)) - 1;
+        int z = ((index / Volucraft.SIDE_LENGTH) % Volucraft.SIDE_LENGTH) - 1;
 
         translator.translate(x, y, z);
     }

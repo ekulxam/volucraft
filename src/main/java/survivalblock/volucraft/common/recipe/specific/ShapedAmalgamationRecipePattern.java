@@ -19,9 +19,12 @@ import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.ShapedRecipePattern;
+import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.recipe.AmalgamationInput;
 
 import static net.minecraft.world.item.crafting.ShapedRecipePattern.EMPTY_SLOT;
+import static survivalblock.volucraft.mixin.ShapedRecipePatternAccessor.volucraft$invokeFirstNonEmpty;
+import static survivalblock.volucraft.mixin.ShapedRecipePatternAccessor.volucraft$invokeLastNonEmpty;
 
 /**
  * @see ShapedRecipePattern
@@ -111,92 +114,52 @@ public final class ShapedAmalgamationRecipePattern {
 			: DataResult.success(new ShapedAmalgamationRecipePattern(length, width, height, ingredients, Optional.of(data)));
 	}
 
-    /**
-     * I'm too tired so this is AI-ed for now
-     */
-	@VisibleForTesting
-	public static String[][] shrink(final List<List<String>> pattern) {
+    @VisibleForTesting
+    public static String[][] shrink(final List<List<String>> pattern) {
         if (pattern.isEmpty()) {
             return new String[0][0];
         }
 
-        int minZ = Integer.MAX_VALUE, maxZ = Integer.MIN_VALUE;
-        int minY = Integer.MAX_VALUE, maxY = Integer.MIN_VALUE;
-        int minX = Integer.MAX_VALUE, maxX = Integer.MIN_VALUE;
+        // I'm doing this from memory so I can technically say it's mine
+        boolean allEmpty = true;
+        int minX = Volucraft.SIDE_LENGTH - 1;
+        int maxX = 0;
+        int minY = Volucraft.SIDE_LENGTH - 1;
+        int maxY = 0;
+        int minZ = Volucraft.SIDE_LENGTH - 1;
+        int maxZ = 0;
 
-        boolean empty = true;
-
-        // Step 1: Scan the 3D space to find the bounding box of non-empty slots
         for (int z = 0; z < pattern.size(); z++) {
             List<String> layer = pattern.get(z);
-
             for (int y = 0; y < layer.size(); y++) {
-                String row = layer.get(y);
+                String line = layer.get(y);
+                int lastNonSpace = volucraft$invokeLastNonEmpty(line);
+                if (lastNonSpace >= 0) {
+                    allEmpty = false;
 
-                int firstX = firstNonEmpty(row);
-                int lastX = lastNonEmpty(row);
-
-                // If lastX >= 0, it means this row contains actual crafting ingredients
-                if (lastX >= 0) {
-                    empty = false;
-
-                    // Update Z (Layer) boundaries
-                    minZ = Math.min(minZ, z);
-                    maxZ = Math.max(maxZ, z);
-
-                    // Update Y (Row) boundaries
+                    minX = Math.min(minX, volucraft$invokeFirstNonEmpty(line));
+                    maxX = Math.max(maxX, lastNonSpace);
                     minY = Math.min(minY, y);
                     maxY = Math.max(maxY, y);
-
-                    // Update X (Column) boundaries
-                    minX = Math.min(minX, firstX);
-                    maxX = Math.max(maxX, lastX);
+                    minZ = Math.min(minZ, z);
+                    maxZ = Math.max(maxZ, z);
                 }
             }
         }
 
-        // If the entire 3D grid is empty spaces, return an empty 2D array
-        if (empty) {
+        //noinspection ConstantValue (intellij doesn't like my accessors, I suppose)
+        if (allEmpty) {
             return new String[0][0];
         }
 
-        // Step 2: Slice and build the final trimmed 3D array [Z][Y] -> String (X)
-        int depth = maxZ - minZ + 1;
-        int height = maxY - minY + 1;
-        String[][] trimmedRecipe = new String[depth][height];
-
-        for (int z = 0; z < depth; z++) {
-            List<String> originalLayer = pattern.get(z + minZ);
-            for (int y = 0; y < height; y++) {
-                String originalRow = originalLayer.get(y + minY);
-                // Substring handles trimming the X (columns) dimension
-                trimmedRecipe[z][y] = originalRow.substring(minX, maxX + 1);
+        String[][] result = new String[maxZ - minZ + 1][maxY - minY + 1];
+        for (int z = 0; z < result.length; z++) {
+            for (int y = 0; y < result[0].length; y++) {
+                result[z][y] = pattern.get(z + minZ).get(y + minY).substring(minX, maxX + 1); // I'm slightly confused as to why we add 1 here but vanilla does it too so I suppose it's correct
             }
         }
-
-        return trimmedRecipe;
-	}
-    // end AI
-
-	private static int firstNonEmpty(final String line) {
-		int index = 0;
-
-		while (index < line.length() && line.charAt(index) == EMPTY_SLOT) {
-			index++;
-		}
-
-		return index;
-	}
-
-	private static int lastNonEmpty(final String line) {
-		int index = line.length() - 1;
-
-		while (index >= 0 && line.charAt(index) == EMPTY_SLOT) {
-			index--;
-		}
-
-		return index;
-	}
+        return result;
+    }
 
 	public boolean matches(final AmalgamationInput input) {
         return new Matcher().matches(input);

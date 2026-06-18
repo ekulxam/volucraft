@@ -60,7 +60,7 @@ public class AbstractContainerScreenMixin {
         if (!((AbstractContainerScreen) (Object) this instanceof AmalgamationScreen amal)) {
             return;
         }
-        int maybe3D = amal.getHovered3DSlot(x, y);
+        int maybe3D = amal.getHovered3DSlot(x, y, AmalgamationScreen.PICTURE_IN_PICTURE_SCALE, amal.rotation());
         if (maybe3D >= 0) {
             cir.setReturnValue(this.menu.getSlot(maybe3D + 1));
         }

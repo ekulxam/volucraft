@@ -1,5 +1,9 @@
 {
   "type": "volucraft:amalgamation",
+  "key": {
+    "/": "minecraft:prismarine_shard",
+    "V": "minecraft:bone"
+  },
   "pattern": [
     [
       "V V",
@@ -17,12 +21,7 @@
       "/  "
     ]
   ],
-  "key": {
-    "V": "minecraft:bone",
-    "/": "minecraft:prismarine_shard"
-  },
   "result": {
-    "id": "minecraft:trident",
-    "count": 1
+    "id": "minecraft:trident"
   }
 }

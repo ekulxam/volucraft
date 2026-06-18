@@ -2,8 +2,12 @@ package survivalblock.volucraft.common;
 
 import net.fabricmc.api.ModInitializer;
 
+import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
+import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.stats.StatFormatter;
 import net.minecraft.stats.Stats;
@@ -15,6 +19,8 @@ import survivalblock.volucraft.common.init.VolucraftMenuTypes;
 import survivalblock.volucraft.common.init.VolucraftRecipeTypes;
 import survivalblock.volucraft.common.recipe.specific.ShapedAmalgamationRecipe;
 
+import java.util.function.Supplier;
+
 public class Volucraft implements ModInitializer {
 	public static final String MOD_ID = "volucraft";
 
@@ -23,6 +29,10 @@ public class Volucraft implements ModInitializer {
     public static final int SIDE_LENGTH = 3;
     public static final int SLOTS = SIDE_LENGTH * SIDE_LENGTH * SIDE_LENGTH;
 
+    public static final Identifier EXAMPLE_RECIPES_PACK = Volucraft.id("example_recipes");
+
+    public static boolean datapacking = false;
+
 	@Override
 	public void onInitialize() {
         VolucraftRecipeTypes.init();
@@ -30,6 +40,12 @@ public class Volucraft implements ModInitializer {
         VolucraftItems.init();
         VolucraftMenuTypes.init();
         Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, Volucraft.id("amalgamation"), ShapedAmalgamationRecipe.SERIALIZER);
+        
+        FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent(modContainer ->
+                Volucraft.wrapDatapack(() ->
+                        ResourceLoader.registerBuiltinPack(EXAMPLE_RECIPES_PACK, modContainer, Component.translatable("dataPack.volucraft.example_recipes.name"), PackActivationType.NORMAL)
+                )
+        );
 	}
 
     public static Identifier id(String path) {
@@ -41,5 +57,12 @@ public class Volucraft implements ModInitializer {
         Registry.register(BuiltInRegistries.CUSTOM_STAT, id, location);
         Stats.CUSTOM.get(location, formatter);
         return location;
+    }
+
+    public static <T> T wrapDatapack(Supplier<T> supplier) {
+        datapacking = true;
+        T obj = supplier.get();
+        datapacking = false;
+        return obj;
     }
 }

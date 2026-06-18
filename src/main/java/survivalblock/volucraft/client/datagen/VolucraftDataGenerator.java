@@ -2,6 +2,7 @@ package survivalblock.volucraft.client.datagen;
 
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
+import survivalblock.volucraft.common.Volucraft;
 
 public class VolucraftDataGenerator implements DataGeneratorEntrypoint {
 	@Override
@@ -10,5 +11,9 @@ public class VolucraftDataGenerator implements DataGeneratorEntrypoint {
         pack.addProvider(VolucraftModelGenerator::new);
         pack.addProvider(VolucraftEnUsLangGenerator::new);
         pack.addProvider(VolucraftLootTableGenerator::new);
+        FabricDataGenerator.Pack exampleRecipes = Volucraft.wrapDatapack(
+                () -> fabricDataGenerator.createBuiltinResourcePack(Volucraft.EXAMPLE_RECIPES_PACK)
+        );
+        exampleRecipes.addProvider(VolucraftRecipeGenerator::new);
 	}
 }

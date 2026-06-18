@@ -22,5 +22,7 @@ public class VolucraftEnUsLangGenerator extends FabricLanguageProvider {
         translationBuilder.add("container.volucraft.amalgamating.expandbutton", "Expansion");
         translationBuilder.add("container.volucraft.amalgamating.expandbutton.expand", "Expand");
         translationBuilder.add("container.volucraft.amalgamating.expandbutton.shrink", "Shrink");
+
+        translationBuilder.add("dataPack.volucraft.example_recipes.name", "Volucraft: Example Recipes");
     }
 }
