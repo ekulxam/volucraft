@@ -198,7 +198,7 @@ public final class ShapedAmalgamationRecipePattern {
 		return index;
 	}
 
-	private boolean matches(final AmalgamationInput input) {
+	public boolean matches(final AmalgamationInput input) {
         return new Matcher().matches(input);
 	}
 
@@ -274,7 +274,12 @@ public final class ShapedAmalgamationRecipePattern {
      */
     public class Matcher {
         public static final int[][] AXES_PERMUTATIONS = {
-                {0, 1, 2}, {0, 2, 1}, {1, 0, 2}, {1, 2, 0}, {2, 0, 1}, {2, 1, 0}
+                {0, 1, 2},
+                {0, 2, 1},
+                {1, 0, 2},
+                {1, 2, 0},
+                {2, 0, 1},
+                {2, 1, 0}
         };
 
         protected boolean matches(AmalgamationInput input) {
@@ -352,12 +357,12 @@ public final class ShapedAmalgamationRecipePattern {
         }
 
         private int transformX(int x, int y, int z, int face, int spin, boolean mirror, int maxLength) {
-            if (mirror) x = ShapedAmalgamationRecipePattern.this.length - 1 - x;
-            return switch ((face + spin) % 3) {
+            int targetX = switch ((face + spin) % 3) {
                 case 1 -> (face >= 3) ? maxLength - 1 - y : y;
                 case 2 -> (face >= 3) ? maxLength - 1 - z : z;
                 default -> (face >= 3) ? maxLength - 1 - x : x;
             };
+            return mirror ? maxLength - 1 - targetX : targetX;
         }
 
         private int transformY(int x, int y, int z, int face, int spin, int maxWidth) {

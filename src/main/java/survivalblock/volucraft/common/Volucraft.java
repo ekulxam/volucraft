@@ -13,6 +13,7 @@ import survivalblock.volucraft.common.init.VolucraftBlocks;
 import survivalblock.volucraft.common.init.VolucraftItems;
 import survivalblock.volucraft.common.init.VolucraftMenuTypes;
 import survivalblock.volucraft.common.init.VolucraftRecipeTypes;
+import survivalblock.volucraft.common.recipe.specific.ShapedAmalgamationRecipe;
 
 public class Volucraft implements ModInitializer {
 	public static final String MOD_ID = "volucraft";
@@ -28,6 +29,7 @@ public class Volucraft implements ModInitializer {
         VolucraftBlocks.init();
         VolucraftItems.init();
         VolucraftMenuTypes.init();
+        Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, Volucraft.id("amalgamation"), ShapedAmalgamationRecipe.SERIALIZER);
 	}
 
     public static Identifier id(String path) {

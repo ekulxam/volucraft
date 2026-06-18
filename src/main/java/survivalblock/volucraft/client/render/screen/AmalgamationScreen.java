@@ -9,12 +9,11 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
+import org.joml.Vector3f;
 import survivalblock.volucraft.client.VolucraftClient;
 import survivalblock.volucraft.client.render.CubeModel;
 import survivalblock.volucraft.client.render.CubeOfSlotsRenderState;
@@ -106,7 +105,7 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         // render cube (center at 261, 83) in a 150x150 area
         //graphics. // DEATH
         //int selected = (int) ((Util.getMillis() / 100F) % Volucraft.SLOTS);
-        int selected = 0;
+        int selected = this.getHovered3DSlot(mouseX, mouseY);
         int cubeX0 = xo + 186;
         int cubeY0 = yo + 8;
         NonNullList<ItemStack> items = NonNullList.withSize(Volucraft.SLOTS, ItemStack.EMPTY);
@@ -133,4 +132,87 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
                 )
         );
     }
+
+    @Override
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        return super.mouseClicked(event, doubleClick);
+    }
+
+    // begin credit: AI (what the heck is this)
+    public int getHovered3DSlot(double mouseX, double mouseY) {
+        int xo = this.leftPos + 186;
+        int yo = ((this.height - this.imageHeight) / 2) + 8;
+
+        // Check if mouse is within the 150x150 3D viewport region
+        if (mouseX < xo || mouseX > xo + 150 || mouseY < yo || mouseY > yo + 150) {
+            return -1;
+        }
+
+        // Normalize mouse coordinates to Normalized Device Coordinates (NDC) [-1 to 1]
+        float ndcX = (float) (((mouseX - xo) / 150.0) * 2.0 - 1.0);
+        float ndcY = (float) (1.0 - ((mouseY - yo) / 150.0) * 2.0); // Flip Y for OpenGL/JOML standard
+
+        // Reconstruct the Ray from the viewpoint projection matrix.
+        // Assuming an Orthographic view style for UI panels, the ray direction is straight forward (Z-negative)
+        Vector3f rayOrigin = new Vector3f(ndcX * 2.5F, ndcY * 2.5F, 5.0F); // Scale factor matches your rendering scale
+        Vector3f rayDir = new Vector3f(0, 0, -1);
+
+        // UN-ROTATE the ray by the screen's inverse rotation quaternion
+        // This allows us to test intersections against a perfectly flat, aligned 3D grid!
+        Quaternionf invRot = new Quaternionf().rotateX(rot.y).rotateY(-rot.x).invert();
+        rayOrigin.rotate(invRot);
+        rayDir.rotate(invRot);
+
+        // Account for pivot and model centering scale adjustments matching CubeOfSlotsRenderer
+        float expand = (Math.clamp(this.expansion, 0, 1) * 1.5F + 1) * 1.2F;
+        float pivotY = 9 / 16F;
+
+        rayOrigin.y += pivotY; // Adjust for the model's pivot translation offset
+
+        int closestSlot = -1;
+        float closestDistance = Float.MAX_VALUE;
+
+        // Loop through all 27 slots to find the closest bounding-box hit
+        for (int i = 0; i < Volucraft.SLOTS; i++) {
+            // Find local slot 3D offsets exactly like Phanastrae's algorithm
+            int slotX = (i % Volucraft.SIDE_LENGTH) - 1;
+            int slotZ = ((i / Volucraft.SIDE_LENGTH) % Volucraft.SIDE_LENGTH) - 1;
+            int slotY = (i / (Volucraft.SIDE_LENGTH * Volucraft.SIDE_LENGTH)) - 1;
+
+            // Apply scale expansion offset
+            float minX = (slotX * expand) - 0.5F;
+            float maxX = (slotX * expand) + 0.5F;
+            float minY = (slotY * expand) - 0.5F + pivotY;
+            float maxY = (slotY * expand) + 0.5F + pivotY;
+            float minZ = (slotZ * expand) - 0.5F;
+            float maxZ = (slotZ * expand) + 0.5F;
+
+            float t = intersectRayAABB(rayOrigin, rayDir, minX, maxX, minY, maxY, minZ, maxZ);
+            if (t >= 0 && t < closestDistance) {
+                closestDistance = t;
+                closestSlot = i;
+            }
+        }
+
+        return closestSlot;
+    }
+
+    // Axis-Aligned Bounding Box (AABB) intersection helper function
+    private float intersectRayAABB(Vector3f origin, Vector3f dir, float minX, float maxX, float minY, float maxY, float minZ, float maxZ) {
+        float t1 = (minX - origin.x) / dir.x;
+        float t2 = (maxX - origin.x) / dir.x;
+        float t3 = (minY - origin.y) / dir.y;
+        float t4 = (maxY - origin.y) / dir.y;
+        float t5 = (minZ - origin.z) / dir.z;
+        float t6 = (maxZ - origin.z) / dir.z;
+
+        float tmin = Math.max(Math.max(Math.min(t1, t2), Math.min(t3, t4)), Math.min(t5, t6));
+        float tmax = Math.min(Math.min(Math.max(t1, t2), Math.max(t3, t4)), Math.max(t5, t6));
+
+        if (tmax < 0 || tmin > tmax) {
+            return -1.0F; // No intersection match
+        }
+        return tmin;
+    }
+    // end credit: AI
 }
