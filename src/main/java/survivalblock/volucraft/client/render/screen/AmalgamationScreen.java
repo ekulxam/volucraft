@@ -145,73 +145,63 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         int xo = this.leftPos + 186;
         int yo = ((this.height - this.imageHeight) / 2) + 8;
 
-        // 1. Bounds check
+        // 1. Initial window bounds check
         if (mouseX < xo || mouseX > xo + 150 || mouseY < yo || mouseY > yo + 150) {
             return -1;
         }
-
-        // 2. Map 2D mouse to NDC space [-1, 1]
-        float ndcX = (float) (((mouseX - xo) / 150.0) * 2.0 - 1.0);
-        float ndcY = (float) (((mouseY - yo) / 150.0) * 2.0 - 1.0);
-
-        // 3. Scale matching your orthographic viewport representation
-        // Since the rendering pipeline scales the matrices by 11F,
-        // we divide our ray coordinates by 11F to map back into local space.
-        float renderingScale = 11.0F;
-        float orthoScale = (11.0F / 8.0F) / renderingScale; // effectively 1.0F / 8.0F now
-        float rayX = ndcX * orthoScale;
-        float rayY = ndcY * orthoScale;
 
         float expand = (Math.clamp(this.expansion, 0, 1) * 1.5F + 1) * 1.2F;
         float renderCenter = 6.5F;   // centerFromScale(11F)
         float pivotY = 9.0F / 16.0F; // 0.5625F
 
-        Quaternionf renderRot = new Quaternionf().rotateX(rot.y).rotateY(-rot.x);
+        // Generate your view transformation matrix matching the render pipeline exactly
+        Matrix4f transformMatrix = new Matrix4f();
+
+        // Step A: Base Entity Flip (flip matrix alters local tracking coordinates)
+        // Matches: poseStack.mulPose(flip) -> flips Y and Z
+        transformMatrix.scale(1.0F, -1.0F, -1.0F);
+
+        // Step B: Base layout translation offset
+        transformMatrix.translate(0, renderCenter, 0);
+
+        // Step C: Pivot manipulation and Rotation
+        transformMatrix.translate(0, pivotY, 0);
+        transformMatrix.rotate(new Quaternionf().rotateX(rot.y).rotateY(-rot.x));
+        transformMatrix.translate(0, -pivotY, 0);
 
         int closestSlot = -1;
-        // We look for the maximum Z (closest to the camera screen/foreground in standard MC rendering)
+        double closestDistanceSq = Double.MAX_VALUE;
         float closestZ = Float.NEGATIVE_INFINITY;
 
+        // 2. Loop through every slot to project its 3D space out into 2D UI coordinates
         for (int i = 0; i < Volucraft.SLOTS; i++) {
             int slotX = (i % Volucraft.SIDE_LENGTH) - 1;
             int slotZ = ((i / Volucraft.SIDE_LENGTH) % Volucraft.SIDE_LENGTH) - 1;
             int slotY = (i / (Volucraft.SIDE_LENGTH * Volucraft.SIDE_LENGTH)) - 1;
 
-            // --- TRACK THE EXACT MATRIX PIPELINE FORWARD ---
+            // Start point determined via transformByIndex(i, translator)
+            Vector4f projectedPos = new Vector4f(slotX * expand, slotY * expand, slotZ * expand, 1.0F);
 
-            // Start at local center space of the slot geometry (0,0,0)
-            Vector3f slotPos = new Vector3f(0, 0, 0);
+            // Transform our local point using the compiled view matrix state
+            projectedPos.mul(transformMatrix);
 
-            // A. transformByIndex(i, translator) -> applies slot positioning multiplied by expansion
-            slotPos.add(slotX * expand, slotY * expand, slotZ * expand);
+            // Convert the transformed view positions directly into UI Screen Pixels
+            // 11F rendering scale acts as an ortho magnification multiplier across a 150x150 frame center.
+            float uiScaleFactor = 11.0F * 4.5F; // Fine-tune this scalar to match your PIP bounding resolution
+            float screenX = (xo + 75f) + (projectedPos.x * uiScaleFactor);
+            float screenY = (yo + 75f) + (projectedPos.y * uiScaleFactor);
 
-            // B. Unpivot manipulation from your render sequence
-            slotPos.add(0, -pivotY, 0);
+            // Calculate proximity to the mouse cursor pointer
+            double dx = mouseX - screenX;
+            double dy = mouseY - screenY;
+            double distanceSq = (dx * dx) + (dy * dy);
 
-            // C. Apply rotation
-            slotPos.rotate(renderRot);
-
-            // D. Pivot translation setup
-            slotPos.add(0, pivotY, 0);
-
-            // E. Base translation setup
-            slotPos.add(0, renderCenter, 0);
-
-            // F. LivingEntity Master Flip (flip matrix alters local tracking coordinates)
-            slotPos.y = -slotPos.y;
-            slotPos.z = -slotPos.z;
-
-            // 4. Hitbox boundary testing (Assuming standard cube sizing boundaries of 0.5F radius)
-            float sizeFactor = 0.5F;
-            float minX = slotPos.x - sizeFactor;
-            float maxX = slotPos.x + sizeFactor;
-            float minY = slotPos.y - sizeFactor;
-            float maxY = slotPos.y + sizeFactor;
-
-            if (rayX >= minX && rayX <= maxX && rayY >= minY && rayY <= maxY) {
-                // Select the block facing the viewer foremost
-                if (slotPos.z > closestZ) {
-                    closestZ = slotPos.z;
+            // Slot hit radius threshold (e.g., checking if within 18 pixel bound radii)
+            if (distanceSq < 324.0) {
+                // Check depth sort order: ensure we pick the block closest to the visual foreground
+                if (projectedPos.z > closestZ || (Math.abs(projectedPos.z - closestZ) < 0.01f && distanceSq < closestDistanceSq)) {
+                    closestZ = projectedPos.z;
+                    closestDistanceSq = distanceSq;
                     closestSlot = i;
                 }
             }
