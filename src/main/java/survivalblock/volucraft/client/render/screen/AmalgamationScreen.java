@@ -151,10 +151,12 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         }
 
         // 2. Map 2D mouse to NDC space [-1, 1]
+        // Note: Minecraft GUI Y-axis goes downwards, standard NDC Y goes upwards.
         float ndcX = (float) (((mouseX - xo) / 150.0) * 2.0 - 1.0);
         float ndcY = (float) (((mouseY - yo) / 150.0) * 2.0 - 1.0);
 
-        // Orthographic viewport viewing bounds for scale 11F
+        // 3. Scale matching your orthographic viewport representation
+        // Assuming scale 11F maps to this specific sizing ratio:
         float orthoScale = 11.0F / 8.0F;
         float rayX = ndcX * orthoScale;
         float rayY = ndcY * orthoScale;
@@ -166,42 +168,47 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         Quaternionf renderRot = new Quaternionf().rotateX(rot.y).rotateY(-rot.x);
 
         int closestSlot = -1;
+        // We look for the maximum Z (closest to the camera screen/foreground in standard MC rendering)
         float closestZ = Float.NEGATIVE_INFINITY;
 
-        // 3. Replicate the precise matrix stack pipeline for each slot center
         for (int i = 0; i < Volucraft.SLOTS; i++) {
             int slotX = (i % Volucraft.SIDE_LENGTH) - 1;
             int slotZ = ((i / Volucraft.SIDE_LENGTH) % Volucraft.SIDE_LENGTH) - 1;
             int slotY = (i / (Volucraft.SIDE_LENGTH * Volucraft.SIDE_LENGTH)) - 1;
 
-            // Start with raw slot geometry positions
-            Vector3f slotPos = new Vector3f(slotX * expand, slotY * expand, slotZ * expand);
+            // --- TRACK THE EXACT MATRIX PIPELINE FORWARD ---
 
-            // --- STEP 1: Apply global LivingEntity flip matrix (Y = -Y, Z = -Z) ---
+            // Start at local center space of the slot geometry (0,0,0)
+            Vector3f slotPos = new Vector3f(0, 0, 0);
+
+            // A. transformByIndex(i, translator) -> applies slot positioning multiplied by expansion
+            slotPos.add(slotX * expand, slotY * expand, slotZ * expand);
+
+            // B. Unpivot manipulation from your render sequence
+            slotPos.add(0, -pivotY, 0);
+
+            // C. Apply rotation
+            slotPos.rotate(renderRot);
+
+            // D. Pivot translation setup
+            slotPos.add(0, pivotY, 0);
+
+            // E. Base translation setup
+            slotPos.add(0, renderCenter, 0);
+
+            // F. LivingEntity Master Flip (flip matrix alters local tracking coordinates)
             slotPos.y = -slotPos.y;
             slotPos.z = -slotPos.z;
 
-            // --- STEP 2: Apply the center layout translation offset ---
-            // Since Y was flipped in Step 1, translating "+renderCenter" actually shifts it DOWN
-            slotPos.y += renderCenter;
-
-            // --- STEP 3: Pivot manipulation and Rotation ---
-            // We must pivot around the flipped, translated pivot space
-            slotPos.y += pivotY;
-
-            // Apply the exact rotation matrix used in your renderer
-            slotPos.rotate(renderRot);
-
-            slotPos.y -= pivotY;
-
-            // 4. Test 2D intersection against the slot's final screen-space footprint
-            float minX = slotPos.x - 0.5F;
-            float maxX = slotPos.x + 0.5F;
-            float minY = slotPos.y - 0.5F;
-            float maxY = slotPos.y + 0.5F;
+            // 4. Hitbox boundary testing (Assuming standard cube sizing boundaries of 0.5F radius)
+            float sizeFactor = 0.5F;
+            float minX = slotPos.x - sizeFactor;
+            float maxX = slotPos.x + sizeFactor;
+            float minY = slotPos.y - sizeFactor;
+            float maxY = slotPos.y + sizeFactor;
 
             if (rayX >= minX && rayX <= maxX && rayY >= minY && rayY <= maxY) {
-                // Pick the slot physically closest to the front of the viewport screen
+                // Select the block facing the viewer foremost
                 if (slotPos.z > closestZ) {
                     closestZ = slotPos.z;
                     closestSlot = i;
