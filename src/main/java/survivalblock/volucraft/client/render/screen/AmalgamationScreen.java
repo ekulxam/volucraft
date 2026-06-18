@@ -151,41 +151,67 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         int yo = ((this.height - this.imageHeight) / 2) + 8;
         int pipSize = 150;
 
-        // 1. Core boundary check
+        // 1. Core bounding box check
         if (mouseX < xo || mouseX > xo + pipSize || mouseY < yo || mouseY > yo + pipSize) {
             return -1;
         }
 
-        // Find the absolute visual pixel center of your 3D cube render view box
-        float renderCenterX = xo + (pipSize / 2.0F);
-        float renderCenterY = yo + (pipSize / 2.0F);
+        // Find the definitive local pixel center of the PIP box
+        float localCenterX = xo + (pipSize / 2.0F);
+        float localCenterY = yo + (pipSize / 2.0F);
+
+        float expand = (Math.clamp(this.expansion, 0, 1) * 1.5F + 1) * 1.2F;
+        float pivotY = 9.0F / 16.0F; // 0.5625F
+
+        // 2. Construct a fresh, isolated rotation matrix from your screen state variables
+        Matrix4f viewMatrix = new Matrix4f();
+        // Replicate your precise rotation behavior: rot.y around X, -rot.x around Y
+        viewMatrix.rotateX(rot.y);
+        viewMatrix.rotateY(-rot.x);
 
         int closestSlot = -1;
         float closestDepth = Float.NEGATIVE_INFINITY;
-        double closestDistanceSq = Double.MAX_VALUE;
 
-        // Adjust this multiplier based on your visual target size
-        // Start at 1.0F, scale up if your mouse selection area feels too small/shrunken inside the cube
-        float customGeometricScale = 45.0F;
+        // Adjust this scalar to match the visual footprint of the 11F scale factor
+        // If the hitboxes feel too condensed in the center, increase this number slightly.
+        float viewProjectionScale = 38.0F;
 
-        for (Map.Entry<Integer, org.joml.Vector3f> entry : this.slotScreenPositions.entrySet()) {
-            org.joml.Vector3f pos = entry.getValue();
+        for (int i = 0; i < Volucraft.SLOTS; i++) {
+            int slotX = (i % Volucraft.SIDE_LENGTH) - 1;
+            int slotZ = ((i / Volucraft.SIDE_LENGTH) % Volucraft.SIDE_LENGTH) - 1;
+            int slotY = (i / (Volucraft.SIDE_LENGTH * Volucraft.SIDE_LENGTH)) - 1;
 
-            // Map the GPU clip space coordinates directly to actual GUI mouse pixels
-            float calculatedMouseX = renderCenterX + (pos.x * customGeometricScale);
-            float calculatedMouseY = renderCenterY - (pos.y * customGeometricScale); // Invert Y for MC GUI flow
+            // Establish the un-rotated local point vector based on slot positioning
+            Vector3f localPos = new Vector3f(slotX * expand, slotY * expand, slotZ * expand);
 
-            double dx = mouseX - calculatedMouseX;
-            double dy = mouseY - calculatedMouseY;
+            // Mimic pivot shift: translate down by pivot before rotating
+            localPos.y -= pivotY;
+
+            // Apply our reliable rotation matrix
+            viewMatrix.transformPosition(localPos);
+
+            // Restore pivot offset
+            localPos.y += pivotY;
+
+            // Standard LivingEntity master flip correction (Y = -Y, Z = -Z)
+            float finalX = localPos.x;
+            float finalY = -localPos.y;
+            float finalZ = -localPos.z;
+
+            // Project the local 3D points directly into clear, reliable UI pixel destinations
+            float screenX = localCenterX + (finalX * viewProjectionScale);
+            float screenY = localCenterY + (finalY * viewProjectionScale);
+
+            double dx = mouseX - screenX;
+            double dy = mouseY - screenY;
             double distanceSq = (dx * dx) + (dy * dy);
 
-            // Selection radius: Is the cursor close enough to this slot's projected center point?
-            if (distanceSq < 256.0) { // 16 pixel radius squared
-                // Prioritize the slot physically closest to the front of the screen
-                if (pos.z > closestDepth) {
-                    closestDepth = pos.z;
-                    closestDistanceSq = distanceSq;
-                    closestSlot = entry.getKey();
+            // Check if the cursor lands within the 3D footprint radius of the slot block
+            if (distanceSq < 225.0) { // 15 pixel radius threshold bounds
+                // Ensure proper depth sorting: larger Z depth values map to the foreground
+                if (finalZ > closestDepth) {
+                    closestDepth = finalZ;
+                    closestSlot = i;
                 }
             }
         }
