@@ -51,6 +51,7 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
         final int selected = renderState.selected();
         final Identifier texture = renderState.texture();
         final Identifier translucentTexture = renderState.translucent();
+
         poseStack.mulPose(flip); // because LivingEntity model(?)
         poseStack.translate(0, centerFromScale(renderState.scale()), 0); // translate to center
         for (int i = 0; i < Volucraft.SLOTS; i++) {
@@ -63,7 +64,7 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
             poseStack.mulPose(flip);
             poseStack.mulPose(rot); // rotate around pivot point
             poseStack.translate(0, -9 / 16F, 0); // unpivot point
-            transformByIndex(i,  translator);
+            transformByIndex(i, translator);
             {
                 VertexConsumer buffer = this.bufferSource.getBuffer(modelToUse.renderType(stack.isEmpty() ? texture : translucentTexture));
                 model.renderToBuffer(poseStack, buffer, 15728880, OverlayTexture.NO_OVERLAY);

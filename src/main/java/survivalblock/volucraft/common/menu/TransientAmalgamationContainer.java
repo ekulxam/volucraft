@@ -10,13 +10,26 @@ import net.minecraft.world.item.ItemStack;
 import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.menu.recipe.AmalgamationInput;
 
+/**
+ * @see net.minecraft.world.inventory.TransientCraftingContainer
+ */
 public class TransientAmalgamationContainer implements AmalgamationContainer {
 	private final NonNullList<ItemStack> items;
+    private final int length;
+    private final int width;
+    private final int height;
 	private final AbstractContainerMenu menu;
 
-	public TransientAmalgamationContainer(final AbstractContainerMenu menu) {
-        this.items = NonNullList.withSize(Volucraft.SLOTS, ItemStack.EMPTY);
-		this.menu = menu;
+    public TransientAmalgamationContainer(final AbstractContainerMenu menu, final int length, final int width, final int height) {
+        this(menu, length, width, height, NonNullList.withSize(length * width * height, ItemStack.EMPTY));
+    }
+
+	public TransientAmalgamationContainer(final AbstractContainerMenu menu, final int length, final int width, final int height, final NonNullList<ItemStack> items) {
+        this.menu = menu;
+        this.length = length;
+        this.width = width;
+        this.height = height;
+        this.items = items;
 	}
 
 	@Override
@@ -74,6 +87,21 @@ public class TransientAmalgamationContainer implements AmalgamationContainer {
 	public void clearContent() {
 		this.items.clear();
 	}
+
+    @Override
+    public int getLength() {
+        return this.length;
+    }
+
+    @Override
+    public int getWidth() {
+        return this.width;
+    }
+
+    @Override
+    public int getHeight() {
+        return this.height;
+    }
 
 	@Override
 	public List<ItemStack> getItems() {

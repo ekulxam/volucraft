@@ -9,7 +9,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.level.block.Blocks;
 import org.jspecify.annotations.Nullable;
 import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.init.VolucraftBlocks;
@@ -22,8 +21,12 @@ import survivalblock.volucraft.common.menu.slot.AmalgamationResultSlot;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * @see AbstractCraftingMenu
+ * @see CraftingMenu
+ */
 public class AmalgamationMenu extends AbstractContainerMenu {
-    protected final AmalgamationContainer craftSlots = new TransientAmalgamationContainer(this);
+    protected final AmalgamationContainer craftSlots = new TransientAmalgamationContainer(this, Volucraft.SIDE_LENGTH, Volucraft.SIDE_LENGTH, Volucraft.SIDE_LENGTH);
     protected final ResultContainer resultSlots = new ResultContainer();
     private final ContainerLevelAccess access;
     @Nullable
@@ -51,6 +54,7 @@ public class AmalgamationMenu extends AbstractContainerMenu {
         this(containerId, inventory, ContainerLevelAccess.NULL);
     }
 
+    @SuppressWarnings({"UnusedReturnValue", "SameParameterValue"})
     protected Slot addResultSlot(final Player player, final int x, final int y) {
         return this.addSlot(new AmalgamationResultSlot(player, this.craftSlots, this.resultSlots, 0, x, y));
     }

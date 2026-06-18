@@ -3,11 +3,13 @@ package survivalblock.volucraft.common.menu;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.StackedContentsCompatible;
 import net.minecraft.world.item.ItemStack;
-import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.menu.recipe.AmalgamationInput;
 
 import java.util.List;
 
+/**
+ * @see net.minecraft.world.inventory.CraftingContainer
+ */
 public interface AmalgamationContainer extends Container, StackedContentsCompatible {
     List<ItemStack> getItems();
 
@@ -19,15 +21,9 @@ public interface AmalgamationContainer extends Container, StackedContentsCompati
         return AmalgamationInput.ofPositioned(this.getLength(), this.getWidth(), this.getHeight(), this.getItems());
     }
 
-    default int getLength() {
-        return Volucraft.SIDE_LENGTH;
-    }
+    int getLength();
 
-    default int getWidth() {
-        return Volucraft.SIDE_LENGTH;
-    }
+    int getWidth();
 
-    default int getHeight() {
-        return Volucraft.SIDE_LENGTH;
-    }
+    int getHeight();
 }

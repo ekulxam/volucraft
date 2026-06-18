@@ -1,11 +1,17 @@
 package survivalblock.volucraft.common.menu.recipe;
 
+import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.world.entity.player.StackedItemContents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeInput;
 import survivalblock.volucraft.common.Volucraft;
 
+/**
+ * Using x as length, y as width, and z as height
+ * @see net.minecraft.world.item.crafting.CraftingInput
+ */
+@SuppressWarnings("unused")
 public class AmalgamationInput implements RecipeInput {
 	public static final AmalgamationInput EMPTY = new AmalgamationInput(0, 0, 0, List.of());
     private final int length;
@@ -37,54 +43,68 @@ public class AmalgamationInput implements RecipeInput {
 	}
 
 	public static AmalgamationInput.Positioned ofPositioned(final int length, final int width, final int height, final List<ItemStack> items) {
-		/*if (length != 0 && width != 0 && height != 0) {
-			int left = width - 1;
+		if (length != 0 && width != 0 && height != 0) {
+			int left = length - 1;
 			int right = 0;
+            int back = width - 1;
+            int front = 0;
 			int top = height - 1;
 			int bottom = 0;
 
-			for (int y = 0; y < height; y++) {
-				boolean rowEmpty = true;
+			for (int z = 0; z < height; z++) {
+                boolean squareEmpty = true;
 
-				for (int x = 0; x < width; x++) {
-					ItemStack item = items.get(x + y * width);
-					if (!item.isEmpty()) {
-						left = Math.min(left, x);
-						right = Math.max(right, x);
-						rowEmpty = false;
-					}
-				}
+                for (int y = 0; y < width; y++) {
+                    boolean rowEmpty = true;
 
-				if (!rowEmpty) {
-					top = Math.min(top, y);
-					bottom = Math.max(bottom, y);
-				}
-			}
+                    for (int x = 0; x < length; x++) {
+                        ItemStack item = items.get(x + y * length + z * length * width); // hope i'm correct
+                        if (!item.isEmpty()) {
+                            left = Math.min(left, x);
+                            right = Math.max(right, x);
+                            rowEmpty = false;
+                            squareEmpty = false;
+                        }
+                    }
 
-			int newWidth = right - left + 1;
+                    if (!rowEmpty) {
+                        back = Math.min(back, y);
+                        front = Math.max(front, y);
+                    }
+                }
+
+                if (!squareEmpty) {
+                    top = Math.min(top, z);
+                    bottom = Math.max(bottom, z);
+                }
+            }
+
+            int newLength = right - left + 1;
+			int newWidth = back - front + 1;
 			int newHeight = bottom - top + 1;
-			if (newWidth <= 0 || newHeight <= 0) {
+			if (newLength <= 0 || newWidth <= 0 || newHeight <= 0) {
 				return AmalgamationInput.Positioned.EMPTY;
 			}
 
-			if (newWidth == width && newHeight == height) {
-				return new AmalgamationInput.Positioned(new AmalgamationInput(length, width, height, items), left, top);
+			if (newLength == length && newWidth == width && newHeight == height) {
+				return new AmalgamationInput.Positioned(new AmalgamationInput(length, width, height, items), left, back, top);
 			}
 
-			List<ItemStack> newItems = new ArrayList<>(newWidth * newHeight);
+			List<ItemStack> newItems = new ArrayList<>(newLength * newWidth * newHeight);
 
-			for (int y = 0; y < newHeight; y++) {
-				for (int x = 0; x < newWidth; x++) {
-					int index = x + left + (y + top) * width;
-					newItems.add(items.get(index));
+			for (int z = 0; z < newHeight; z++) {
+				for (int y = 0; y < newWidth; y++) {
+                    for (int x = 0; x < newLength; x++) {
+                        int index = x + left + (y + back) * length + (z + top) * length * width;
+                        newItems.add(items.get(index));
+                    }
 				}
 			}
 
-			return new AmalgamationInput.Positioned(new AmalgamationInput(newWidth, newHeight, newItems), left, top);
+			return new AmalgamationInput.Positioned(new AmalgamationInput(newLength, newWidth, newHeight, newItems), left, back, top);
 		} else {
 			return AmalgamationInput.Positioned.EMPTY;
-		}*/
-        return Positioned.EMPTY; // FIXME
+		}
 	}
 
 	@Override
@@ -93,7 +113,8 @@ public class AmalgamationInput implements RecipeInput {
 	}
 
 	public ItemStack getItem(final int x, final int y, final int z) {
-		return this.items.get(x * this.length * Volucraft.SIDE_LENGTH + y * this.width + z);
+        // TODO: check
+		return this.items.get(x + y * this.length + z * this.length * this.width);
 	}
 
 	@Override
@@ -130,7 +151,8 @@ public class AmalgamationInput implements RecipeInput {
 		return this.height;
 	}
 
-	@Override
+	@SuppressWarnings("deprecation")
+    @Override
 	public boolean equals(final Object obj) {
 		if (obj == this) {
 			return true;
@@ -144,7 +166,8 @@ public class AmalgamationInput implements RecipeInput {
 		}
 	}
 
-	@Override
+    @SuppressWarnings("deprecation")
+    @Override
 	public int hashCode() {
 		int result = ItemStack.hashStackList(this.items);
         result = 31 * result + this.length;
@@ -152,7 +175,7 @@ public class AmalgamationInput implements RecipeInput {
 		return 31 * result + this.height;
 	}
 
-	public record Positioned(AmalgamationInput input, int left, int top) {
-		public static final AmalgamationInput.Positioned EMPTY = new AmalgamationInput.Positioned(AmalgamationInput.EMPTY, 0, 0);
+	public record Positioned(AmalgamationInput input, int left, int back, int top) {
+		public static final AmalgamationInput.Positioned EMPTY = new AmalgamationInput.Positioned(AmalgamationInput.EMPTY, 0, 0, 0);
 	}
 }

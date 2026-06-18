@@ -11,11 +11,15 @@ import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
+import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.init.VolucraftRecipeTypes;
 import survivalblock.volucraft.common.menu.AmalgamationContainer;
 import survivalblock.volucraft.common.menu.recipe.AmalgamationInput;
 import survivalblock.volucraft.common.menu.recipe.AmalgamationRecipe;
 
+/**
+ * @see net.minecraft.world.inventory.ResultSlot
+ */
 public class AmalgamationResultSlot extends Slot {
 	private final AmalgamationContainer craftSlots;
 	private final Player player;
@@ -90,32 +94,31 @@ public class AmalgamationResultSlot extends Slot {
         AmalgamationInput.Positioned positionedRecipe = this.craftSlots.asPositionedCraftInput();
 		AmalgamationInput input = positionedRecipe.input();
 		int recipeLeft = positionedRecipe.left();
+        int recipeBack = positionedRecipe.back();
 		int recipeTop = positionedRecipe.top();
 		NonNullList<ItemStack> remaining = this.getRemainingItems(input, player.level());
 
 		for (int z = 0; z < input.height(); z++) {
 			for (int y = 0; y < input.width(); y++) {
 				for (int x = 0; x < input.length(); x++) {
-                    /*
-                    int slot = x + recipeLeft + (y + recipeTop) * this.craftSlots.getWidth();
-				ItemStack itemStack = this.craftSlots.getItem(slot);
-				ItemStack replacement = remaining.get(x + y * input.width());
-				if (!itemStack.isEmpty()) {
-					this.craftSlots.removeItem(slot, 1);
-					itemStack = this.craftSlots.getItem(slot);
-				}
+                    int slot = (x + recipeLeft) + (y + recipeBack) * this.craftSlots.getLength() + (z + recipeTop) * this.craftSlots.getLength() * this.craftSlots.getWidth();
+                    ItemStack itemStack = this.craftSlots.getItem(slot);
+                    ItemStack replacement = remaining.get(x + y * input.width());
+                    if (!itemStack.isEmpty()) {
+                        this.craftSlots.removeItem(slot, 1);
+                        itemStack = this.craftSlots.getItem(slot);
+                    }
 
-				if (!replacement.isEmpty()) {
-					if (itemStack.isEmpty()) {
-						this.craftSlots.setItem(slot, replacement);
-					} else if (ItemStack.isSameItemSameComponents(itemStack, replacement)) {
-						replacement.grow(itemStack.getCount());
-						this.craftSlots.setItem(slot, replacement);
-					} else if (!this.player.getInventory().add(replacement)) {
-						this.player.drop(replacement, false);
-					}
-				}
-                     */
+                    if (!replacement.isEmpty()) {
+                        if (itemStack.isEmpty()) {
+                            this.craftSlots.setItem(slot, replacement);
+                        } else if (ItemStack.isSameItemSameComponents(itemStack, replacement)) {
+                            replacement.grow(itemStack.getCount());
+                            this.craftSlots.setItem(slot, replacement);
+                        } else if (!this.player.getInventory().add(replacement)) {
+                            this.player.drop(replacement, false);
+                        }
+                    }
                 }
 			}
 		}

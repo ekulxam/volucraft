@@ -7,6 +7,9 @@ import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.*;
 import survivalblock.volucraft.common.init.VolucraftRecipeTypes;
 
+/**
+ * @see CraftingRecipe
+ */
 public interface AmalgamationRecipe extends Recipe<AmalgamationInput> {
 	@Override
 	default RecipeType<AmalgamationRecipe> getType() {
