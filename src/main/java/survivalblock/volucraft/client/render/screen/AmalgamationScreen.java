@@ -145,46 +145,44 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         int xo = this.leftPos + 186;
         int yo = ((this.height - this.imageHeight) / 2) + 8;
 
-        // 1. Viewport Boundary Check (150x150 region)
         if (mouseX < xo || mouseX > xo + 150 || mouseY < yo || mouseY > yo + 150) {
             return -1;
         }
 
-        // 2. Normalized Device Coordinates [-1.0 to 1.0]
+        // Convert mouse position directly to standard device screen metrics [-1.0 to 1.0]
+        // Top-Left is (-1, 1), Bottom-Right is (1, -1)
         float ndcX = (float) (((mouseX - xo) / 150.0) * 2.0 - 1.0);
-        // Standard screen-to-3D Y calculation: mouse DOWN means lower screen position
         float ndcY = (float) (1.0 - ((mouseY - yo) / 150.0) * 2.0);
 
-        // 3. Orthographic View Window Bounds Mapping
-        // Scale 11F maps the orthographic plane width exactly to 1.375 units
+        // Projection calculation setting for Scale 11F viewports
         float orthoScale = 11.0F / 8.0F;
         Vector3f rayOrigin = new Vector3f(ndcX * orthoScale, ndcY * orthoScale, 10.0F);
         Vector3f rayDir = new Vector3f(0, 0, -1);
 
-        // 4. Align with Renderer Matrix Transform Stack Operations
+        // --- REVERSED TRANSLATION MATRIX PATH ---
         float renderCenter = 6.5F;       // centerFromScale(11F)
         float pivotY = 9.0F / 16.0F;     // 0.5625F
 
-        // Undo Center offset applied BEFORE rotation
-        rayOrigin.y -= renderCenter;
-
-        // 5. UN-ROTATE the Ray around the Pivot Space
-        Quaternionf invRot = new Quaternionf().rotateX(rot.y).rotateY(-rot.x).invert();
-
-        // Shift Ray to Pivot origin point -> Rotate -> Shift Ray back
-        rayOrigin.y -= pivotY;
-        rayOrigin.rotate(invRot);
-        rayDir.rotate(invRot);
+        // 1. Because your renderer executes mulPose(flip) first, the translation direction
+        // for renderCenter and pivotY are inverted along the Y-axis. We adjust for that here:
+        rayOrigin.y += renderCenter;
         rayOrigin.y += pivotY;
 
-        // 6. Account for LivingEntity mulPose(flip)
-        // The flip scales Y by -1 and Z by -1, so we flip the signs of our final Ray
+        // 2. UN-ROTATE the Ray around the flipped origin point
+        Quaternionf invRot = new Quaternionf().rotateX(rot.y).rotateY(-rot.x).invert();
+        rayOrigin.rotate(invRot);
+        rayDir.rotate(invRot);
+
+        // 3. Move the ray out of pivot space (Accounting for the inverted Y/Z context)
+        rayOrigin.y -= pivotY;
+
+        // 4. Mirror the coordinate values to match the global LivingEntity flip matrix
         rayOrigin.y = -rayOrigin.y;
         rayOrigin.z = -rayOrigin.z;
         rayDir.y = -rayDir.y;
         rayDir.z = -rayDir.z;
 
-        // 7. Raycast Collision test against the slots
+        // --- TESTING COLLISION AGAINST SLOTS ---
         float expand = (Math.clamp(this.expansion, 0, 1) * 1.5F + 1) * 1.2F;
         int closestSlot = -1;
         float closestDistance = Float.MAX_VALUE;
@@ -194,7 +192,6 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
             int slotZ = ((i / Volucraft.SIDE_LENGTH) % Volucraft.SIDE_LENGTH) - 1;
             int slotY = (i / (Volucraft.SIDE_LENGTH * Volucraft.SIDE_LENGTH)) - 1;
 
-            // Extract center offsets generated via transformByIndex
             float cx = slotX * expand;
             float cy = slotY * expand;
             float cz = slotZ * expand;
