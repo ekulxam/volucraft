@@ -162,37 +162,37 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         float fboWidth = pipWidth * guiScale;
         float fboHeight = pipHeight * guiScale;
 
+        // --- THE Y-AXIS INVERSION FIX ---
+        // If the Y mapping was upside down relative to your physical mouse,
+        // we mirror the mouse position around the vertical center of the PIP box.
+        double pipCenterY = yo + (pipHeight / 2.0);
+        double correctedMouseY = pipCenterY - (mouseY - pipCenterY);
+
         float expand = (Math.clamp(this.expansion, 0, 1) * 1.5F + 1) * 1.2F;
         float pivotY = 9.0F / 16.0F;
         float renderCenter = 6.5F;
 
         int closestSlot = -1;
 
-        // --- THE Z-SORTING LEVER ---
-        // If it was selecting the BACK slots before, we want the lowest Z value (Float.POSITIVE_INFINITY).
-        // If it was selecting the FRONT slots before, we want the highest Z value (Float.NEGATIVE_INFINITY).
-        float closestZ = Float.POSITIVE_INFINITY;
+        // --- THE Z-SORTING FIX ---
+        // Change this to Float.POSITIVE_INFINITY if it was picking the back slots instead of the front slots!
+        float closestZ = Float.NEGATIVE_INFINITY;
 
         for (int i = 0; i < Volucraft.SLOTS; i++) {
             int slotX = (i % Volucraft.SIDE_LENGTH) - 1;
             int slotZ = ((i / Volucraft.SIDE_LENGTH) % Volucraft.SIDE_LENGTH) - 1;
             int slotY = (i / (Volucraft.SIDE_LENGTH * Volucraft.SIDE_LENGTH)) - 1;
 
+            // This is the exact matrix stack from the version that was highly effective
             Matrix4f transformMatrix = new Matrix4f();
-
-            // Step A: Base translation setup from PIP Renderer
             transformMatrix.translate(fboWidth / 2.0F, fboHeight, 0.0F);
 
-            // Step B: Master scaling operation
             float internalScale = guiScale * 11.0F;
             transformMatrix.scale(internalScale, internalScale, -internalScale);
 
-            // Step C: Your custom renderer transformations
-            // ADJUSTMENT: We change the Y scale factor here to safely flip Y without breaking translations
-            transformMatrix.scale(1.0F, 1.0F, -1.0F); // Try changing to (1.0F, -1.0F, -1.0F) if Y is inverted!
+            transformMatrix.scale(1.0F, -1.0F, -1.0F);
             transformMatrix.translate(0, renderCenter, 0);
 
-            // Step D: Loop rotation transformations around the pivot points
             transformMatrix.translate(0, pivotY, 0);
             transformMatrix.rotate(new Quaternionf().rotateX(rot.y).rotateY(-rot.x));
             transformMatrix.translate(0, -pivotY, 0);
@@ -200,19 +200,18 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
             Vector4f projectedPos = new Vector4f(slotX * expand, slotY * expand, slotZ * expand, 1.0F);
             projectedPos.mul(transformMatrix);
 
-            // Convert the raw framebuffer coordinates back out to GUI mouse pixels safely
             float calculatedMouseX = xo + (projectedPos.x / guiScale);
             float calculatedMouseY = yo + (projectedPos.y / guiScale);
 
             double dx = mouseX - calculatedMouseX;
-            double dy = mouseY - calculatedMouseY;
+            // Check against our flipped input mouse coordinate
+            double dy = correctedMouseY - calculatedMouseY;
             double distanceSq = (dx * dx) + (dy * dy);
 
-            // Bumped search threshold to 400.0 to make hovering highly forgiving while testing
-            if (distanceSq < 400.0) {
-                // IF BACK SLOTS ARE HIGHLIGHTING: change 'projectedPos.z < closestZ' to '>'
-                // and flip closestZ's initial value above to Float.NEGATIVE_INFINITY.
-                if (projectedPos.z < closestZ) {
+            if (distanceSq < 256.0) {
+                // --- DIRECTIONAL DEPTH CHECK ---
+                // If it's picking back slots, flip this operator to '<' and set closestZ above to Float.POSITIVE_INFINITY
+                if (projectedPos.z > closestZ) {
                     closestZ = projectedPos.z;
                     closestSlot = i;
                 }
