@@ -152,39 +152,49 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
 
         // 2. Normalized Device Coordinates [-1.0 to 1.0]
         float ndcX = (float) (((mouseX - xo) / 150.0) * 2.0 - 1.0);
-        // Explicitly re-invert the screen coordinate so moving mouse DOWN moves ray DOWN
+        // Standard screen-to-3D Y calculation: mouse DOWN means lower screen position
         float ndcY = (float) (1.0 - ((mouseY - yo) / 150.0) * 2.0);
 
-        // 3. Orthographic Frame Projection Scale Alignment
-        // At scale 11F, the 150x150 viewport spans exactly from -1.375 to 1.375 in model space
-        float orthoSize = 11.0F / 8.0F; // 1.375F
-        Vector3f rayOrigin = new Vector3f(ndcX * orthoSize, ndcY * orthoSize, 10.0F);
+        // 3. Orthographic View Window Bounds Mapping
+        // Scale 11F maps the orthographic plane width exactly to 1.375 units
+        float orthoScale = 11.0F / 8.0F;
+        Vector3f rayOrigin = new Vector3f(ndcX * orthoScale, ndcY * orthoScale, 10.0F);
         Vector3f rayDir = new Vector3f(0, 0, -1);
 
-        // 4. UN-ROTATE the Ray
+        // 4. Align with Renderer Matrix Transform Stack Operations
+        float renderCenter = 6.5F;       // centerFromScale(11F)
+        float pivotY = 9.0F / 16.0F;     // 0.5625F
+
+        // Undo Center offset applied BEFORE rotation
+        rayOrigin.y -= renderCenter;
+
+        // 5. UN-ROTATE the Ray around the Pivot Space
         Quaternionf invRot = new Quaternionf().rotateX(rot.y).rotateY(-rot.x).invert();
+
+        // Shift Ray to Pivot origin point -> Rotate -> Shift Ray back
+        rayOrigin.y -= pivotY;
         rayOrigin.rotate(invRot);
         rayDir.rotate(invRot);
+        rayOrigin.y += pivotY;
 
-        // 5. Align with Renderer Transforms
+        // 6. Account for LivingEntity mulPose(flip)
+        // The flip scales Y by -1 and Z by -1, so we flip the signs of our final Ray
+        rayOrigin.y = -rayOrigin.y;
+        rayOrigin.z = -rayOrigin.z;
+        rayDir.y = -rayDir.y;
+        rayDir.z = -rayDir.z;
+
+        // 7. Raycast Collision test against the slots
         float expand = (Math.clamp(this.expansion, 0, 1) * 1.5F + 1) * 1.2F;
-        float pivotY = 9 / 16F;          // 0.5625F
-        float renderCenter = 6.5F;       // centerFromScale(11F)
-
-        // Because your renderer uses mulPose(flip) on the matrix, it flips Y model signs.
-        // We adjust our ray center tracking to mirror that model offset:
-        rayOrigin.y += (renderCenter - pivotY);
-
         int closestSlot = -1;
         float closestDistance = Float.MAX_VALUE;
 
-        // 6. Test intersections with all 27 boxes
         for (int i = 0; i < Volucraft.SLOTS; i++) {
             int slotX = (i % Volucraft.SIDE_LENGTH) - 1;
             int slotZ = ((i / Volucraft.SIDE_LENGTH) % Volucraft.SIDE_LENGTH) - 1;
             int slotY = (i / (Volucraft.SIDE_LENGTH * Volucraft.SIDE_LENGTH)) - 1;
 
-            // Bounding box construction matching transformByIndex
+            // Extract center offsets generated via transformByIndex
             float cx = slotX * expand;
             float cy = slotY * expand;
             float cz = slotZ * expand;
