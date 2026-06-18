@@ -84,6 +84,6 @@ public class ShapedAmalgamationRecipe extends NormalAmalgamationRecipe {
     // hopefully this displays nothing
     @Override
     public List<RecipeDisplay> display() {
-        return List.of(new ShapedCraftingRecipeDisplay(0, 0, this.pattern.ingredients().stream().map((e) -> e.map(Ingredient::display).orElse(Empty.INSTANCE)).toList(), new SlotDisplay.ItemStackSlotDisplay(this.result), new SlotDisplay.ItemSlotDisplay(VolucraftItems.AMALGAMATION_TABLE)));
+        return List.of(new ShapedCraftingRecipeDisplay(0, 0, List.of(), new SlotDisplay.ItemStackSlotDisplay(this.result), new SlotDisplay.ItemSlotDisplay(VolucraftItems.AMALGAMATION_TABLE)));
     }
 }
