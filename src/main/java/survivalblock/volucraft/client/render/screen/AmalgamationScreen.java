@@ -200,17 +200,28 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
             Vector4f projectedPos = new Vector4f(slotX * expand, slotY * expand, slotZ * expand, 1.0F);
             projectedPos.mul(transformMatrix);
 
+            // Convert the raw framebuffer coordinates back out to GUI mouse pixels safely
             float calculatedMouseX = xo + (projectedPos.x / guiScale);
             float calculatedMouseY = yo + (projectedPos.y / guiScale);
 
-            double dx = mouseX - calculatedMouseX;
-            // Check against our flipped input mouse coordinate
-            double dy = correctedMouseY - calculatedMouseY;
-            double distanceSq = (dx * dx) + (dy * dy);
+            // --- THE DYNAMIC HITBOX FIX ---
+            // Instead of a static circle, let's calculate a dynamic half-width.
+            // As 'expand' shrinks, the hitbox shrinks with it so they never overlap.
+            // 11.0F is your render scale; 4.5F matches your masterScale factor.
+            float halfSlotSize = (1.0F * 11.0F * 4.5F) / (2.0F * guiScale);
 
-            if (distanceSq < 256.0) {
-                // --- DIRECTIONAL DEPTH CHECK ---
-                // If it's picking back slots, flip this operator to '<' and set closestZ above to Float.POSITIVE_INFINITY
+            // Tighten the bounds slightly to match your preference (e.g., 85% of full slot size)
+            halfSlotSize *= 0.85F;
+
+            // Define a clean bounding box around the projected slot center
+            float minX = calculatedMouseX - halfSlotSize;
+            float maxX = calculatedMouseX + halfSlotSize;
+            float minY = calculatedMouseY - halfSlotSize;
+            float maxY = calculatedMouseY + halfSlotSize;
+
+            // Check if the mouse cursor falls precisely inside this specific slot's square footprint
+            if (mouseX >= minX && mouseX <= maxX && correctedMouseY >= minY && correctedMouseY <= maxY) {
+                // Z-Sorting: Always favor the slot closest to the front screen
                 if (projectedPos.z < closestZ) {
                     closestZ = projectedPos.z;
                     closestSlot = i;
