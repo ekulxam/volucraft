@@ -10,7 +10,6 @@ import net.minecraft.world.item.crafting.RecipeInput;
  * Using x as length, y as width, and z as height
  * @see net.minecraft.world.item.crafting.CraftingInput
  */
-@SuppressWarnings("unused")
 public class AmalgamationInput implements RecipeInput {
 	public static final AmalgamationInput EMPTY = new AmalgamationInput(0, 0, 0, List.of());
     private final int length;
@@ -51,7 +50,7 @@ public class AmalgamationInput implements RecipeInput {
 			int bottom = 0;
 
 			for (int z = 0; z < height; z++) {
-                boolean squareEmpty = true;
+                boolean layerEmpty = true;
 
                 for (int y = 0; y < width; y++) {
                     boolean rowEmpty = true;
@@ -62,7 +61,7 @@ public class AmalgamationInput implements RecipeInput {
                             left = Math.min(left, x);
                             right = Math.max(right, x);
                             rowEmpty = false;
-                            squareEmpty = false;
+                            layerEmpty = false;
                         }
                     }
 
@@ -72,14 +71,14 @@ public class AmalgamationInput implements RecipeInput {
                     }
                 }
 
-                if (!squareEmpty) {
+                if (!layerEmpty) {
                     top = Math.min(top, z);
                     bottom = Math.max(bottom, z);
                 }
             }
 
             int newLength = right - left + 1;
-			int newWidth = back - front + 1;
+			int newWidth = front - back + 1;
 			int newHeight = bottom - top + 1;
 			if (newLength <= 0 || newWidth <= 0 || newHeight <= 0) {
 				return AmalgamationInput.Positioned.EMPTY;
@@ -94,7 +93,7 @@ public class AmalgamationInput implements RecipeInput {
 			for (int z = 0; z < newHeight; z++) {
 				for (int y = 0; y < newWidth; y++) {
                     for (int x = 0; x < newLength; x++) {
-                        int index = x + left + (y + back) * length + (z + top) * length * width;
+                        int index = (x + left) + (y + back) * length + (z + top) * length * width;
                         newItems.add(items.get(index));
                     }
 				}
