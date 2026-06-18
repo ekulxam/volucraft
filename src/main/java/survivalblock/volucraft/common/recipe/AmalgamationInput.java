@@ -1,11 +1,10 @@
-package survivalblock.volucraft.common.menu.recipe;
+package survivalblock.volucraft.common.recipe;
 
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.world.entity.player.StackedItemContents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeInput;
-import survivalblock.volucraft.common.Volucraft;
 
 /**
  * Using x as length, y as width, and z as height

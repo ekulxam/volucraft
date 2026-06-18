@@ -7,8 +7,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.StackedItemContents;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
-import survivalblock.volucraft.common.Volucraft;
-import survivalblock.volucraft.common.menu.recipe.AmalgamationInput;
 
 /**
  * @see net.minecraft.world.inventory.TransientCraftingContainer

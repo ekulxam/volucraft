@@ -7,15 +7,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.RecipeCraftingHolder;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingInput;
-import net.minecraft.world.item.crafting.CraftingRecipe;
-import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.init.VolucraftRecipeTypes;
 import survivalblock.volucraft.common.menu.AmalgamationContainer;
-import survivalblock.volucraft.common.menu.recipe.AmalgamationInput;
-import survivalblock.volucraft.common.menu.recipe.AmalgamationRecipe;
+import survivalblock.volucraft.common.recipe.AmalgamationInput;
+import survivalblock.volucraft.common.recipe.AmalgamationRecipe;
 
 /**
  * @see net.minecraft.world.inventory.ResultSlot

@@ -14,8 +14,8 @@ import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.init.VolucraftBlocks;
 import survivalblock.volucraft.common.init.VolucraftMenuTypes;
 import survivalblock.volucraft.common.init.VolucraftRecipeTypes;
-import survivalblock.volucraft.common.menu.recipe.AmalgamationInput;
-import survivalblock.volucraft.common.menu.recipe.AmalgamationRecipe;
+import survivalblock.volucraft.common.recipe.AmalgamationInput;
+import survivalblock.volucraft.common.recipe.AmalgamationRecipe;
 import survivalblock.volucraft.common.menu.slot.AmalgamationResultSlot;
 
 import java.util.List;

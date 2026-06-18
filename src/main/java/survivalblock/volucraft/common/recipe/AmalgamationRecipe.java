@@ -1,4 +1,4 @@
-package survivalblock.volucraft.common.menu.recipe;
+package survivalblock.volucraft.common.recipe;
 
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.Item;

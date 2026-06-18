@@ -10,7 +10,6 @@ public final class VolucraftItems {
 
     private static final ItemRegistrant REGISTRANT = new ItemRegistrant(Volucraft.MOD_ID);
 
-    @SuppressWarnings("unused")
     public static final Item AMALGAMATION_TABLE = REGISTRANT.register(
             VolucraftBlocks.AMALGAMATION_TABLE, new Item.Properties().useBlockDescriptionPrefix()
     );

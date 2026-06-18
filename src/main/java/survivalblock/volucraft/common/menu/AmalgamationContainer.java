@@ -3,7 +3,7 @@ package survivalblock.volucraft.common.menu;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.StackedContentsCompatible;
 import net.minecraft.world.item.ItemStack;
-import survivalblock.volucraft.common.menu.recipe.AmalgamationInput;
+import survivalblock.volucraft.common.recipe.AmalgamationInput;
 
 import java.util.List;
 

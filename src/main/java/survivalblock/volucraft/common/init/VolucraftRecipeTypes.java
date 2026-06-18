@@ -6,7 +6,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import survivalblock.atmosphere.registrar.Registrant;
 import survivalblock.volucraft.common.Volucraft;
-import survivalblock.volucraft.common.menu.recipe.AmalgamationRecipe;
+import survivalblock.volucraft.common.recipe.AmalgamationRecipe;
 
 public final class VolucraftRecipeTypes {
     private VolucraftRecipeTypes() {
