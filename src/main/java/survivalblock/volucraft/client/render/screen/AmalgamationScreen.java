@@ -11,15 +11,15 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
-import org.joml.Quaternionf;
-import org.joml.Vector2f;
-import org.joml.Vector3f;
+import org.joml.*;
 import survivalblock.volucraft.client.VolucraftClient;
 import survivalblock.volucraft.client.render.CubeModel;
 import survivalblock.volucraft.client.render.CubeOfSlotsRenderState;
 import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.menu.AmalgamationMenu;
 import survivalblock.volucraft.mixin.client.AbstractContainerScreenAccessor;
+
+import java.lang.Math;
 
 import static survivalblock.volucraft.client.render.CubeOfSlotsRenderer.centerFromScale;
 
@@ -144,9 +144,11 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
     public int getHovered3DSlot(double mouseX, double mouseY) {
         int xo = this.leftPos + 186;
         int yo = ((this.height - this.imageHeight) / 2) + 8;
+        int width = 150;
+        int height = 150;
 
-        // 1. Initial window bounds check
-        if (mouseX < xo || mouseX > xo + 150 || mouseY < yo || mouseY > yo + 150) {
+        // 1. Quick bounds check on the PIP box
+        if (mouseX < xo || mouseX > xo + width || mouseY < yo || mouseY > yo + height) {
             return -1;
         }
 
@@ -154,55 +156,66 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         float renderCenter = 6.5F;   // centerFromScale(11F)
         float pivotY = 9.0F / 16.0F; // 0.5625F
 
-        // Generate your view transformation matrix matching the render pipeline exactly
-        Matrix4f transformMatrix = new Matrix4f();
+        // Reconstruct the exact PoseStack matrix chain
+        Matrix4f matrix = new Matrix4f();
 
-        // Step A: Base Entity Flip (flip matrix alters local tracking coordinates)
-        // Matches: poseStack.mulPose(flip) -> flips Y and Z
-        transformMatrix.scale(1.0F, -1.0F, -1.0F);
+        // 1. PIP System Scale (Passes 11F into the state)
+        matrix.scale(11.0F, 11.0F, 11.0F);
 
-        // Step B: Base layout translation offset
-        transformMatrix.translate(0, renderCenter, 0);
+        // 2. poseStack.mulPose(flip) -> Flips Y and Z
+        matrix.scale(1.0F, -1.0F, -1.0F);
 
-        // Step C: Pivot manipulation and Rotation
-        transformMatrix.translate(0, pivotY, 0);
-        transformMatrix.rotate(new Quaternionf().rotateX(rot.y).rotateY(-rot.x));
-        transformMatrix.translate(0, -pivotY, 0);
+        // 3. poseStack.translate(0, centerFromScale, 0)
+        matrix.translate(0, renderCenter, 0);
 
         int closestSlot = -1;
-        double closestDistanceSq = Double.MAX_VALUE;
         float closestZ = Float.NEGATIVE_INFINITY;
+        double closestDistanceSq = Double.MAX_VALUE;
 
-        // 2. Loop through every slot to project its 3D space out into 2D UI coordinates
+        // We use an orthographic projection matrix mirroring how MC sets up GUI rendering
+        // This maps our 3D space into Normalized Device Coordinates [-1, 1]
+        Matrix4f orthoProjection = new Matrix4f().setOrtho(-1.0F, 1.0F, 1.0F, -1.0F, -1000.0F, 1000.0F);
+
         for (int i = 0; i < Volucraft.SLOTS; i++) {
             int slotX = (i % Volucraft.SIDE_LENGTH) - 1;
             int slotZ = ((i / Volucraft.SIDE_LENGTH) % Volucraft.SIDE_LENGTH) - 1;
             int slotY = (i / (Volucraft.SIDE_LENGTH * Volucraft.SIDE_LENGTH)) - 1;
 
-            // Start point determined via transformByIndex(i, translator)
-            Vector4f projectedPos = new Vector4f(slotX * expand, slotY * expand, slotZ * expand, 1.0F);
+            // Create a local matrix copy for this specific slot iteration
+            Matrix4f slotMatrix = new Matrix4f(matrix);
 
-            // Transform our local point using the compiled view matrix state
-            projectedPos.mul(transformMatrix);
+            // 4. Pivot manipulation and rotation sequence
+            slotMatrix.translate(0, pivotY, 0);
+            slotMatrix.rotate(new Quaternionf().rotateX(rot.y).rotateY(-rot.x));
+            slotMatrix.translate(0, -pivotY, 0);
 
-            // Convert the transformed view positions directly into UI Screen Pixels
-            // 11F rendering scale acts as an ortho magnification multiplier across a 150x150 frame center.
-            float uiScaleFactor = 11.0F * 4.5F; // Fine-tune this scalar to match your PIP bounding resolution
-            float screenX = (xo + 75f) + (projectedPos.x * uiScaleFactor);
-            float screenY = (yo + 75f) + (projectedPos.y * uiScaleFactor);
+            // 5. transformByIndex(i, translator)
+            slotMatrix.translate(slotX * expand, slotY * expand, slotZ * expand);
 
-            // Calculate proximity to the mouse cursor pointer
+            // Transform the local origin (0,0,0) of this individual slot cube
+            Vector3f projected = new Vector3f(0, 0, 0);
+            slotMatrix.transformPosition(projected);
+
+            // Project through the orthographic view space into NDC [-1, 1]
+            orthoProjection.transformPosition(projected);
+
+            // Convert NDC coordinates [-1, 1] directly to raw UI screen pixels
+            float screenX = xo + (width / 2.0F) * (projected.x + 1.0F);
+            // Note: We invert Y because Minecraft GUI layout coordinates run downward
+            float screenY = yo + (height / 2.0F) * (1.0F - projected.y);
+
+            // Measure distance from the mouse pointer to the slot's calculated 2D screen center
             double dx = mouseX - screenX;
             double dy = mouseY - screenY;
             double distanceSq = (dx * dx) + (dy * dy);
 
-            // Slot hit radius threshold (e.g., checking if within 18 pixel bound radii)
-            if (distanceSq < 324.0) {
-                // Check depth sort order: ensure we pick the block closest to the visual foreground
-                if (projectedPos.z > closestZ || (Math.abs(projectedPos.z - closestZ) < 0.01f && distanceSq < closestDistanceSq)) {
-                    closestZ = projectedPos.z;
-                    closestDistanceSq = distanceSq;
+            // Hitbox check: is the mouse within roughly 12-14 pixels of the slot center?
+            if (distanceSq < 200.0) {
+                // Depth check: Higher Z means closer to the screen foreground
+                if (projected.z > closestZ) {
+                    closestZ = projected.z;
                     closestSlot = i;
+                    closestDistanceSq = distanceSq;
                 }
             }
         }
