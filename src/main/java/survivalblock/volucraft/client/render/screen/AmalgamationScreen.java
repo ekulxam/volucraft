@@ -201,14 +201,20 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
             Vector4f projectedPos = new Vector4f(slotX * expand, slotY * expand, slotZ * expand, 1.0F);
             projectedPos.mul(transformMatrix);
 
-            // Convert the raw framebuffer coordinates back out to GUI mouse pixels
-            float calculatedMouseX = xo + (projectedPos.x / guiScale);
-            float calculatedMouseY = yo + (projectedPos.y / guiScale);
+            // --- THE FIX: FLIP THE AXIS SIGN DIRECTION ---
+            // If Y was upside-down, invert it.
+            // If Z depth sorting was picking the back cubes instead of the front ones, invert it.
+            float correctedX = projectedPos.x;
+            float correctedY = -projectedPos.y; // Flip Y sign
+            float correctedZ = -projectedPos.z; // Flip Z sign for foreground priority
+
+            // Convert the corrected framebuffer coordinates back out to GUI mouse pixels
+            float calculatedMouseX = xo + (correctedX / guiScale);
+            float calculatedMouseY = yo + (correctedY / guiScale);
 
             double dx = mouseX - calculatedMouseX;
             double dy = mouseY - calculatedMouseY;
             double distanceSq = (dx * dx) + (dy * dy);
-
             // A standard slot item bounds radius maps smoothly to a 14-16 pixel radius
             if (distanceSq < 256.0) {
                 // Sort by depth ordering to capture the block elements visually in the foreground
