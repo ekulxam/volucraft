@@ -73,7 +73,7 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
             }
             ItemStack stack = items.get(i);
             if (!stack.isEmpty()) {
-                renderItem(poseStack, stack);
+                //renderItem(poseStack, stack);
             }
             poseStack.popPose(); // pop1
             poseStack.popPose(); // pop0
@@ -97,121 +97,15 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
         poseStack.popPose();
     }
 
+    /**
+     * Phanastrae's algorithm
+     */
     protected static void transformByIndex(int index, Translator translator) {
-        switch (index) {
-            case 0: {
-                translator.translate(-1, -1, -1);
-                return;
-            }
-            case 1: {
-                translator.translate(0, -1, -1);
-                return;
-            }
-            case 2: {
-                translator.translate(1, -1, -1);
-                return;
-            }
-            case 3: {
-                translator.translate(-1, -1, 0);
-                return;
-            }
-            case 4: {
-                translator.translate(0, -1, 0);
-                return;
-            }
-            case 5: {
-                translator.translate(1, -1, 0);
-                return;
-            }
-            case 6: {
-                translator.translate(-1, -1, 1);
-                return;
-            }
-            case 7: {
-                translator.translate(0, -1, 1);
-                return;
-            }
-            case 8: {
-                translator.translate(1, -1, 1);
-                return;
-            }
-            case 9: {
-                translator.translate(-1, 0, -1);
-                return;
-            }
-            case 10: {
-                translator.translate(0, 0, -1);
-                return;
-            }
-            case 11: {
-                translator.translate(1, 0, -1);
-                return;
-            }
-            case 12: {
-                translator.translate(-1, 0, 0);
-                return;
-            }
-            case 13: {
-                translator.translate(0, 0, 0);
-                return;
-            }
-            case 14: {
-                translator.translate(1, 0, 0);
-                return;
-            }
-            case 15: {
-                translator.translate(-1, 0, 1);
-                return;
-            }
-            case 16: {
-                translator.translate(0, 0, 1);
-                return;
-            }
-            case 17: {
-                translator.translate(1, 0, 1);
-                return;
-            }
-            case 18: {
-                translator.translate(-1, 1, -1);
-                return;
-            }
-            case 19: {
-                translator.translate(0, 1, -1);
-                return;
-            }
-            case 20: {
-                translator.translate(1, 1, -1);
-                return;
-            }
-            case 21: {
-                translator.translate(-1, 1, 0);
-                return;
-            }
-            case 22: {
-                translator.translate(0, 1, 0);
-                return;
-            }
-            case 23: {
-                translator.translate(1, 1, 0);
-                return;
-            }
-            case 24: {
-                translator.translate(-1, 1, 1);
-                return;
-            }
-            case 25: {
-                translator.translate(0, 1, 1);
-                return;
-            }
-            case 26: {
-                translator.translate(1, 1, 1);
-                return;
-            }
-            default: {
-                //noinspection UnnecessaryReturnStatement
-                return;
-            }
-        }
+        int x = (index % Volucraft.SIDE_LENGTH) - 1;
+        int z = ((index / Volucraft.SIDE_LENGTH) % Volucraft.SIDE_LENGTH) - 1;
+        int y = (index / (Volucraft.SIDE_LENGTH * Volucraft.SIDE_LENGTH)) - 1;
+
+        translator.translate(x, y, z);
     }
 
     protected static float centerFromScale(float scale) {
