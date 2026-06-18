@@ -145,13 +145,12 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         int xo = this.leftPos + 186;
         int yo = ((this.height - this.imageHeight) / 2) + 8;
 
-        // 1. Viewport Boundary Check (150x150 region)
+        // 1. Bounds check
         if (mouseX < xo || mouseX > xo + 150 || mouseY < yo || mouseY > yo + 150) {
             return -1;
         }
 
-        // 2. Map 2D mouse directly to layout coordinates
-        // Top-Left (-1, -1), Bottom-Right (1, 1)
+        // 2. Map 2D mouse to NDC space [-1, 1]
         float ndcX = (float) (((mouseX - xo) / 150.0) * 2.0 - 1.0);
         float ndcY = (float) (((mouseY - yo) / 150.0) * 2.0 - 1.0);
 
@@ -160,46 +159,49 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         float rayX = ndcX * orthoScale;
         float rayY = ndcY * orthoScale;
 
-        // 3. Setup the rotation matrix matching the current visual render state
-        Quaternionf renderRot = new Quaternionf().rotateX(rot.y).rotateY(-rot.x);
-
         float expand = (Math.clamp(this.expansion, 0, 1) * 1.5F + 1) * 1.2F;
         float renderCenter = 6.5F;   // centerFromScale(11F)
         float pivotY = 9.0F / 16.0F; // 0.5625F
 
-        int closestSlot = -1;
-        float closestZ = Float.NEGATIVE_INFINITY; // We want the closest block to the screen (highest Z in view space)
+        Quaternionf renderRot = new Quaternionf().rotateX(rot.y).rotateY(-rot.x);
 
-        // 4. Rotate and translate every slot center point to check against mouse Ray
+        int closestSlot = -1;
+        float closestZ = Float.NEGATIVE_INFINITY;
+
+        // 3. Replicate the precise matrix stack pipeline for each slot center
         for (int i = 0; i < Volucraft.SLOTS; i++) {
             int slotX = (i % Volucraft.SIDE_LENGTH) - 1;
             int slotZ = ((i / Volucraft.SIDE_LENGTH) % Volucraft.SIDE_LENGTH) - 1;
             int slotY = (i / (Volucraft.SIDE_LENGTH * Volucraft.SIDE_LENGTH)) - 1;
 
-            // Determine base layout position (Phanastrae's algorithm + expansion mapping)
+            // Start with raw slot geometry positions
             Vector3f slotPos = new Vector3f(slotX * expand, slotY * expand, slotZ * expand);
 
-            // Apply Pivot transform path: translate -> rotate -> untranslate
-            slotPos.y -= pivotY;
-            slotPos.rotate(renderRot);
-            slotPos.y += pivotY;
-
-            // Undo center translation offset
-            slotPos.y += renderCenter;
-
-            // Apply the global LivingEntity mulPose(flip) matrix transformation: Y = -Y, Z = -Z
+            // --- STEP 1: Apply global LivingEntity flip matrix (Y = -Y, Z = -Z) ---
             slotPos.y = -slotPos.y;
             slotPos.z = -slotPos.z;
 
-            // 5. Test if our 2D mouse coordinate falls inside this slot's projected 2D bounds
-            // Radius is 0.5F per block slot cube size
+            // --- STEP 2: Apply the center layout translation offset ---
+            // Since Y was flipped in Step 1, translating "+renderCenter" actually shifts it DOWN
+            slotPos.y += renderCenter;
+
+            // --- STEP 3: Pivot manipulation and Rotation ---
+            // We must pivot around the flipped, translated pivot space
+            slotPos.y += pivotY;
+
+            // Apply the exact rotation matrix used in your renderer
+            slotPos.rotate(renderRot);
+
+            slotPos.y -= pivotY;
+
+            // 4. Test 2D intersection against the slot's final screen-space footprint
             float minX = slotPos.x - 0.5F;
             float maxX = slotPos.x + 0.5F;
             float minY = slotPos.y - 0.5F;
             float maxY = slotPos.y + 0.5F;
 
             if (rayX >= minX && rayX <= maxX && rayY >= minY && rayY <= maxY) {
-                // If the ray hits multiple overlapping cubes, pick the one closest to the viewport front (highest Z)
+                // Pick the slot physically closest to the front of the viewport screen
                 if (slotPos.z > closestZ) {
                     closestZ = slotPos.z;
                     closestSlot = i;
