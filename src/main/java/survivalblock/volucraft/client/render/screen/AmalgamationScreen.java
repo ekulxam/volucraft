@@ -20,6 +20,8 @@ import survivalblock.volucraft.common.menu.AmalgamationMenu;
 import survivalblock.volucraft.mixin.client.AbstractContainerScreenAccessor;
 
 import java.lang.Math;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static survivalblock.volucraft.client.render.CubeOfSlotsRenderer.centerFromScale;
 
@@ -33,6 +35,8 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
 
     private final CubeModel cubeModel;
     private final CubeModel cubeModelWithItem;
+
+    public final Map<Integer, Vector2f> slotScreenPositions = new ConcurrentHashMap<>();
 
     @SuppressWarnings({"FieldCanBeLocal", "unused", "NotNullFieldNotInitialized"})
     private CycleButton<Boolean> expansionButton;
@@ -116,6 +120,7 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         }
         graphics.guiRenderState.addPicturesInPictureState(
                 new CubeOfSlotsRenderState(
+                        this.slotScreenPositions,
                         this.cubeModel,
                         this.cubeModelWithItem,
                         SLOT_CUBE_TEXTURE,
@@ -142,103 +147,21 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
 
     // begin credit: AI (what the heck is this)
     public int getHovered3DSlot(double mouseX, double mouseY) {
-        int xo = this.leftPos + 186;
-        int yo = ((this.height - this.imageHeight) / 2) + 8;
-        int width = 150;
-        int height = 150;
-
-        // 1. Quick bounds check on the PIP box
-        if (mouseX < xo || mouseX > xo + width || mouseY < yo || mouseY > yo + height) {
-            return -1;
-        }
-
-        float expand = (Math.clamp(this.expansion, 0, 1) * 1.5F + 1) * 1.2F;
-        float renderCenter = 6.5F;   // centerFromScale(11F)
-        float pivotY = 9.0F / 16.0F; // 0.5625F
-
-        // Reconstruct the exact PoseStack matrix chain
-        Matrix4f matrix = new Matrix4f();
-
-        // 1. PIP System Scale (Passes 11F into the state)
-        matrix.scale(11.0F, 11.0F, 11.0F);
-
-        // 2. poseStack.mulPose(flip) -> Flips Y and Z
-        matrix.scale(1.0F, -1.0F, -1.0F);
-
-        // 3. poseStack.translate(0, centerFromScale, 0)
-        matrix.translate(0, renderCenter, 0);
-
         int closestSlot = -1;
-        float closestZ = Float.NEGATIVE_INFINITY;
-        double closestDistanceSq = Double.MAX_VALUE;
+        double closestDistanceSq = 200.0; // Hitbox radius threshold squared
 
-        // We use an orthographic projection matrix mirroring how MC sets up GUI rendering
-        // This maps our 3D space into Normalized Device Coordinates [-1, 1]
-        Matrix4f orthoProjection = new Matrix4f().setOrtho(-1.0F, 1.0F, 1.0F, -1.0F, -1000.0F, 1000.0F);
-
-        for (int i = 0; i < Volucraft.SLOTS; i++) {
-            int slotX = (i % Volucraft.SIDE_LENGTH) - 1;
-            int slotZ = ((i / Volucraft.SIDE_LENGTH) % Volucraft.SIDE_LENGTH) - 1;
-            int slotY = (i / (Volucraft.SIDE_LENGTH * Volucraft.SIDE_LENGTH)) - 1;
-
-            // Create a local matrix copy for this specific slot iteration
-            Matrix4f slotMatrix = new Matrix4f(matrix);
-
-            // 4. Pivot manipulation and rotation sequence
-            slotMatrix.translate(0, pivotY, 0);
-            slotMatrix.rotate(new Quaternionf().rotateX(rot.y).rotateY(-rot.x));
-            slotMatrix.translate(0, -pivotY, 0);
-
-            // 5. transformByIndex(i, translator)
-            slotMatrix.translate(slotX * expand, slotY * expand, slotZ * expand);
-
-            // Transform the local origin (0,0,0) of this individual slot cube
-            Vector3f projected = new Vector3f(0, 0, 0);
-            slotMatrix.transformPosition(projected);
-
-            // Project through the orthographic view space into NDC [-1, 1]
-            orthoProjection.transformPosition(projected);
-
-            // Convert NDC coordinates [-1, 1] directly to raw UI screen pixels
-            float screenX = xo + (width / 2.0F) * (projected.x + 1.0F);
-            // Note: We invert Y because Minecraft GUI layout coordinates run downward
-            float screenY = yo + (height / 2.0F) * (1.0F - projected.y);
-
-            // Measure distance from the mouse pointer to the slot's calculated 2D screen center
-            double dx = mouseX - screenX;
-            double dy = mouseY - screenY;
+        for (Map.Entry<Integer, Vector2f> entry : this.slotScreenPositions.entrySet()) {
+            Vector2f pos = entry.getValue();
+            double dx = mouseX - pos.x;
+            double dy = mouseY - pos.y;
             double distanceSq = (dx * dx) + (dy * dy);
 
-            // Hitbox check: is the mouse within roughly 12-14 pixels of the slot center?
-            if (distanceSq < 200.0) {
-                // Depth check: Higher Z means closer to the screen foreground
-                if (projected.z > closestZ) {
-                    closestZ = projected.z;
-                    closestSlot = i;
-                    closestDistanceSq = distanceSq;
-                }
+            if (distanceSq < closestDistanceSq) {
+                closestDistanceSq = distanceSq;
+                closestSlot = entry.getKey();
             }
         }
-
         return closestSlot;
-    }
-
-    // Axis-Aligned Bounding Box (AABB) intersection helper function
-    private float intersectRayAABB(Vector3f origin, Vector3f dir, float minX, float maxX, float minY, float maxY, float minZ, float maxZ) {
-        float t1 = (minX - origin.x) / dir.x;
-        float t2 = (maxX - origin.x) / dir.x;
-        float t3 = (minY - origin.y) / dir.y;
-        float t4 = (maxY - origin.y) / dir.y;
-        float t5 = (minZ - origin.z) / dir.z;
-        float t6 = (maxZ - origin.z) / dir.z;
-
-        float tmin = Math.max(Math.max(Math.min(t1, t2), Math.min(t3, t4)), Math.min(t5, t6));
-        float tmax = Math.min(Math.min(Math.max(t1, t2), Math.max(t3, t4)), Math.max(t5, t6));
-
-        if (tmax < 0 || tmin > tmax) {
-            return -1.0F; // No intersection match
-        }
-        return tmin;
     }
     // end credit: AI
 }
