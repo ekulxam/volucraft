@@ -26,4 +26,9 @@ public interface AmalgamationContainer extends Container, StackedContentsCompati
     int getWidth();
 
     int getHeight();
+
+    @Override
+    default int getMaxStackSize() {
+        return 1;
+    }
 }
