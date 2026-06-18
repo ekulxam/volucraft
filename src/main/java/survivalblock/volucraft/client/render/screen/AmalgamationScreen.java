@@ -152,73 +152,67 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         int pipWidth = 150;
         int pipHeight = 150;
 
-        // 1. Core bounding window check
         if (mouseX < xo || mouseX > xo + pipWidth || mouseY < yo || mouseY > yo + pipHeight) {
             return -1;
         }
 
-        // Grab the exact active GUI scale factor
         int guiScale = (int) this.minecraft.getWindow().getGuiScale();
         if (guiScale <= 0) guiScale = 1;
 
-        // Calculate dimensions matching the PictureInPictureRenderer framebuffer size
         float fboWidth = pipWidth * guiScale;
         float fboHeight = pipHeight * guiScale;
 
         float expand = (Math.clamp(this.expansion, 0, 1) * 1.5F + 1) * 1.2F;
         float pivotY = 9.0F / 16.0F;
-        float renderCenter = 6.5F; // centerFromScale(11F)
+        float renderCenter = 6.5F;
 
         int closestSlot = -1;
-        float closestZ = Float.NEGATIVE_INFINITY;
+
+        // --- THE Z-SORTING LEVER ---
+        // If it was selecting the BACK slots before, we want the lowest Z value (Float.POSITIVE_INFINITY).
+        // If it was selecting the FRONT slots before, we want the highest Z value (Float.NEGATIVE_INFINITY).
+        float closestZ = Float.POSITIVE_INFINITY;
 
         for (int i = 0; i < Volucraft.SLOTS; i++) {
             int slotX = (i % Volucraft.SIDE_LENGTH) - 1;
             int slotZ = ((i / Volucraft.SIDE_LENGTH) % Volucraft.SIDE_LENGTH) - 1;
             int slotY = (i / (Volucraft.SIDE_LENGTH * Volucraft.SIDE_LENGTH)) - 1;
 
-            // Reconstruct the master transform matrix chain identically
             Matrix4f transformMatrix = new Matrix4f();
 
-            // Step A: Base translation setup from PictureInPictureRenderer#prepare
-            // NOTE: If getTranslateY is overridden anywhere, adjust this fboHeight assignment
+            // Step A: Base translation setup from PIP Renderer
             transformMatrix.translate(fboWidth / 2.0F, fboHeight, 0.0F);
 
-            // Step B: Master scaling operation matching the pipeline exactly
-            float internalScale = guiScale * 11.0F; // scale 11F passed to state
+            // Step B: Master scaling operation
+            float internalScale = guiScale * 11.0F;
             transformMatrix.scale(internalScale, internalScale, -internalScale);
 
             // Step C: Your custom renderer transformations
-            transformMatrix.scale(1.0F, -1.0F, -1.0F); // poseStack.mulPose(flip)
-            transformMatrix.translate(0, renderCenter, 0); // poseStack.translate(0, center, 0)
+            // ADJUSTMENT: We change the Y scale factor here to safely flip Y without breaking translations
+            transformMatrix.scale(1.0F, 1.0F, -1.0F); // Try changing to (1.0F, -1.0F, -1.0F) if Y is inverted!
+            transformMatrix.translate(0, renderCenter, 0);
 
             // Step D: Loop rotation transformations around the pivot points
             transformMatrix.translate(0, pivotY, 0);
             transformMatrix.rotate(new Quaternionf().rotateX(rot.y).rotateY(-rot.x));
             transformMatrix.translate(0, -pivotY, 0);
 
-            // Calculate the relative coordinate point
             Vector4f projectedPos = new Vector4f(slotX * expand, slotY * expand, slotZ * expand, 1.0F);
             projectedPos.mul(transformMatrix);
 
-            // --- THE FIX: FLIP THE AXIS SIGN DIRECTION ---
-            // If Y was upside-down, invert it.
-            // If Z depth sorting was picking the back cubes instead of the front ones, invert it.
-            float correctedX = projectedPos.x;
-            float correctedY = -projectedPos.y; // Flip Y sign
-            float correctedZ = -projectedPos.z; // Flip Z sign for foreground priority
-
-            // Convert the corrected framebuffer coordinates back out to GUI mouse pixels
-            float calculatedMouseX = xo + (correctedX / guiScale);
-            float calculatedMouseY = yo + (correctedY / guiScale);
+            // Convert the raw framebuffer coordinates back out to GUI mouse pixels safely
+            float calculatedMouseX = xo + (projectedPos.x / guiScale);
+            float calculatedMouseY = yo + (projectedPos.y / guiScale);
 
             double dx = mouseX - calculatedMouseX;
             double dy = mouseY - calculatedMouseY;
             double distanceSq = (dx * dx) + (dy * dy);
-            // A standard slot item bounds radius maps smoothly to a 14-16 pixel radius
-            if (distanceSq < 256.0) {
-                // Sort by depth ordering to capture the block elements visually in the foreground
-                if (projectedPos.z > closestZ) {
+
+            // Bumped search threshold to 400.0 to make hovering highly forgiving while testing
+            if (distanceSq < 400.0) {
+                // IF BACK SLOTS ARE HIGHLIGHTING: change 'projectedPos.z < closestZ' to '>'
+                // and flip closestZ's initial value above to Float.NEGATIVE_INFINITY.
+                if (projectedPos.z < closestZ) {
                     closestZ = projectedPos.z;
                     closestSlot = i;
                 }
