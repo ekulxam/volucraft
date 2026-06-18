@@ -149,65 +149,72 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
     public int getHovered3DSlot(double mouseX, double mouseY) {
         int xo = this.leftPos + 186;
         int yo = ((this.height - this.imageHeight) / 2) + 8;
-        int pipSize = 150;
+        int pipWidth = 150;
+        int pipHeight = 150;
 
-        if (mouseX < xo || mouseX > xo + pipSize || mouseY < yo || mouseY > yo + pipSize) {
+        // 1. Core bounding window check
+        if (mouseX < xo || mouseX > xo + pipWidth || mouseY < yo || mouseY > yo + pipHeight) {
             return -1;
         }
 
+        // Grab the exact active GUI scale factor
+        int guiScale = (int) this.minecraft.getWindow().getGuiScale();
+        if (guiScale <= 0) guiScale = 1;
+
+        // Calculate dimensions matching the PictureInPictureRenderer framebuffer size
+        float fboWidth = pipWidth * guiScale;
+        float fboHeight = pipHeight * guiScale;
+
         float expand = (Math.clamp(this.expansion, 0, 1) * 1.5F + 1) * 1.2F;
-        float pivotY = 9.0F / 16.0F; // 0.5625F
-        float renderCenter = 6.5F;   // centerFromScale(11F)
+        float pivotY = 9.0F / 16.0F;
+        float renderCenter = 6.5F; // centerFromScale(11F)
 
         int closestSlot = -1;
-        double closestDistanceSq = Double.MAX_VALUE;
         float closestZ = Float.NEGATIVE_INFINITY;
-
-        float renderCenterX = xo + (pipSize / 2.0F);
-        float renderCenterY = yo + (pipSize / 2.0F);
-
-        // This multiplier maps the 11F scale factor from 3D unit space to 2D UI pixels
-        float masterScale = 11.0F * 4.5F;
 
         for (int i = 0; i < Volucraft.SLOTS; i++) {
             int slotX = (i % Volucraft.SIDE_LENGTH) - 1;
             int slotZ = ((i / Volucraft.SIDE_LENGTH) % Volucraft.SIDE_LENGTH) - 1;
             int slotY = (i / (Volucraft.SIDE_LENGTH * Volucraft.SIDE_LENGTH)) - 1;
 
-            // Build a fresh matrix for this slot that mirrors your PoseStack perfectly
+            // Reconstruct the master transform matrix chain identically
             Matrix4f transformMatrix = new Matrix4f();
 
-            // 1. poseStack.mulPose(flip)
-            transformMatrix.scale(1.0F, -1.0F, -1.0F);
+            // Step A: Base translation setup from PictureInPictureRenderer#prepare
+            // NOTE: If getTranslateY is overridden anywhere, adjust this fboHeight assignment
+            transformMatrix.translate(fboWidth / 2.0F, fboHeight, 0.0F);
 
-            // 2. poseStack.translate(0, centerFromScale, 0)
-            transformMatrix.translate(0, renderCenter, 0);
+            // Step B: Master scaling operation matching the pipeline exactly
+            float internalScale = guiScale * 11.0F; // scale 11F passed to state
+            transformMatrix.scale(internalScale, internalScale, -internalScale);
 
-            // 3. Pivot rotation setup (inside the loop)
+            // Step C: Your custom renderer transformations
+            transformMatrix.scale(1.0F, -1.0F, -1.0F); // poseStack.mulPose(flip)
+            transformMatrix.translate(0, renderCenter, 0); // poseStack.translate(0, center, 0)
+
+            // Step D: Loop rotation transformations around the pivot points
             transformMatrix.translate(0, pivotY, 0);
             transformMatrix.rotate(new Quaternionf().rotateX(rot.y).rotateY(-rot.x));
             transformMatrix.translate(0, -pivotY, 0);
 
-            // 4. transformByIndex(i, translator)
+            // Calculate the relative coordinate point
             Vector4f projectedPos = new Vector4f(slotX * expand, slotY * expand, slotZ * expand, 1.0F);
-
-            // Multiply the slot position by our perfectly mirrored matrix stack
             projectedPos.mul(transformMatrix);
 
-            // Map to screen pixels
-            float screenX = renderCenterX + (projectedPos.x * masterScale);
-            float screenY = renderCenterY + (projectedPos.y * masterScale);
+            // Convert the raw framebuffer coordinates back out to GUI mouse pixels
+            float calculatedMouseX = xo + (projectedPos.x / guiScale);
+            float calculatedMouseY = yo + (projectedPos.y / guiScale);
 
-            double dx = mouseX - screenX;
-            double dy = mouseY - screenY;
+            double dx = mouseX - calculatedMouseX;
+            double dy = mouseY - calculatedMouseY;
             double distanceSq = (dx * dx) + (dy * dy);
 
-            // Keep a uniform, reasonable hitbox circle
-            if (distanceSq < 400.0) {
+            // A standard slot item bounds radius maps smoothly to a 14-16 pixel radius
+            if (distanceSq < 256.0) {
+                // Sort by depth ordering to capture the block elements visually in the foreground
                 if (projectedPos.z > closestZ) {
                     closestZ = projectedPos.z;
                     closestSlot = i;
-                    closestDistanceSq = distanceSq;
                 }
             }
         }
