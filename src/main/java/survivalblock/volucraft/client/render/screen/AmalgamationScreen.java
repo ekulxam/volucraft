@@ -156,49 +156,54 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         }
 
         float expand = (Math.clamp(this.expansion, 0, 1) * 1.5F + 1) * 1.2F;
-        float pivotY = 9.0F / 16.0F;
-
-        Matrix4f transformMatrix = new Matrix4f();
-        transformMatrix.scale(1.0F, -1.0F, -1.0F);
-        transformMatrix.translate(0, pivotY, 0);
-        transformMatrix.rotate(new Quaternionf().rotateX(rot.y).rotateY(-rot.x));
-        transformMatrix.translate(0, -pivotY, 0);
+        float pivotY = 9.0F / 16.0F; // 0.5625F
+        float renderCenter = 6.5F;   // centerFromScale(11F)
 
         int closestSlot = -1;
         double closestDistanceSq = Double.MAX_VALUE;
         float closestZ = Float.NEGATIVE_INFINITY;
 
-        // --- FINE TUNING CALIBRATION ---
         float renderCenterX = xo + (pipSize / 2.0F);
+        float renderCenterY = yo + (pipSize / 2.0F);
 
-        // Shift the center calculation slightly UPWARD (subtracting pixels)
-        // to fix having to drag your mouse too far down for the front slot
-        float renderCenterY = yo + (pipSize / 2.0F) - 12.0F;
-
-        // Keep X stable since it hits the center column perfectly
-        float scaleX = 11.0F * 4.5F;
-
-        // Aggressively amplify Y scale to unpack the squashed top/bottom row calculations
-        float scaleY = scaleX * 1.65F;
+        // This multiplier maps the 11F scale factor from 3D unit space to 2D UI pixels
+        float masterScale = 11.0F * 4.5F;
 
         for (int i = 0; i < Volucraft.SLOTS; i++) {
             int slotX = (i % Volucraft.SIDE_LENGTH) - 1;
             int slotZ = ((i / Volucraft.SIDE_LENGTH) % Volucraft.SIDE_LENGTH) - 1;
             int slotY = (i / (Volucraft.SIDE_LENGTH * Volucraft.SIDE_LENGTH)) - 1;
 
+            // Build a fresh matrix for this slot that mirrors your PoseStack perfectly
+            Matrix4f transformMatrix = new Matrix4f();
+
+            // 1. poseStack.mulPose(flip)
+            transformMatrix.scale(1.0F, -1.0F, -1.0F);
+
+            // 2. poseStack.translate(0, centerFromScale, 0)
+            transformMatrix.translate(0, renderCenter, 0);
+
+            // 3. Pivot rotation setup (inside the loop)
+            transformMatrix.translate(0, pivotY, 0);
+            transformMatrix.rotate(new Quaternionf().rotateX(rot.y).rotateY(-rot.x));
+            transformMatrix.translate(0, -pivotY, 0);
+
+            // 4. transformByIndex(i, translator)
             Vector4f projectedPos = new Vector4f(slotX * expand, slotY * expand, slotZ * expand, 1.0F);
+
+            // Multiply the slot position by our perfectly mirrored matrix stack
             projectedPos.mul(transformMatrix);
 
-            float screenX = renderCenterX + (projectedPos.x * scaleX);
-            float screenY = renderCenterY + (projectedPos.y * scaleY);
+            // Map to screen pixels
+            float screenX = renderCenterX + (projectedPos.x * masterScale);
+            float screenY = renderCenterY + (projectedPos.y * masterScale);
 
             double dx = mouseX - screenX;
             double dy = mouseY - screenY;
             double distanceSq = (dx * dx) + (dy * dy);
 
-            // Open up the hitbox radius significantly (roughly a 26-pixel radius)
-            // to accommodate the newly stretched vertical rows
-            if (distanceSq < 676.0) {
+            // Keep a uniform, reasonable hitbox circle
+            if (distanceSq < 400.0) {
                 if (projectedPos.z > closestZ) {
                     closestZ = projectedPos.z;
                     closestSlot = i;
