@@ -1,11 +1,11 @@
 package survivalblock.volucraft.client.render.screen;
 
-import com.mojang.math.Constants;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -13,8 +13,6 @@ import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.phys.Vec2;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import survivalblock.volucraft.client.VolucraftClient;
@@ -26,12 +24,14 @@ import survivalblock.volucraft.mixin.client.AbstractContainerScreenAccessor;
 
 public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu> {
     public static final Identifier CRAFTING_TABLE_LOCATION = Volucraft.id("textures/gui/container/amalgamation_alt.png");
-    public static final Identifier SLOT_SPRITE = Volucraft.id("textures/gui/container/slots.png");
-    private static final Identifier SLOT_HIGHLIGHT = Volucraft.id("textures/gui/container/slots_highlight.png");
+    public static final Identifier SLOT_CUBE_TEXTURE = Volucraft.id("textures/gui/container/slots.png");
+    public static final Identifier TRANSLUCENT_SLOT_CUBE = Volucraft.id("textures/gui/container/slots_translucent.png");
+    private static final Identifier HIGHLIGHTED_SLOT_CUBE = Volucraft.id("textures/gui/container/slots_highlight.png");
 
     private static final float EXPANSION_STEP = 0.05F;
 
     private final CubeModel cubeModel;
+    private final CubeModel cubeModelWithItem;
 
     @SuppressWarnings({"FieldCanBeLocal", "unused", "NotNullFieldNotInitialized"})
     private CycleButton<Boolean> expansionButton;
@@ -42,6 +42,7 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
     public AmalgamationScreen(AmalgamationMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, 344, 166);
         this.cubeModel = new CubeModel(this.minecraft.getEntityModels().bakeLayer(VolucraftClient.CUBE));
+        this.cubeModelWithItem = new CubeModel(this.minecraft.getEntityModels().bakeLayer(VolucraftClient.CUBE), RenderTypes::entityTranslucentEmissive);
     }
 
     @Override
@@ -96,26 +97,29 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         super.extractBackground(graphics, mouseX, mouseY, a);
 
         rot.y = (float) Math.clamp(rot.y, -Math.PI / 2, Math.PI / 2);
-        rot.x = (float) (rot.x % Math.PI);
+        rot.x = (float) (rot.x % (Math.PI * 2));
 
         int xo = this.leftPos;
         int yo = (this.height - this.imageHeight) / 2;
-        //graphics.blit(RenderPipelines.GUI_TEXTURED, CRAFTING_TABLE_LOCATION, xo, yo, 0.0F, 0.0F, this.imageWidth, this.imageHeight, 512, 512);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, CRAFTING_TABLE_LOCATION, xo, yo, 0.0F, 0.0F, this.imageWidth, this.imageHeight, 512, 512);
 
         // render cube (center at 261, 83) in a 150x150 area
         //graphics. // DEATH
-        int selected = (int) ((Util.getMillis() / 100F) % Volucraft.SLOTS);
+        //int selected = (int) ((Util.getMillis() / 100F) % Volucraft.SLOTS);
+        int selected = 0;
         int cubeX0 = xo + 186;
         int cubeY0 = yo + 8;
-        NonNullList<ItemStack> items = NonNullList.withSize(Volucraft.SLOTS, Items.COBBLESTONE.getDefaultInstance());
-        /*for (int i = 0; i < items.size(); i++) {
+        NonNullList<ItemStack> items = NonNullList.withSize(Volucraft.SLOTS, ItemStack.EMPTY);
+        for (int i = 0; i < items.size(); i++) {
             items.set(i, this.menu.getSlot(i + 1).getItem());
-        }*/
+        }
         graphics.guiRenderState.addPicturesInPictureState(
                 new CubeOfSlotsRenderState(
                         this.cubeModel,
-                        SLOT_SPRITE,
-                        SLOT_HIGHLIGHT,
+                        this.cubeModelWithItem,
+                        SLOT_CUBE_TEXTURE,
+                        TRANSLUCENT_SLOT_CUBE,
+                        HIGHLIGHTED_SLOT_CUBE,
                         items,
                         selected,
                         this.expansion,

@@ -16,7 +16,9 @@ import org.jspecify.annotations.Nullable;
  */
 public record CubeOfSlotsRenderState(
         CubeModel unit,
+        CubeModel unitWithItem,
         Identifier texture,
+        Identifier translucent,
         Identifier highlightTexture,
         NonNullList<ItemStack> items,
         int selected,
@@ -32,7 +34,9 @@ public record CubeOfSlotsRenderState(
 ) implements PictureInPictureRenderState {
     public CubeOfSlotsRenderState(
             CubeModel model,
+            CubeModel model1,
             Identifier texture,
+            Identifier translucent,
             Identifier highlightTexture,
             NonNullList<ItemStack> items,
             int selected,
@@ -45,6 +49,6 @@ public record CubeOfSlotsRenderState(
             float scale,
             @Nullable ScreenRectangle scissorArea
     ) {
-        this(model, texture, highlightTexture, items, selected, lerpExpansion, rotation, x0, y0, x1, y1, scale, scissorArea, PictureInPictureRenderState.getBounds(x0, y0, x1, y1, scissorArea));
+        this(model, model1, texture, translucent, highlightTexture, items, selected, lerpExpansion, rotation, x0, y0, x1, y1, scale, scissorArea, PictureInPictureRenderState.getBounds(x0, y0, x1, y1, scissorArea));
     }
 }
