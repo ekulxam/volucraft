@@ -87,8 +87,8 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
                 float windowY = yOffset + (pipHeight / 2.0F) * (1.0F - projectedPos.y);
 
 // 3. Convert from Window Space to GUI / Mouse Space
-                float finalMouseSpaceX = (float) (windowX / guiScale);
-                float finalMouseSpaceY = (float) (windowY / guiScale);
+                float finalMouseSpaceX = (float) (projectedPos.x / guiScale);
+                float finalMouseSpaceY = (float) (projectedPos.y / guiScale);
 
 // Store the normalized mouse-space coordinates
                 renderState.slotScreenPositions().put(i, new Vector2f(finalMouseSpaceX, finalMouseSpaceY));
