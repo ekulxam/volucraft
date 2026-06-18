@@ -199,7 +199,7 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
 
             // Convert the transformed positions directly into UI Screen Pixels
             float screenX = renderCenterX + (projectedPos.x * scaleX);
-            float screenY = renderCenterY + (projectedPos.y * scaleY); // Fllipped in matrix step A
+            float screenY = renderCenterY - (projectedPos.y * scaleY); // Fllipped in matrix step A
 
             // Calculate proximity to the mouse cursor pointer
             double dx = mouseX - screenX;
