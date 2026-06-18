@@ -176,7 +176,7 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
 
         // --- THE Z-SORTING FIX ---
         // Change this to Float.POSITIVE_INFINITY if it was picking the back slots instead of the front slots!
-        float closestZ = Float.NEGATIVE_INFINITY;
+        float closestZ = Float.POSITIVE_INFINITY;
 
         for (int i = 0; i < Volucraft.SLOTS; i++) {
             int slotX = (i % Volucraft.SIDE_LENGTH) - 1;
@@ -211,7 +211,7 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
             if (distanceSq < 256.0) {
                 // --- DIRECTIONAL DEPTH CHECK ---
                 // If it's picking back slots, flip this operator to '<' and set closestZ above to Float.POSITIVE_INFINITY
-                if (projectedPos.z > closestZ) {
+                if (projectedPos.z < closestZ) {
                     closestZ = projectedPos.z;
                     closestSlot = i;
                 }
