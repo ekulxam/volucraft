@@ -151,61 +151,52 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         int yo = ((this.height - this.imageHeight) / 2) + 8;
         int pipSize = 150;
 
-        // 1. Core bounding box check
         if (mouseX < xo || mouseX > xo + pipSize || mouseY < yo || mouseY > yo + pipSize) {
             return -1;
         }
 
-        // Find the definitive local pixel center of the PIP box
         float localCenterX = xo + (pipSize / 2.0F);
         float localCenterY = yo + (pipSize / 2.0F);
 
+        // Matches your exact expansion math
         float expand = (Math.clamp(this.expansion, 0, 1) * 1.5F + 1) * 1.2F;
-        float pivotY = 9.0F / 16.0F; // 0.5625F
+        float pivotY = 9.0F / 16.0F;
 
-        // 2. Construct a fresh, isolated rotation matrix from your screen state variables
         Matrix4f viewMatrix = new Matrix4f();
-        // Replicate your precise rotation behavior: rot.y around X, -rot.x around Y
         viewMatrix.rotateX(rot.y);
         viewMatrix.rotateY(-rot.x);
 
         int closestSlot = -1;
         float closestDepth = Float.NEGATIVE_INFINITY;
 
-        // Adjust this scalar to match the visual footprint of the 11F scale factor
-        // If the hitboxes feel too condensed in the center, increase this number slightly.
+        // --- THE SCALE TUNING LEVERS ---
+        // 1. Base translation scale: Controls the overall size of the selection area
         float viewProjectionScale = 38.0F;
+
+        // 2. Expansion multiplier: Adjust this if rows are out of sync when expanded vs shrunk
+        float stretchFactor = 1.0F;
 
         for (int i = 0; i < Volucraft.SLOTS; i++) {
             int slotX = (i % Volucraft.SIDE_LENGTH) - 1;
             int slotZ = ((i / Volucraft.SIDE_LENGTH) % Volucraft.SIDE_LENGTH) - 1;
             int slotY = (i / (Volucraft.SIDE_LENGTH * Volucraft.SIDE_LENGTH)) - 1;
 
-            // Establish the un-rotated local point vector based on slot positioning
-            Vector3f localPos = new Vector3f(slotX * expand, slotY * expand, slotZ * expand);
+            // Apply stretch factor directly to local spatial layouts
+            Vector3f localPos = new Vector3f(
+                    slotX * expand * stretchFactor,
+                    slotY * expand * stretchFactor,
+                    slotZ * expand * stretchFactor
+            );
 
-            // 1. Pivot manipulation (shift down by pivot before rotating)
             localPos.y -= pivotY;
-
-            // 2. Apply our reliable rotation matrix
             viewMatrix.transformPosition(localPos);
-
-            // 3. Restore pivot offset
             localPos.y += pivotY;
 
-            // --- CRITICAL CORRECTION TO MATCH YOUR RENDERER STACK ---
-            // In your renderer:
-            // poseStack.mulPose(flip) -> Flips Y and Z
-            // poseStack.translate(0, 6.5F, 0) -> Shuts the position on the flipped axis
-
-            float renderCenter = 6.5F; // centerFromScale(11F)
-
-            // Apply the Master Flip *and* the center translation offset together
+            // Strip renderCenter completely—keep the clean, unshifted core that gave you huge progress
             float finalX = localPos.x;
-            float finalY = -(localPos.y + renderCenter); // Flip the entire shifted Y position
+            float finalY = -localPos.y; // Keep the working inversion check
             float finalZ = -localPos.z;
 
-            // Project the local 3D points directly into UI pixel destinations
             float screenX = localCenterX + (finalX * viewProjectionScale);
             float screenY = localCenterY + (finalY * viewProjectionScale);
 
@@ -213,9 +204,8 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
             double dy = mouseY - screenY;
             double distanceSq = (dx * dx) + (dy * dy);
 
-            // Check if the cursor lands within the 3D footprint radius of the slot block
-            if (distanceSq < 225.0) { // 15 pixel radius threshold bounds
-                // Ensure proper depth sorting: larger Z depth values map to the foreground
+            // Increase the capture footprint (e.g., 400.0 = 20px radius) to make selections more forgiving
+            if (distanceSq < 400.0) {
                 if (finalZ > closestDepth) {
                     closestDepth = finalZ;
                     closestSlot = i;
