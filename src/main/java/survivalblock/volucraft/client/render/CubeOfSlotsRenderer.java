@@ -84,7 +84,8 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
 
     private void renderItem(PoseStack poseStack, ItemStack stack) {
         poseStack.pushPose();
-        //poseStack.scale(1, 1, -1);
+        poseStack.scale(1.0F, -1.0F, -1.0F);
+        poseStack.translate(0, -0.5, 0);
         TrackingItemStackRenderState itemStackRenderState = new TrackingItemStackRenderState();
         ItemDisplayContext displayContext = ItemDisplayContext.NONE;
         this.minecraft.getItemModelResolver().updateForTopItem(itemStackRenderState, stack, displayContext, this.minecraft.level, this.minecraft.player, 0);
@@ -94,7 +95,6 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
         } else {
             Minecraft.getInstance().gameRenderer.getLighting().setupFor(Lighting.Entry.ITEMS_3D);
         }
-        //poseStack.translate(8, 0, 8);
         FeatureRenderDispatcher featureRenderDispatcher = Minecraft.getInstance().gameRenderer.getFeatureRenderDispatcher();
         SubmitNodeStorage submitNodeStorage = featureRenderDispatcher.getSubmitNodeStorage();
         itemStackRenderState.submit(poseStack, submitNodeStorage, 15728880, OverlayTexture.NO_OVERLAY, 0);
