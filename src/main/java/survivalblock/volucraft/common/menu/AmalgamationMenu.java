@@ -111,7 +111,56 @@ public class AmalgamationMenu extends AbstractContainerMenu {
 
     @Override
     public ItemStack quickMoveStack(final Player player, final int slotIndex) {
-        return ItemStack.EMPTY; // FIXME
+        final int resultSlot = 0;
+        final int craftSlotsStart = 1;
+        final int invSlotsStart = 10 - 9 + Volucraft.SLOTS;
+        final int useSlotsStart = 37 - 9 + Volucraft.SLOTS;
+        final int useSlotsEnd = 46 - 9 + Volucraft.SLOTS;
+
+        ItemStack clicked = ItemStack.EMPTY;
+        Slot slot = this.slots.get(slotIndex);
+        //noinspection ConstantValue
+        if (slot != null && slot.hasItem()) {
+            ItemStack stack = slot.getItem();
+            clicked = stack.copy();
+            if (slotIndex == resultSlot) {
+                stack.getItem().onCraftedBy(stack, player);
+                if (!this.moveItemStackTo(stack, invSlotsStart, useSlotsEnd, true)) {
+                    return ItemStack.EMPTY;
+                }
+
+                slot.onQuickCraft(stack, clicked);
+            } else if (slotIndex >= invSlotsStart && slotIndex < useSlotsEnd) {
+                if (!this.moveItemStackTo(stack, craftSlotsStart, invSlotsStart, false)) {
+                    if (slotIndex < useSlotsStart) {
+                        if (!this.moveItemStackTo(stack, useSlotsStart, useSlotsEnd, false)) {
+                            return ItemStack.EMPTY;
+                        }
+                    } else if (!this.moveItemStackTo(stack, invSlotsStart, useSlotsStart, false)) {
+                        return ItemStack.EMPTY;
+                    }
+                }
+            } else if (!this.moveItemStackTo(stack, invSlotsStart, useSlotsEnd, false)) {
+                return ItemStack.EMPTY;
+            }
+
+            if (stack.isEmpty()) {
+                slot.setByPlayer(ItemStack.EMPTY);
+            } else {
+                slot.setChanged();
+            }
+
+            if (stack.getCount() == clicked.getCount()) {
+                return ItemStack.EMPTY;
+            }
+
+            slot.onTake(player, stack);
+            if (slotIndex == resultSlot) {
+                player.drop(stack, false);
+            }
+        }
+
+        return clicked;
     }
 
     @Override

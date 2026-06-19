@@ -35,7 +35,7 @@ public class AbstractContainerScreenMixin {
     @ModifyExpressionValue(method = "extractSlot", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;isEmpty()Z"), slice = @Slice(to = @At(value = "INVOKE", target = "Lnet/minecraft/world/inventory/Slot;isActive()Z")))
     private boolean noRender(boolean original, @Local(argsOnly = true, name = "slot") Slot slot, @Cancellable CallbackInfo ci) {
         if ((AbstractContainerScreen) (Object) this instanceof AmalgamationScreen) {
-            if (slot.index >= 1 && slot.index <= Volucraft.SLOTS + 1) {
+            if (slot.index >= 1 && slot.index <= Volucraft.SLOTS) {
                 ci.cancel();
             }
         }
@@ -50,7 +50,7 @@ public class AbstractContainerScreenMixin {
         if (this.hoveredSlot == null) {
             return;
         }
-        if (this.hoveredSlot.index >= 1 && this.hoveredSlot.index <= Volucraft.SLOTS + 1) {
+        if (this.hoveredSlot.index >= 1 && this.hoveredSlot.index <= Volucraft.SLOTS) {
             ci.cancel();
         }
     }
@@ -74,6 +74,6 @@ public class AbstractContainerScreenMixin {
         if (original == null) {
             return null;
         }
-        return original.index > 0 && original.index < Volucraft.SLOTS ? null : original;
+        return original.index > 0 && original.index <= Volucraft.SLOTS ? null : original;
     }
 }
