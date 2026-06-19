@@ -16,7 +16,7 @@ Volucraft comes with one builtin datapack with two recipes:
 
 ### Creating Your Own Recipe
 Volucraft recipes are data-driven, like regular crafting recipes!
-They go in the regular data/<modid>/recipe folder, but with a different type and pattern. The key and result fields remain identical to regular crafting recipes.
+They go in the regular data/\<modid\>/recipe folder, but with a different type and pattern. The key and result fields remain identical to regular crafting recipes.
 See the example (trident recipe) below:
 
 ```json
