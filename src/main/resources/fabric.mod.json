@@ -24,7 +24,10 @@
         ],
 		"fabric-datagen": [
           "survivalblock.volucraft.client.datagen.VolucraftDataGenerator"
-		]
+		],
+        "modmenu": [
+          "survivalblock.volucraft.client.compat.config.VolucraftModMenuCompat"
+        ]
 	},
 	"mixins": [
 		"volucraft.mixins.json"

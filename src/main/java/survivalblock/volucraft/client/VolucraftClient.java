@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.PictureInPictureRendererRegistry;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.model.geom.ModelLayerLocation;
+import survivalblock.volucraft.client.compat.config.VolucraftClientConfig;
 import survivalblock.volucraft.client.render.CubeModel;
 import survivalblock.volucraft.client.render.CubeOfSlotsRenderer;
 import survivalblock.volucraft.client.render.screen.AmalgamationScreen;
@@ -17,6 +18,7 @@ public class VolucraftClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        VolucraftClientConfig.init();
         ModelLayerRegistry.registerModelLayer(CUBE, CubeModel::createBodyLayer);
         PictureInPictureRendererRegistry.register(CubeOfSlotsRenderer::new);
         MenuScreens.register(VolucraftMenuTypes.AMALGAMATING, AmalgamationScreen::new);

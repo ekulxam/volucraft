@@ -13,6 +13,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import org.joml.*;
 import survivalblock.volucraft.client.VolucraftClient;
+import survivalblock.volucraft.client.compat.config.VolucraftClientConfig;
 import survivalblock.volucraft.client.render.CubeModel;
 import survivalblock.volucraft.client.render.CubeOfSlotsRenderState;
 import survivalblock.volucraft.client.render.CubeOfSlotsRenderer;
@@ -23,7 +24,7 @@ import survivalblock.volucraft.mixin.client.AbstractContainerScreenAccessor;
 import java.lang.Math;
 
 public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu> {
-    public static final Identifier CRAFTING_TABLE_LOCATION = Volucraft.id("textures/gui/container/amalgamation_alt.png");
+    public static final Identifier CRAFTING_TABLE_LOCATION = Volucraft.id("textures/gui/container/amalgamation.png");
     public static final Identifier SLOT_CUBE_TEXTURE = Volucraft.id("textures/gui/container/slots.png");
     public static final Identifier TRANSLUCENT_SLOT_CUBE = Volucraft.id("textures/gui/container/slots_translucent.png");
     private static final Identifier HIGHLIGHTED_SLOT_CUBE = Volucraft.id("textures/gui/container/slots_highlight.png");
@@ -113,10 +114,12 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         int yo = (this.height - this.imageHeight) / 2;
         graphics.blit(RenderPipelines.GUI_TEXTURED, CRAFTING_TABLE_LOCATION, xo, yo, 0.0F, 0.0F, this.imageWidth, this.imageHeight, 512, 512);
 
-        // render cube (center at 261, 83) in a 150x150 area
-        int selected = this.getHovered3DSlot(mouseX, mouseY, PICTURE_IN_PICTURE_SCALE, rotation());
         int cubeX0 = xo + SLOTS_X_OFFSET;
         int cubeY0 = yo + SLOTS_Y_OFFSET;
+        graphics.fill(cubeX0, cubeY0, cubeX0 + SLOTS_SIDE, cubeY0 + SLOTS_SIDE, VolucraftClientConfig.INSTANCE.getCubeBackgroundColor());
+
+        // render cube (center at 261, 83) in a 150x150 area
+        int selected = this.getHovered3DSlot(mouseX, mouseY, PICTURE_IN_PICTURE_SCALE, rotation());
         NonNullList<ItemStack> items = NonNullList.withSize(Volucraft.SLOTS, ItemStack.EMPTY);
         for (int i = 0; i < items.size(); i++) {
             items.set(i, this.menu.getSlot(i + 1).getItem());

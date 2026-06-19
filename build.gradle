@@ -16,6 +16,9 @@ repositories {
     maven {
         url("https://maven.terraformersmc.com")
     }
+    maven {
+        url("https://maven.isxander.dev/releases")
+    }
 }
 
 fabricApi {
@@ -35,6 +38,9 @@ dependencies {
 
     include implementation("survivalblock.atmosphere:registrar:${project.registrar_version}")
 
+    compileOnly "dev.isxander:yet-another-config-lib:${project.yacl_version}"
+    localRuntime "dev.isxander:yet-another-config-lib:${project.yacl_version}"
+    compileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
     localRuntime "com.terraformersmc:modmenu:${project.modmenu_version}"
 }
 
