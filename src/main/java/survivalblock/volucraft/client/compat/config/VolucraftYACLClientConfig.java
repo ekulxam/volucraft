@@ -7,11 +7,9 @@ import dev.isxander.yacl3.api.controller.ColorControllerBuilder;
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler;
 import dev.isxander.yacl3.config.v2.api.SerialEntry;
 import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
-import dev.isxander.yacl3.impl.controller.ColorControllerBuilderImpl;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import survivalblock.volucraft.common.Volucraft;
@@ -30,8 +28,7 @@ public class VolucraftYACLClientConfig implements VolucraftClientConfig {
                     .build())
             .build();
 
-    public static final OptionFlag USE_ARGB = minecraft -> {
-    };
+    public static final OptionFlag USE_ARGB = _ -> { };
 
     @Override
     public Screen create(Screen parent) {
@@ -63,6 +60,7 @@ public class VolucraftYACLClientConfig implements VolucraftClientConfig {
     }
 
     static VolucraftYACLClientConfig getInstance() {
+        VolucraftYACLClientConfig.HANDLER.load();
         return VolucraftYACLClientConfig.HANDLER.instance();
     }
 
