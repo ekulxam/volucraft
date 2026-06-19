@@ -29,6 +29,7 @@ public class Volucraft implements ModInitializer {
     public static final int SIDE_LENGTH = 3;
     public static final int SLOTS = SIDE_LENGTH * SIDE_LENGTH * SIDE_LENGTH;
 
+    public static final Identifier TRANSLUCENT_SLOTS_PACK = Volucraft.id("more_translucent_slots");
     public static final Identifier EXAMPLE_RECIPES_PACK = Volucraft.id("example_recipes");
 
     public static boolean datapacking = false;
@@ -40,12 +41,12 @@ public class Volucraft implements ModInitializer {
         VolucraftItems.init();
         VolucraftMenuTypes.init();
         Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, Volucraft.id("amalgamation"), ShapedAmalgamationRecipe.SERIALIZER);
-        
-        FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent(modContainer ->
-                Volucraft.wrapDatapack(() ->
-                        ResourceLoader.registerBuiltinPack(EXAMPLE_RECIPES_PACK, modContainer, Component.translatable("dataPack.volucraft.example_recipes.name"), PackActivationType.NORMAL)
-                )
-        );
+        FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent(modContainer -> {
+            ResourceLoader.registerBuiltinPack(TRANSLUCENT_SLOTS_PACK, modContainer, Component.translatable("resourcePack.volucraft.more_translucent_slots.name"), PackActivationType.NORMAL);
+            Volucraft.wrapDatapack(() ->
+                    ResourceLoader.registerBuiltinPack(EXAMPLE_RECIPES_PACK, modContainer, Component.translatable("dataPack.volucraft.example_recipes.name"), PackActivationType.NORMAL)
+            );
+        });
 	}
 
     public static Identifier id(String path) {
