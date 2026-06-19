@@ -8,10 +8,8 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.chars.CharArraySet;
 import it.unimi.dsi.fastutil.chars.CharSet;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+
+import java.util.*;
 import java.util.function.Function;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -59,6 +57,7 @@ public final class ShapedAmalgamationRecipePattern {
 	private final List<Optional<Ingredient>> ingredients;
 	private final Optional<ShapedAmalgamationRecipePattern.Data> data;
 	private final int ingredientCount;
+    private final Map<ThreePeasInAPod, List<OctahedralGroup>> transformsPreservingDimensions = new HashMap<>();
 
 	public ShapedAmalgamationRecipePattern(final int length, final int width, final int height, final List<Optional<Ingredient>> ingredients, final Optional<ShapedAmalgamationRecipePattern.Data> data) {
 		this.length = length;
@@ -67,6 +66,7 @@ public final class ShapedAmalgamationRecipePattern {
 		this.ingredients = ingredients;
 		this.data = data;
 		this.ingredientCount = (int)ingredients.stream().flatMap(Optional::stream).count();
+        this.computeTransformsPreservingDimensions();
 	}
 
 	private static ShapedAmalgamationRecipePattern createFromNetwork(final Integer length, final Integer width, final Integer height, final List<Optional<Ingredient>> ingredients) {
@@ -163,28 +163,76 @@ public final class ShapedAmalgamationRecipePattern {
         return result;
     }
 
+    private void computeTransformsPreservingDimensions() {
+        if (this.length == 1 && this.width == 1 && this.height == 1) {
+            // naive optimization for 1x1x1 cubes
+            this.transformsPreservingDimensions.put(new ThreePeasInAPod(1, 1, 1), List.of(OctahedralGroup.IDENTITY));
+            return;
+        }
+
+        // I think this is fine? ArrayList, Optional, and Ingredient all implement correct equals methods so Set#contains should function correctly
+        Set<List<Optional<Ingredient>>> uniques = new HashSet<>();
+        Vector3f dimensions = new Vector3f();
+        Vector3f coordinates = new Vector3f();
+        List<Optional<Ingredient>> simulatedItemStacks;
+        // 48 symmetries of a 3x3x3 grid, apparently
+        for (OctahedralGroup symmetry : OctahedralGroup.values()) {
+            Matrix3fc transform = symmetry.transformation();
+            //noinspection SuspiciousNameCombination
+            dimensions.set(this.length, this.width, this.height).mul(transform);
+            final int actualLength = Math.abs(Math.round(dimensions.x));
+            final int actualWidth = Math.abs(Math.round(dimensions.y));
+            final int actualHeight = Math.abs(Math.round(dimensions.z));
+            simulatedItemStacks = new ArrayList<>(Collections.nCopies(actualLength * actualWidth * actualHeight, Optional.empty()));
+            final int offsetX = dimensions.x < 0 ? actualLength - 1 : 0;
+            final int offsetY = dimensions.y < 0 ? actualWidth - 1 : 0;
+            final int offsetZ = dimensions.z < 0 ? actualHeight - 1 : 0;
+
+            for (int z = 0; z < this.height; z++) {
+                for (int y = 0; y < this.width; y++) {
+                    for (int x = 0; x < this.length; x++) {
+                        coordinates.set(x, y, z).mul(transform);
+                        int finalX = Math.round(coordinates.x) + offsetX;
+                        int finalY = Math.round(coordinates.y) + offsetY;
+                        int finalZ = Math.round(coordinates.z) + offsetZ;
+
+                        simulatedItemStacks.set(
+                                finalX + (finalY * actualLength) + (finalZ * actualLength * actualWidth),
+                                this.ingredients.get(x + y * this.length + z * this.length * this.width)
+                        );
+                    }
+                }
+            }
+
+            if (!uniques.contains(simulatedItemStacks)) {
+                uniques.add(simulatedItemStacks);
+                ThreePeasInAPod peas = new ThreePeasInAPod(actualLength, actualWidth, actualHeight);
+                this.transformsPreservingDimensions.computeIfAbsent(peas, _ -> new ArrayList<>()).add(symmetry);
+            }
+        }
+    }
+
 	public boolean matches(final AmalgamationInput input) {
         if (input.ingredientCount() != ShapedAmalgamationRecipePattern.this.ingredientCount) {
             return false;
         }
 
-        if (input.ingredientCount() == 1) {
-            return matchesAfterTransform(input);
+        ThreePeasInAPod peas = new ThreePeasInAPod(input.length(), input.width(), input.height());
+        List<OctahedralGroup> transformations = this.transformsPreservingDimensions.get(peas);
+        if (transformations == null) {
+            return false; // if no transformation would get to my dimensions, then they don't match
         }
-        // 48 symmetries of a 3x3x3 grid, apparently
+
         ItemStack[] items;
         Vector3f dimensions = new Vector3f();
         Vector3f coordinates = new Vector3f();
-        for (OctahedralGroup symmetry : OctahedralGroup.values()) {
+        for (OctahedralGroup symmetry : transformations) {
             Matrix3fc transform = symmetry.transformation();
-            dimensions.set(input.length(), input.width(), input.height()).mul(transform);
+            //noinspection SuspiciousNameCombination
+            dimensions.set(this.length, this.width, this.height).mul(transform);
             final int actualLength = Math.abs(Math.round(dimensions.x));
             final int actualWidth = Math.abs(Math.round(dimensions.y));
             final int actualHeight = Math.abs(Math.round(dimensions.z));
-
-            if (actualLength != this.length || actualWidth != this.width || actualHeight != this.height) {
-                continue;
-            }
 
             items = new ItemStack[this.length * this.width * this.height];
 
@@ -203,12 +251,13 @@ public final class ShapedAmalgamationRecipePattern {
                     }
                 }
             }
+
             if (matchesAfterTransform(ThirdDimensionalStacksContainer.fromArray(actualLength, actualWidth, items))) {
                 return true;
             }
         }
 
-        return matchesAfterTransform(input);
+        return false;
 	}
 
     private boolean matchesAfterTransform(final ThirdDimensionalStacksContainer stacksContainer) {
@@ -292,4 +341,7 @@ public final class ShapedAmalgamationRecipePattern {
 				.apply(i, ShapedAmalgamationRecipePattern.Data::new)
 		);
 	}
+
+    public record ThreePeasInAPod(int length, int width, int height) {
+    }
 }
