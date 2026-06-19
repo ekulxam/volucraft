@@ -24,6 +24,7 @@ public class VolucraftEnUsLangGenerator extends FabricLanguageProvider {
         translationBuilder.add("container.volucraft.amalgamating.expandbutton.shrink", "Shrink");
 
         translationBuilder.add("dataPack.volucraft.example_recipes.name", "Volucraft: Example Recipes");
+        translationBuilder.add("resourcePack.volucraft.all_translucent_slots.name", "Volucraft: All Translucent Slots");
         translationBuilder.add("resourcePack.volucraft.more_translucent_slots.name", "Volucraft: More Translucent Slots");
     }
 }
