@@ -32,7 +32,7 @@ public class VolucraftEnUsLangGenerator extends FabricLanguageProvider {
         translationBuilder.add("volucraft.yacl.group.client", "Client");
         translationBuilder.add("volucraft.yacl.option.boolean.cubeBackgroundColor", "Cube Background Color");
         translationBuilder.add("volucraft.yacl.option.boolean.cubeBackgroundColor.desc", "Determines the color of the background of the cube area in the Amalgamation Table screen. Vanilla uses #8b8b8b for slots.");
-        translationBuilder.add("volucraft.yacl.option.boolean.cubeBackgroundAlpha", "Cube Background Alpha");
-        translationBuilder.add("volucraft.yacl.option.boolean.cubeBackgroundAlpha.desc", "Determines the translucency of the background of the cube area in the Amalgamation Table screen.");
+        translationBuilder.add("volucraft.yacl.option.boolean.displayARGB", "Display ARGB");
+        translationBuilder.add("volucraft.yacl.option.boolean.displayARGB.desc", "Determines whether the Cube Background Color option is displayed in ARGB or RGBA.");
     }
 }

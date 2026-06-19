@@ -11,8 +11,8 @@
   "volucraft.yacl.category.main": "Volucraft Config (Powered by YACL)",
   "volucraft.yacl.category.main.tooltip": "Config",
   "volucraft.yacl.group.client": "Client",
-  "volucraft.yacl.option.boolean.cubeBackgroundAlpha": "Cube Background Alpha",
-  "volucraft.yacl.option.boolean.cubeBackgroundAlpha.desc": "Determines the translucency of the background of the cube area in the Amalgamation Table screen.",
   "volucraft.yacl.option.boolean.cubeBackgroundColor": "Cube Background Color",
-  "volucraft.yacl.option.boolean.cubeBackgroundColor.desc": "Determines the color of the background of the cube area in the Amalgamation Table screen. Vanilla uses #8b8b8b for slots."
+  "volucraft.yacl.option.boolean.cubeBackgroundColor.desc": "Determines the color of the background of the cube area in the Amalgamation Table screen. Vanilla uses #8b8b8b for slots.",
+  "volucraft.yacl.option.boolean.displayARGB": "Display ARGB",
+  "volucraft.yacl.option.boolean.displayARGB.desc": "Determines whether the Cube Background Color option is displayed in ARGB or RGBA."
 }

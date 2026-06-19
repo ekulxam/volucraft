@@ -1,13 +1,15 @@
 {
   "required": true,
   "package": "survivalblock.volucraft.mixin",
+  "plugin": "survivalblock.volucraft.common.compat.VolucraftMixinPlugin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
     "FabricDataGeneratorMixin",
     "RecipeProviderAccessor",
     "ResourceLoaderMixin",
     "ShapedRecipePatternAccessor",
-    "SharedConstantsMixin"
+    "SharedConstantsMixin",
+    "client.compat.config.ColorControllerMixin"
   ],
   "client": [
     "client.AbstractContainerScreenAccessor",
