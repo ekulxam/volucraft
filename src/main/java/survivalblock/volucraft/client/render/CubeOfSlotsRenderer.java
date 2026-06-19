@@ -94,12 +94,6 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
         TrackingItemStackRenderState itemStackRenderState = new TrackingItemStackRenderState();
         ItemDisplayContext displayContext = ItemDisplayContext.NONE;
         this.minecraft.getItemModelResolver().updateForTopItem(itemStackRenderState, stack, displayContext, this.minecraft.level, this.minecraft.player, 0);
-        boolean flat = !itemStackRenderState.usesBlockLight();
-        if (flat) {
-            Minecraft.getInstance().gameRenderer.getLighting().setupFor(Lighting.Entry.ITEMS_FLAT);
-        } else {
-            Minecraft.getInstance().gameRenderer.getLighting().setupFor(Lighting.Entry.ITEMS_3D);
-        }
         FeatureRenderDispatcher featureRenderDispatcher = Minecraft.getInstance().gameRenderer.getFeatureRenderDispatcher();
         SubmitNodeStorage submitNodeStorage = featureRenderDispatcher.getSubmitNodeStorage();
         itemStackRenderState.submit(poseStack, submitNodeStorage, 15728880, OverlayTexture.NO_OVERLAY, 0);

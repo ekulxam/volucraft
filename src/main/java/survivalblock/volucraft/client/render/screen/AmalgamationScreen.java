@@ -191,7 +191,7 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
             Vector4f projectedPos = new Vector4f(coordinates.x * expand, coordinates.y * expand, coordinates.z * expand, 1.0F);
             projectedPos.mul(matrix);
             float projectedMouseX = xo + (projectedPos.x / guiScale);
-            float projectedMouseY = yo + (projectedPos.y) / guiScale;
+            float projectedMouseY = yo + (projectedPos.y / guiScale);
 
             // woah magic number
             float halfSlotSize = (5.1F * scale) / guiScale * 0.5F;
