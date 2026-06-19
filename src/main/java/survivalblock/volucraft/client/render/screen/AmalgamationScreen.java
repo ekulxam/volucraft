@@ -158,7 +158,7 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         final int side = SLOTS_SIDE * guiScale; // can be one variable because square
         final float expand = CubeOfSlotsRenderer.calculateExpansion(this.expansion);
         final float renderCenter = CubeOfSlotsRenderer.centerFromScale(scale);
-        final double invertedMouseY = yo * 2 + SLOTS_SIDE - mouseY;
+        final double invertedMouseY = yo * 2 + SLOTS_SIDE - mouseY - 3;
 
         int closestSlot = -1;
         float closestZ = Float.POSITIVE_INFINITY;
@@ -194,7 +194,7 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
             float projectedMouseY = yo + (projectedPos.y) / guiScale;
 
             // woah magic number
-            float halfSlotSize = (4.5F * scale) / guiScale * 0.5F;
+            float halfSlotSize = (5.1F * scale) / guiScale * 0.5F;
             if (Math.abs(mouseX - projectedMouseX) <= halfSlotSize && Math.abs(invertedMouseY - projectedMouseY) <= halfSlotSize) {
                 if (projectedPos.z < closestZ) {
                     closestZ = projectedPos.z;
