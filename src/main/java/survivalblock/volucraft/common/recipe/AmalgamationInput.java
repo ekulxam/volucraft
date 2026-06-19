@@ -10,7 +10,7 @@ import net.minecraft.world.item.crafting.RecipeInput;
  * Using x as length, y as width, and z as height
  * @see net.minecraft.world.item.crafting.CraftingInput
  */
-public class AmalgamationInput implements RecipeInput {
+public class AmalgamationInput implements RecipeInput, ThirdDimensionalStacksContainer {
 	public static final AmalgamationInput EMPTY = new AmalgamationInput(0, 0, 0, List.of());
     private final int length;
 	private final int width;
@@ -111,7 +111,7 @@ public class AmalgamationInput implements RecipeInput {
 	}
 
 	public ItemStack getItem(final int x, final int y, final int z) {
-		return this.items.get(x + y * this.length + z * this.length * this.width);
+		return this.items.get(x + (y * this.length) + (z * this.length * this.width));
 	}
 
 	@Override

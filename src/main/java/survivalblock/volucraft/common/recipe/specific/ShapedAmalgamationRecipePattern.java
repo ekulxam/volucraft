@@ -1,6 +1,7 @@
 package survivalblock.volucraft.common.recipe.specific;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.mojang.math.OctahedralGroup;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
@@ -12,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+
+import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -19,8 +22,12 @@ import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.ShapedRecipePattern;
+import org.joml.Matrix3f;
+import org.joml.Matrix3fc;
+import org.joml.Vector3f;
 import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.recipe.AmalgamationInput;
+import survivalblock.volucraft.common.recipe.ThirdDimensionalStacksContainer;
 
 import static net.minecraft.world.item.crafting.ShapedRecipePattern.EMPTY_SLOT;
 import static survivalblock.volucraft.mixin.ShapedRecipePatternAccessor.volucraft$invokeFirstNonEmpty;
@@ -169,10 +176,39 @@ public final class ShapedAmalgamationRecipePattern {
         if (input.ingredientCount() == 1) {
             return matchesAfterTransform(input);
         }
-
         // 48 symmetries of a 3x3x3 grid, apparently
-        for (int rotationId = 0; rotationId < 48; rotationId++) {
-            if (matchesAfterTransform(input, rotationId)) {
+        ItemStack[] items;
+        Vector3f dimensions = new Vector3f();
+        Vector3f coordinates = new Vector3f();
+        for (OctahedralGroup symmetry : OctahedralGroup.values()) {
+            Matrix3fc transform = symmetry.transformation();
+            dimensions.set(input.length(), input.width(), input.height()).mul(transform);
+            final int actualLength = Math.abs(Math.round(dimensions.x));
+            final int actualWidth = Math.abs(Math.round(dimensions.y));
+            final int actualHeight = Math.abs(Math.round(dimensions.z));
+
+            if (actualLength != this.length || actualWidth != this.width || actualHeight != this.height) {
+                continue;
+            }
+
+            items = new ItemStack[this.length * this.width * this.height];
+
+            final int offsetX = dimensions.x < 0 ? actualLength - 1 : 0;
+            final int offsetY = dimensions.y < 0 ? actualWidth - 1 : 0;
+            final int offsetZ = dimensions.z < 0 ? actualHeight - 1 : 0;
+
+            for (int z = 0; z < this.height; z++) {
+                for (int y = 0; y < this.width; y++) {
+                    for (int x = 0; x < this.length; x++) {
+                        coordinates.set(x, y, z).mul(transform);
+                        int finalX = Math.round(coordinates.x) + offsetX;
+                        int finalY = Math.round(coordinates.y) + offsetY;
+                        int finalZ = Math.round(coordinates.z) + offsetZ;
+                        items[finalX + (finalY * actualLength) + (finalZ * actualLength * actualWidth)] = input.getItem(x + y * this.length + z * this.length * this.width);
+                    }
+                }
+            }
+            if (matchesAfterTransform(ThirdDimensionalStacksContainer.fromArray(actualLength, actualWidth, items))) {
                 return true;
             }
         }
@@ -180,19 +216,16 @@ public final class ShapedAmalgamationRecipePattern {
         return matchesAfterTransform(input);
 	}
 
-    private boolean matchesAfterTransform(final AmalgamationInput input) {
+    private boolean matchesAfterTransform(final ThirdDimensionalStacksContainer stacksContainer) {
         // Scan every slot in the grid
-        for (int z = 0; z < ShapedAmalgamationRecipePattern.this.height; z++) {
-            for (int y = 0; y < ShapedAmalgamationRecipePattern.this.width; y++) {
-                for (int x = 0; x < ShapedAmalgamationRecipePattern.this.length; x++) {
-
-                    // 1. Get expected ingredient from our flat list
-                    int flatIndex = x + (y * ShapedAmalgamationRecipePattern.this.length) + (z * ShapedAmalgamationRecipePattern.this.length * ShapedAmalgamationRecipePattern.this.width);
-                    Optional<Ingredient> expected = ShapedAmalgamationRecipePattern.this.ingredients.get(flatIndex);
-
-                    // 3. Test if the ingredient matches
-                    ItemStack actual = input.getItem(x, y, z);
-                    if (!Ingredient.testOptionalIngredient(expected, actual)) {
+        for (int z = 0; z < this.height; z++) {
+            for (int y = 0; y < this.width; y++) {
+                for (int x = 0; x < this.length; x++) {
+                    int index = x + (y * this.length) + (z * this.length * this.width);
+                    if (!Ingredient.testOptionalIngredient(
+                            this.ingredients.get(index),
+                            stacksContainer.getItem(x, y, z)
+                    )) {
                         return false;
                     }
                 }
