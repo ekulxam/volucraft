@@ -111,7 +111,6 @@ public class AmalgamationInput implements RecipeInput {
 	}
 
 	public ItemStack getItem(final int x, final int y, final int z) {
-        // TODO: check
 		return this.items.get(x + y * this.length + z * this.length * this.width);
 	}
 

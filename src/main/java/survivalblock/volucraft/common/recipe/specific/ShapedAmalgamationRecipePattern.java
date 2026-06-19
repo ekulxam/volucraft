@@ -162,8 +162,44 @@ public final class ShapedAmalgamationRecipePattern {
     }
 
 	public boolean matches(final AmalgamationInput input) {
-        return new Matcher().matches(input);
+        if (input.ingredientCount() != ShapedAmalgamationRecipePattern.this.ingredientCount) {
+            return false;
+        }
+
+        if (input.ingredientCount() == 1) {
+            return matchesAfterTransform(input);
+        }
+
+        // 48 symmetries of a 3x3x3 grid, apparently
+        for (int rotationId = 0; rotationId < 48; rotationId++) {
+            if (matchesAfterTransform(input, rotationId)) {
+                return true;
+            }
+        }
+
+        return matchesAfterTransform(input);
 	}
+
+    private boolean matchesAfterTransform(final AmalgamationInput input) {
+        // Scan every slot in the grid
+        for (int z = 0; z < ShapedAmalgamationRecipePattern.this.height; z++) {
+            for (int y = 0; y < ShapedAmalgamationRecipePattern.this.width; y++) {
+                for (int x = 0; x < ShapedAmalgamationRecipePattern.this.length; x++) {
+
+                    // 1. Get expected ingredient from our flat list
+                    int flatIndex = x + (y * ShapedAmalgamationRecipePattern.this.length) + (z * ShapedAmalgamationRecipePattern.this.length * ShapedAmalgamationRecipePattern.this.width);
+                    Optional<Ingredient> expected = ShapedAmalgamationRecipePattern.this.ingredients.get(flatIndex);
+
+                    // 3. Test if the ingredient matches
+                    ItemStack actual = input.getItem(x, y, z);
+                    if (!Ingredient.testOptionalIngredient(expected, actual)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
 
     public int length() {
         return this.width;
@@ -231,117 +267,4 @@ public final class ShapedAmalgamationRecipePattern {
 				.apply(i, ShapedAmalgamationRecipePattern.Data::new)
 		);
 	}
-
-    /**
-     * Also done by AI because I actually don't know how to do this
-     */
-    public class Matcher {
-        public static final int[][] AXES_PERMUTATIONS = {
-                {0, 1, 2},
-                {0, 2, 1},
-                {1, 0, 2},
-                {1, 2, 0},
-                {2, 0, 1},
-                {2, 1, 0}
-        };
-
-        protected boolean matches(AmalgamationInput input) {
-            if (input.ingredientCount() != ShapedAmalgamationRecipePattern.this.ingredientCount) {
-                return false;
-            }
-
-            // We slide our recipe bounding box through the input grid's space.
-            // To handle 3D rotations, the recipe's dimensions (width, height, depth)
-            // can map to different input axes depending on orientation.
-
-            // Loop through all 48 possible 3D orientations (24 rotations * 2 for mirroring)
-            for (int rotationIdx = 0; rotationIdx < 48; rotationIdx++) {
-                if (matchesOrientation(input, rotationIdx)) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        private boolean matchesOrientation(final AmalgamationInput input, int orientation) {
-            // Unpack orientation details:
-            // There are 6 possible face directions the "front" of our recipe could look,
-            // 4 rotations around that face vector, and 2 states for mirroring (reflection).
-            int face = orientation % 6;
-            int spin = (orientation / 6) % 4;
-            boolean mirror = (orientation / 24) == 1;
-
-            // Map recipe (x, y, z) lengths to input (X, Y, Z) targets based on orientation
-            int matchLength = getOrientedDim(0, face, spin);
-            int matchWidth = getOrientedDim(1, face, spin);
-            int matchHeight = getOrientedDim(2, face, spin);
-
-            // Quick check: If the oriented recipe size doesn't fit inside the input bounds, it's invalid
-            if (matchLength != input.length() || matchWidth != input.width() || matchHeight != input.height()) {
-                return false;
-            }
-
-            // Scan every slot in the grid
-            for (int z = 0; z < ShapedAmalgamationRecipePattern.this.height; z++) {
-                for (int y = 0; y < ShapedAmalgamationRecipePattern.this.width; y++) {
-                    for (int x = 0; x < ShapedAmalgamationRecipePattern.this.length; x++) {
-
-                        // 1. Get expected ingredient from our flat list
-                        int flatIndex = x + (y * ShapedAmalgamationRecipePattern.this.length) + (z * ShapedAmalgamationRecipePattern.this.length * ShapedAmalgamationRecipePattern.this.width);
-                        Optional<Ingredient> expected = ShapedAmalgamationRecipePattern.this.ingredients.get(flatIndex);
-
-                        // 2. Map recipe coordinates (x, y, z) to input coordinates based on this orientation
-                        int inputX = transformX(x, y, z, face, spin, mirror, input.length());
-                        int inputY = transformY(x, y, z, face, spin, input.width());
-                        int inputZ = transformZ(x, y, z, face, spin, input.height());
-
-                        // 3. Test if the ingredient matches
-                        ItemStack actual = input.getItem(inputX, inputY, inputZ);
-                        if (!Ingredient.testOptionalIngredient(expected, actual)) {
-                            return false;
-                        }
-                    }
-                }
-            }
-            return true;
-        }
-
-        // --- 3D Transformation Math helpers ---
-
-        private int getOrientedDim(int axis, int face, int spin) {
-            // Simplifies matching dimensions to orientations.
-            // Returns which recipe axis (0=L, 1=W, 2=H) matches the requested input axis.
-            return switch (AXES_PERMUTATIONS[(face + spin) % 6][axis]) {
-                case 0 -> ShapedAmalgamationRecipePattern.this.length;
-                case 1 -> ShapedAmalgamationRecipePattern.this.width;
-                default -> ShapedAmalgamationRecipePattern.this.height;
-            };
-        }
-
-        private int transformX(int x, int y, int z, int face, int spin, boolean mirror, int maxLength) {
-            int targetX = switch ((face + spin) % 3) {
-                case 1 -> (face >= 3) ? maxLength - 1 - y : y;
-                case 2 -> (face >= 3) ? maxLength - 1 - z : z;
-                default -> (face >= 3) ? maxLength - 1 - x : x;
-            };
-            return mirror ? maxLength - 1 - targetX : targetX;
-        }
-
-        private int transformY(int x, int y, int z, int face, int spin, int maxWidth) {
-            return switch ((face + spin + 1) % 3) {
-                case 0 -> (spin >= 2) ? maxWidth - 1 - x : x;
-                case 2 -> (spin >= 2) ? maxWidth - 1 - z : z;
-                default -> (spin >= 2) ? maxWidth - 1 - y : y;
-            };
-        }
-
-        private int transformZ(int x, int y, int z, int face, int spin, int maxHeight) {
-            return switch ((face + spin + 2) % 3) {
-                case 0 -> (face % 2 == 1) ? maxHeight - 1 - x : x;
-                case 1 -> (face % 2 == 1) ? maxHeight - 1 - y : y;
-                default -> (face % 2 == 1) ? maxHeight - 1 - z : z;
-            };
-        }
-    }
 }
