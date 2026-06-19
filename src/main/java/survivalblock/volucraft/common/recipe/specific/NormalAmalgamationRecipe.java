@@ -1,7 +1,6 @@
 package survivalblock.volucraft.common.recipe.specific;
 
 import net.minecraft.world.item.crafting.*;
-import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
 import survivalblock.volucraft.common.recipe.AmalgamationRecipe;
 

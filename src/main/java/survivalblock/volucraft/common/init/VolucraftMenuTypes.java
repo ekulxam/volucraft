@@ -15,6 +15,7 @@ public final class VolucraftMenuTypes {
 
     private static final MenuTypeRegistrant REGISTRANT = new MenuTypeRegistrant(Volucraft.MOD_ID, BuiltInRegistries.MENU);
 
+    @SuppressWarnings("NullableProblems")
     public static final MenuType<AmalgamationMenu> AMALGAMATING = REGISTRANT.register("amalgamating", (MenuType.MenuSupplier<AmalgamationMenu>) AmalgamationMenu::new);
 
     public static void init() {

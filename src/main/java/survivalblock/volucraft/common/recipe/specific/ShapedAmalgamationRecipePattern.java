@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -22,7 +21,6 @@ import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.ShapedRecipePattern;
-import org.joml.Matrix3f;
 import org.joml.Matrix3fc;
 import org.joml.Vector3f;
 import survivalblock.volucraft.common.Volucraft;
@@ -61,7 +59,6 @@ public final class ShapedAmalgamationRecipePattern {
 	private final List<Optional<Ingredient>> ingredients;
 	private final Optional<ShapedAmalgamationRecipePattern.Data> data;
 	private final int ingredientCount;
-	//private final boolean symmetrical;
 
 	public ShapedAmalgamationRecipePattern(final int length, final int width, final int height, final List<Optional<Ingredient>> ingredients, final Optional<ShapedAmalgamationRecipePattern.Data> data) {
 		this.length = length;
@@ -70,7 +67,6 @@ public final class ShapedAmalgamationRecipePattern {
 		this.ingredients = ingredients;
 		this.data = data;
 		this.ingredientCount = (int)ingredients.stream().flatMap(Optional::stream).count();
-		//this.symmetrical = Util.isSymmetrical(width, height, ingredients);
 	}
 
 	private static ShapedAmalgamationRecipePattern createFromNetwork(final Integer length, final Integer width, final Integer height, final List<Optional<Ingredient>> ingredients) {
@@ -127,7 +123,6 @@ public final class ShapedAmalgamationRecipePattern {
             return new String[0][0];
         }
 
-        // I'm doing this from memory so I can technically say it's mine
         boolean allEmpty = true;
         int minX = Volucraft.SIDE_LENGTH - 1;
         int maxX = 0;
@@ -217,7 +212,6 @@ public final class ShapedAmalgamationRecipePattern {
 	}
 
     private boolean matchesAfterTransform(final ThirdDimensionalStacksContainer stacksContainer) {
-        // Scan every slot in the grid
         for (int z = 0; z < this.height; z++) {
             for (int y = 0; y < this.width; y++) {
                 for (int x = 0; x < this.length; x++) {
@@ -235,7 +229,7 @@ public final class ShapedAmalgamationRecipePattern {
     }
 
     public int length() {
-        return this.width;
+        return this.length;
     }
 
 	public int width() {
@@ -253,38 +247,35 @@ public final class ShapedAmalgamationRecipePattern {
 	public record Data(Map<Character, Ingredient> key, List<List<String>> pattern) {
 		private static final Codec<List<List<String>>> PATTERN_CODEC = Codec.STRING.listOf().listOf().comapFlatMap(lists -> {
 			if (lists.size() > 3) {
-				return DataResult.error(() -> "Invalid pattern: too many layers, 3 is maximum");
+				return DataResult.error(() -> "Invalid 3D pattern: too many layers, 3 is maximum");
 			}
-
 			if (lists.isEmpty()) {
-				return DataResult.error(() -> "Invalid pattern: empty pattern not allowed");
+				return DataResult.error(() -> "Invalid 3D pattern: empty pattern not allowed");
 			}
 
             int firstLength = lists.getFirst().getFirst().length();
 
             for (List<String> list : lists) {
                 if (list.size() > 3) {
-                    return DataResult.error(() -> "Invalid pattern: too many rows, 3 is maximum");
+                    return DataResult.error(() -> "Invalid 2D layer: too many rows, 3 is maximum");
                 }
-
                 if (list.isEmpty()) {
-                    return DataResult.error(() -> "Invalid pattern: empty layer not allowed");
+                    return DataResult.error(() -> "Invalid 2D layer: empty layer not allowed");
                 }
 
                 for (String line : list) {
                     if (line.length() > 3) {
-                        return DataResult.error(() -> "Invalid pattern: too many columns, 3 is maximum");
+                        return DataResult.error(() -> "Invalid 1D line: too many columns, 3 is maximum");
                     }
-
                     if (firstLength != line.length()) {
-                        return DataResult.error(() -> "Invalid pattern: each row must be the same width");
+                        return DataResult.error(() -> "Invalid 1D line: each row must be the same width");
                     }
                 }
             }
 
-
 			return DataResult.success(lists);
 		}, Function.identity());
+
 		private static final Codec<Character> SYMBOL_CODEC = Codec.STRING.comapFlatMap(symbol -> {
 			if (symbol.length() != 1) {
 				return DataResult.error(() -> "Invalid key entry: '" + symbol + "' is an invalid symbol (must be 1 character only).");
@@ -292,6 +283,7 @@ public final class ShapedAmalgamationRecipePattern {
 				return " ".equals(symbol) ? DataResult.error(() -> "Invalid key entry: ' ' is a reserved symbol.") : DataResult.success(symbol.charAt(0));
 			}
 		}, String::valueOf);
+
 		public static final MapCodec<ShapedAmalgamationRecipePattern.Data> MAP_CODEC = RecordCodecBuilder.mapCodec(
 			i -> i.group(
 					ExtraCodecs.strictUnboundedMap(SYMBOL_CODEC, Ingredient.CODEC).fieldOf("key").forGetter(d -> d.key),
