@@ -51,5 +51,15 @@ See the example (trident recipe) below:
 
 Note how the pattern is 3 regular 2D patterns stacked on top of each other.
 
+## Configuration
+Volucraft can be configured on the client to match your preferences.
+It comes with two builtin resource packs and an optional config powered by YACL.
+
+The two resource packs modify the translucency of the slots.
+1. All Translucent Slots - makes all slots render translucent by default, instead of only turning translucent when containing items
+2. More Translucent Slots - slots that contain items will become even less opaque than usual
+
+The YACL config controls the color of the background of the portion of the Amalgamation Table screen that contains the cube.
+
 ## Special Mentions
 Thank you to [Phanastrae](https://github.com/Phanastrae), [Celeste](https://github.com/celdaemon), and [Typho](https://github.com/TheTypholorian) for your assistance!
