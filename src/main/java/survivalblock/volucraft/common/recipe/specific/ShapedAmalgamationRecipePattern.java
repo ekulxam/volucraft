@@ -230,6 +230,7 @@ public final class ShapedAmalgamationRecipePattern {
             Matrix3fc transform = symmetry.transformation();
             //noinspection SuspiciousNameCombination
             dimensions.set(this.length, this.width, this.height).mul(transform);
+            // at this point, actuals are now equal to input dimensions (probably)
             final int actualLength = Math.abs(Math.round(dimensions.x));
             final int actualWidth = Math.abs(Math.round(dimensions.y));
             final int actualHeight = Math.abs(Math.round(dimensions.z));
@@ -247,12 +248,12 @@ public final class ShapedAmalgamationRecipePattern {
                         int finalX = Math.round(coordinates.x) + offsetX;
                         int finalY = Math.round(coordinates.y) + offsetY;
                         int finalZ = Math.round(coordinates.z) + offsetZ;
-                        items[finalX + (finalY * actualLength) + (finalZ * actualLength * actualWidth)] = input.getItem(x + y * this.length + z * this.length * this.width);
+                        items[x + (y * this.length) + (z * this.length * this.width)] = input.getItem(finalX + finalY * actualLength + finalZ * actualLength * actualWidth);
                     }
                 }
             }
 
-            if (matchesAfterTransform(ThirdDimensionalStacksContainer.fromArray(actualLength, actualWidth, items))) {
+            if (matchesAfterTransform(ThirdDimensionalStacksContainer.fromArray(this.length, this.width, items))) {
                 return true;
             }
         }

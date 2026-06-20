@@ -81,6 +81,28 @@ public class VolucraftRecipeGenerator extends FabricRecipeProvider {
                         .unlockedBy(getHasName(Items.PRISMARINE_SHARD), has(Items.PRISMARINE_SHARD))
                         .unlockedBy(getHasName(Items.BONE), has(Items.BONE))
                         .save(this.output);
+                ShapedAmalgamationRecipeBuilder.shaped(items, RecipeCategory.MISC, Blocks.CRYING_OBSIDIAN, 4)
+                        .pattern(
+                                List.of(
+                                        "OO",
+                                        "TB",
+                                        "OO"
+                                )
+                        )
+                        .pattern(
+                                List.of(
+                                        "OO",
+                                        "BT",
+                                        "OO"
+                                )
+                        )
+                        .define('O', Blocks.OBSIDIAN)
+                        .define('B', Items.GHAST_TEAR)
+                        .define('T', Items.DRAGON_BREATH)
+                        .unlockedBy(getHasName(Blocks.OBSIDIAN), has(Blocks.OBSIDIAN))
+                        .unlockedBy(getHasName(Items.GHAST_TEAR), has(Items.GHAST_TEAR))
+                        .unlockedBy(getHasName(Items.DRAGON_BREATH), has(Items.DRAGON_BREATH))
+                        .save(this.output);
             }
         };
     }
