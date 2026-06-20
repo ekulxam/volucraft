@@ -14,12 +14,15 @@ import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.display.RecipeDisplay;
-import net.minecraft.world.item.crafting.display.ShapedCraftingRecipeDisplay;
 import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.level.Level;
 import survivalblock.volucraft.common.init.VolucraftItems;
 import survivalblock.volucraft.common.recipe.AmalgamationInput;
+import survivalblock.volucraft.common.recipe.display.ShapedAmalgamationRecipeDisplay;
 
+/**
+ * @see net.minecraft.world.item.crafting.ShapedRecipe
+ */
 @SuppressWarnings("unused")
 public class ShapedAmalgamationRecipe extends NormalAmalgamationRecipe {
     public static final MapCodec<ShapedAmalgamationRecipe> MAP_CODEC = RecordCodecBuilder.mapCodec(
@@ -79,9 +82,15 @@ public class ShapedAmalgamationRecipe extends NormalAmalgamationRecipe {
         return this.pattern.height();
     }
 
-    // hopefully this displays nothing
     @Override
     public List<RecipeDisplay> display() {
-        return List.of(new ShapedCraftingRecipeDisplay(0, 0, List.of(), new SlotDisplay.ItemStackSlotDisplay(this.result), new SlotDisplay.ItemSlotDisplay(VolucraftItems.AMALGAMATION_TABLE)));
+        return List.of(new ShapedAmalgamationRecipeDisplay(
+                this.getLength(),
+                this.getWidth(),
+                this.getHeight(),
+                this.getIngredients().stream().map(optional -> optional.map(Ingredient::display).orElse(SlotDisplay.Empty.INSTANCE)).toList(),
+                new SlotDisplay.ItemStackSlotDisplay(this.result),
+                new SlotDisplay.ItemSlotDisplay(VolucraftItems.AMALGAMATION_TABLE)
+        ));
     }
 }

@@ -17,6 +17,7 @@ import survivalblock.volucraft.common.init.VolucraftBlocks;
 import survivalblock.volucraft.common.init.VolucraftItems;
 import survivalblock.volucraft.common.init.VolucraftMenuTypes;
 import survivalblock.volucraft.common.init.VolucraftRecipeTypes;
+import survivalblock.volucraft.common.recipe.display.ShapedAmalgamationRecipeDisplay;
 import survivalblock.volucraft.common.recipe.specific.ShapedAmalgamationRecipe;
 
 import java.util.function.Supplier;
@@ -42,6 +43,7 @@ public class Volucraft implements ModInitializer {
         VolucraftItems.init();
         VolucraftMenuTypes.init();
         Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, Volucraft.id("amalgamation"), ShapedAmalgamationRecipe.SERIALIZER);
+        Registry.register(BuiltInRegistries.RECIPE_DISPLAY, Volucraft.id("amalgamation"), ShapedAmalgamationRecipeDisplay.TYPE);
         FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent(modContainer -> {
             ResourceLoader.registerBuiltinPack(ALL_TRANSLUCENT_SLOTS_PACK, modContainer, Component.translatable("resourcePack.volucraft.all_translucent_slots.name"), PackActivationType.NORMAL);
             ResourceLoader.registerBuiltinPack(MORE_TRANSLUCENT_SLOTS_PACK, modContainer, Component.translatable("resourcePack.volucraft.more_translucent_slots.name"), PackActivationType.NORMAL);
