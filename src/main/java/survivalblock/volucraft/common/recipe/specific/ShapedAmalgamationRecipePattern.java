@@ -35,21 +35,17 @@ import static survivalblock.volucraft.mixin.ShapedRecipePatternAccessor.volucraf
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public final class ShapedAmalgamationRecipePattern {
 	public static final MapCodec<ShapedAmalgamationRecipePattern> MAP_CODEC = ShapedAmalgamationRecipePattern.Data.MAP_CODEC
-		.flatXmap(
-                ShapedAmalgamationRecipePattern::unpack,
-                pattern -> pattern.data.map(DataResult::success)
-                        .orElseGet(() -> DataResult.error(() -> "Cannot encode unpacked recipe"))
-		);
+            .flatXmap(
+                    ShapedAmalgamationRecipePattern::unpack,
+                    pattern -> pattern.data.map(DataResult::success)
+                            .orElseGet(() -> DataResult.error(() -> "Cannot encode unpacked recipe"))
+            );
 	public static final StreamCodec<RegistryFriendlyByteBuf, ShapedAmalgamationRecipePattern> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.VAR_INT,
-            recipe -> recipe.length,
-		ByteBufCodecs.VAR_INT,
-            recipe -> recipe.width,
-		ByteBufCodecs.VAR_INT,
-            recipe -> recipe.height,
-		Ingredient.OPTIONAL_CONTENTS_STREAM_CODEC.apply(ByteBufCodecs.list()),
-            recipe -> recipe.ingredients,
-		ShapedAmalgamationRecipePattern::createFromNetwork
+            ByteBufCodecs.VAR_INT, recipe -> recipe.length,
+            ByteBufCodecs.VAR_INT, recipe -> recipe.width,
+            ByteBufCodecs.VAR_INT, recipe -> recipe.height,
+            Ingredient.OPTIONAL_CONTENTS_STREAM_CODEC.apply(ByteBufCodecs.list()), recipe -> recipe.ingredients,
+            ShapedAmalgamationRecipePattern::createFromNetwork
 	);
     private final int length;
 	private final int width;

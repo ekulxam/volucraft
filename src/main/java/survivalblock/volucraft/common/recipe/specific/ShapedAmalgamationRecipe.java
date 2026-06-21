@@ -49,6 +49,7 @@ public class ShapedAmalgamationRecipe extends NormalAmalgamationRecipe {
         this.result = result;
     }
 
+    @Override
     public RecipeSerializer<ShapedAmalgamationRecipe> getSerializer() {
         return SERIALIZER;
     }

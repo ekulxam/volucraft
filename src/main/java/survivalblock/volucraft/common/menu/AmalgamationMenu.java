@@ -69,7 +69,7 @@ public class AmalgamationMenu extends AbstractContainerMenu {
             final @Nullable RecipeHolder<AmalgamationRecipe> recipeHint
     ) {
         AmalgamationInput input = container.asCraftInput();
-        ServerPlayer serverPlayer = (ServerPlayer)player;
+        ServerPlayer serverPlayer = (ServerPlayer) player;
         ItemStack result = ItemStack.EMPTY;
         Optional<RecipeHolder<AmalgamationRecipe>> maybeRecipe = level.getServer().getRecipeManager().getRecipeFor(VolucraftRecipeTypes.AMALGAMATION, input, level, recipeHint);
         if (maybeRecipe.isPresent()) {
