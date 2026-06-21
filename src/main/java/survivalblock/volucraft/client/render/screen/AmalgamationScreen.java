@@ -27,12 +27,12 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
     public static final Identifier CRAFTING_TABLE_LOCATION = Volucraft.id("textures/gui/container/amalgamation.png");
     public static final Identifier SLOT_CUBE_TEXTURE = Volucraft.id("textures/gui/container/slots.png");
     public static final Identifier TRANSLUCENT_SLOT_CUBE = Volucraft.id("textures/gui/container/slots_translucent.png");
-    private static final Identifier HIGHLIGHTED_SLOT_CUBE = Volucraft.id("textures/gui/container/slots_highlight.png");
+    public static final Identifier HIGHLIGHTED_SLOT_CUBE = Volucraft.id("textures/gui/container/slots_highlight.png");
 
     public static final float PICTURE_IN_PICTURE_SCALE = 11F;
 
     private static final float EXPANSION_STEP = 0.05F;
-    private static final int SLOTS_SIDE = 150;
+    public static final int SLOTS_SIDE = 150;
     private static final int SLOTS_X_OFFSET = 186;
     private static final int SLOTS_Y_OFFSET = 8;
 

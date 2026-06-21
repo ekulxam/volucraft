@@ -20,7 +20,13 @@ public class VolucraftMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String mixinClassName, String targetClassName) {
-        return !mixinClassName.contains("compat.config") || FabricLoader.getInstance().isModLoaded("yet_another_config_lib_v3");
+        if (mixinClassName.contains("compat.config")) {
+            return FabricLoader.getInstance().isModLoaded("yet_another_config_lib_v3");
+        }
+        if (mixinClassName.contains("compat.recipeviewer")) {
+            return FabricLoader.getInstance().isModLoaded("rrv");
+        }
+        return true;
     }
 
     @Override

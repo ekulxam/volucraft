@@ -54,6 +54,10 @@ public class ShapedAmalgamationRecipe extends NormalAmalgamationRecipe {
         return SERIALIZER;
     }
 
+    public ItemStackTemplate getResult() {
+        return this.result;
+    }
+
     @VisibleForTesting
     public List<Optional<Ingredient>> getIngredients() {
         return this.pattern.ingredients();

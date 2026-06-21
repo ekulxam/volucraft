@@ -18,7 +18,7 @@ import survivalblock.volucraft.common.menu.AmalgamationMenu;
 
 public class AmalgamationTableBlock extends Block {
 	public static final MapCodec<AmalgamationTableBlock> CODEC = simpleCodec(AmalgamationTableBlock::new);
-	private static final Component CONTAINER_TITLE = Component.translatable("container.volucraft.amalgamating");
+	public static final Component CONTAINER_TITLE = Component.translatable("container.volucraft.amalgamating");
 
 	@Override
 	public MapCodec<? extends AmalgamationTableBlock> codec() {

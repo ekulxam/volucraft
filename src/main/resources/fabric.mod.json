@@ -27,6 +27,12 @@
 		],
         "modmenu": [
           "survivalblock.volucraft.client.compat.config.VolucraftModMenuCompat"
+        ],
+        "rrv": [
+          "survivalblock.volucraft.common.compat.recipeviewer.VolucraftRRVCompat"
+        ],
+        "rrv_client": [
+          "survivalblock.volucraft.client.compat.recipeviewer.VolucraftClientRRVCompat"
         ]
 	},
 	"mixins": [
