@@ -19,7 +19,6 @@ import survivalblock.volucraft.client.render.CubeOfSlotsRenderState;
 import survivalblock.volucraft.client.render.screen.AmalgamationScreen;
 import survivalblock.volucraft.common.Volucraft;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -106,7 +105,7 @@ public class AmalgamationClientRecipe implements ReliableClientRecipe {
                         TRANSLUCENT_SLOT_CUBE,
                         HIGHLIGHTED_SLOT_CUBE,
                         items,
-                        AmalgamationScreen.getHovered3DSlot(mouseX, mouseY, PICTURE_IN_PICTURE_SCALE, rotation, cubeX0, cubeY0, Minecraft.getInstance().getWindow().getGuiScale(), 1),
+                        AmalgamationScreen.getHovered3DSlot(mouseX, mouseY, PICTURE_IN_PICTURE_SCALE, rotation, 0, 16, Minecraft.getInstance().getWindow().getGuiScale(), 1, Volucraft.debugSlotSelector ? graphics : null),
                         1,
                         rotation,
                         cubeX0,

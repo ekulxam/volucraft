@@ -11,6 +11,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 import org.joml.*;
 import survivalblock.volucraft.client.VolucraftClient;
 import survivalblock.volucraft.client.compat.config.VolucraftClientConfig;
@@ -119,7 +120,7 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         graphics.fill(cubeX0, cubeY0, cubeX0 + SLOTS_SIDE, cubeY0 + SLOTS_SIDE, VolucraftClientConfig.INSTANCE.getCubeBackgroundColor());
 
         // render cube (center at 261, 83) in a 150x150 area
-        int selected = this.getHovered3DSlot(mouseX, mouseY, PICTURE_IN_PICTURE_SCALE, rotation());
+        int selected = this.getHovered3DSlot(mouseX, mouseY, PICTURE_IN_PICTURE_SCALE, rotation(), Volucraft.debugSlotSelector ? graphics : null);
         NonNullList<ItemStack> items = NonNullList.withSize(Volucraft.SLOTS, ItemStack.EMPTY);
         for (int i = 0; i < items.size(); i++) {
             items.set(i, this.menu.getSlot(i + 1).getItem());
@@ -145,13 +146,13 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         );
     }
 
-    public int getHovered3DSlot(double mouseX, double mouseY, final float scale, final Quaternionfc rotation) {
+    public int getHovered3DSlot(double mouseX, double mouseY, final float scale, final Quaternionfc rotation, @Nullable GuiGraphicsExtractor graphics) {
         int xo = this.leftPos + SLOTS_X_OFFSET;
         int yo = ((this.height - this.imageHeight) / 2) + SLOTS_Y_OFFSET;
 
         final int guiScale = this.minecraft.getWindow().getGuiScale();
 
-        return getHovered3DSlot(mouseX, mouseY, scale, rotation, xo, yo, guiScale, this.expansion);
+        return getHovered3DSlot(mouseX, mouseY, scale, rotation, xo, yo, guiScale, this.expansion, graphics);
     }
 
     /**
@@ -159,7 +160,7 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
      * @see net.minecraft.client.gui.render.pip.PictureInPictureRenderer
      * @see CubeOfSlotsRenderer
      */
-    public static int getHovered3DSlot(double mouseX, double mouseY, float scale, Quaternionfc rotation, int xo, int yo, int guiScale, float lerpExpansion) {
+    public static int getHovered3DSlot(double mouseX, double mouseY, float scale, Quaternionfc rotation, int xo, int yo, int guiScale, float lerpExpansion, @Nullable GuiGraphicsExtractor graphics) {
         if (mouseX < xo || mouseX > xo + SLOTS_SIDE || mouseY < yo || mouseY > yo + SLOTS_SIDE) {
             return -1;
         }
@@ -209,6 +210,16 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
                     closestZ = projectedPos.z;
                     closestSlot = i;
                 }
+            }
+
+            if (graphics != null) {
+                graphics.fill(
+                        (int) (projectedMouseX - halfSlotSize),
+                        (int) (projectedMouseY - halfSlotSize),
+                        (int) (projectedMouseX + halfSlotSize),
+                        (int) (projectedMouseY + halfSlotSize),
+                        2000962815
+                );
             }
         }
 

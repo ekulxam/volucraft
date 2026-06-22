@@ -36,6 +36,9 @@ public class Volucraft implements ModInitializer {
 
     public static boolean datapacking = false;
 
+    @SuppressWarnings("PointlessBooleanExpression")
+    public static boolean debugSlotSelector = true && FabricLoader.getInstance().isDevelopmentEnvironment();
+
 	@Override
 	public void onInitialize() {
         VolucraftRecipeTypes.init();
