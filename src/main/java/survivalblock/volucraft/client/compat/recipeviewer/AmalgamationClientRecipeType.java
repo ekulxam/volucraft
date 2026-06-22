@@ -43,6 +43,9 @@ public class AmalgamationClientRecipeType implements ReliableClientRecipeType {
     @Override
     public void placeSlots(RecipeViewMenu.SlotDefinition slotDefinition) {
         slotDefinition.addItemSlot(0, this.getDisplayWidth() / 2 - 8, 0);
+        for (int i = 0; i < Volucraft.SLOTS; i++) {
+            slotDefinition.addItemSlot(i + 1, i, 0);
+        }
     }
 
     @Override
