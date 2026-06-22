@@ -77,4 +77,4 @@ How cool is that?
 <a href="https://modgarden.net/events/mod-garden/diy"><img alt="Made for Mod Garden: DIY" src="https://raw.githubusercontent.com/ModGardenEvent/art/0c0f5b5e0d21f53ad4f4667a73db4d8802944e1f/badge/svg/diy/cozy.svg"></a>
 
 ## Special Mentions
-Thank you to [Phanastrae](https://github.com/Phanastrae), [Celeste](https://github.com/celdaemon), and [Typho](https://github.com/TheTypholorian) for your assistance!
+Thank you to [Phanastrae](https://github.com/Phanastrae), [Celeste](https://github.com/celdaemon), [Typho](https://github.com/TheTypholorian), and [Cassian](https://github.com/cassiancc) for your assistance!
