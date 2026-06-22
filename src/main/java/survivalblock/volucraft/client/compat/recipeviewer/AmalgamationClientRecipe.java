@@ -5,6 +5,7 @@ import cc.cassian.rrv.api.recipe.ReliableClientRecipeType;
 import cc.cassian.rrv.common.recipe.inventory.RecipeViewMenu;
 import cc.cassian.rrv.common.recipe.inventory.RecipeViewScreen;
 import cc.cassian.rrv.common.recipe.inventory.SlotContent;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.Identifier;
@@ -13,7 +14,9 @@ import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
+import org.joml.Vector2f;
 import survivalblock.volucraft.client.render.CubeOfSlotsRenderState;
+import survivalblock.volucraft.client.render.screen.AmalgamationScreen;
 import survivalblock.volucraft.common.Volucraft;
 
 import java.util.List;
@@ -22,8 +25,6 @@ import java.util.Optional;
 import static survivalblock.volucraft.client.render.screen.AmalgamationScreen.*;
 
 public class AmalgamationClientRecipe implements ReliableClientRecipe {
-
-    private static final Quaternionfc ROTATION = new Quaternionf().rotateX((float) Math.PI / 4).rotateY((float) -Math.PI / 4);
 
     private final Identifier id;
     private final SlotContent result;
@@ -63,13 +64,29 @@ public class AmalgamationClientRecipe implements ReliableClientRecipe {
         return List.of(this.result);
     }
 
-    // FIXME
     @Override
     public void renderRecipe(RecipeViewScreen screen, RecipePosition recipePosition, GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
-        int cubeX0 = 0;
-        int cubeY0 = 0;
+        final int cubeX0 = recipePosition.left();
+        final int cubeY0 = recipePosition.top() + 16;
         ScreenWithCubes screenWithCubes = (ScreenWithCubes) screen;
-        NonNullList<ItemStack> items = NonNullList.of(ItemStack.EMPTY, this.getIngredients().stream().map(slotContent -> slotContent.getValidContents().getFirst()).toArray(ItemStack[]::new));
+
+        final NonNullList<ItemStack> items = NonNullList.withSize(27, ItemStack.EMPTY);
+        for (int i = 0; i < this.meAndMy27Slots.size(); i++) {
+            List<ItemStack> options = this.meAndMy27Slots.get(i).getValidContents();
+            if (options.isEmpty()) {
+                continue;
+            }
+            if (options.size() == 1) {
+                items.set(i, options.getFirst());
+            }
+            items.set(i, options.get((int) ((screenWithCubes.volucraft$calculateTimeOpen() / 30) % options.size())));
+        }
+
+        final Vector2f rot = screenWithCubes.volucraft$getRotation();
+        rot.y = (float) Math.clamp(rot.y, -Math.PI / 2, Math.PI / 2); // clamp -90, 90 otherwise the turn direction becomes inverted
+        rot.x = (float) (rot.x % (Math.PI * 2)); // simple mod 360 deg so the numbers don't explode
+        final Quaternionfc rotation = new Quaternionf().rotateX(rot.y).rotateY(-rot.x);
+
         graphics.guiRenderState.addPicturesInPictureState(
                 new CubeOfSlotsRenderState(
                         screenWithCubes.volucraft$getCubeModel(),
@@ -78,9 +95,9 @@ public class AmalgamationClientRecipe implements ReliableClientRecipe {
                         TRANSLUCENT_SLOT_CUBE,
                         HIGHLIGHTED_SLOT_CUBE,
                         items,
-                        -1,
+                        AmalgamationScreen.getHovered3DSlot(mouseX, mouseY, PICTURE_IN_PICTURE_SCALE, rotation, cubeX0, cubeY0, Minecraft.getInstance().getWindow().getGuiScale(), 1),
                         1,
-                        ROTATION,
+                        rotation,
                         cubeX0,
                         cubeY0,
                         cubeX0 + SLOTS_SIDE,

@@ -145,22 +145,28 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         );
     }
 
+    public int getHovered3DSlot(double mouseX, double mouseY, final float scale, final Quaternionfc rotation) {
+        int xo = this.leftPos + SLOTS_X_OFFSET;
+        int yo = ((this.height - this.imageHeight) / 2) + SLOTS_Y_OFFSET;
+
+        final int guiScale = this.minecraft.getWindow().getGuiScale();
+
+        return getHovered3DSlot(mouseX, mouseY, scale, rotation, xo, yo, guiScale, this.expansion);
+    }
+
     /**
      * We basically use the {@link com.mojang.blaze3d.vertex.PoseStack} and reverse the transforms
      * @see net.minecraft.client.gui.render.pip.PictureInPictureRenderer
      * @see CubeOfSlotsRenderer
      */
-    public int getHovered3DSlot(double mouseX, double mouseY, final float scale, final Quaternionfc rotation) {
-        int xo = this.leftPos + SLOTS_X_OFFSET;
-        int yo = ((this.height - this.imageHeight) / 2) + SLOTS_Y_OFFSET;
+    public static int getHovered3DSlot(double mouseX, double mouseY, float scale, Quaternionfc rotation, int xo, int yo, int guiScale, float lerpExpansion) {
         if (mouseX < xo || mouseX > xo + SLOTS_SIDE || mouseY < yo || mouseY > yo + SLOTS_SIDE) {
             return -1;
         }
 
-        final int guiScale = this.minecraft.getWindow().getGuiScale();
         final int side = SLOTS_SIDE * guiScale; // can be one variable because square
-        final float expand = CubeOfSlotsRenderer.calculateExpansion(this.expansion);
         final float renderCenter = CubeOfSlotsRenderer.centerFromScale(scale);
+        final float expand = CubeOfSlotsRenderer.calculateExpansion(lerpExpansion);
         final double invertedMouseY = yo * 2 + SLOTS_SIDE - mouseY - 3;
 
         int closestSlot = -1;

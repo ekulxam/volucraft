@@ -6,7 +6,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
-import survivalblock.volucraft.client.render.screen.AmalgamationScreen;
 import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.block.AmalgamationTableBlock;
 import survivalblock.volucraft.common.init.VolucraftItems;
@@ -23,17 +22,17 @@ public class AmalgamationClientRecipeType implements ReliableClientRecipeType {
 
     @Override
     public int getDisplayWidth() {
-        return 344;
+        return 150;
     }
 
     @Override
     public int getDisplayHeight() {
-        return 166;
+        return 141;
     }
 
     @Override
     public @Nullable Identifier getGuiTexture() {
-        return AmalgamationScreen.CRAFTING_TABLE_LOCATION;
+        return null;
     }
 
     @Override
@@ -43,7 +42,7 @@ public class AmalgamationClientRecipeType implements ReliableClientRecipeType {
 
     @Override
     public void placeSlots(RecipeViewMenu.SlotDefinition slotDefinition) {
-        slotDefinition.addItemSlot(0, 0, 0);
+        slotDefinition.addItemSlot(0, this.getDisplayWidth() / 2 - 8, 0);
     }
 
     @Override
