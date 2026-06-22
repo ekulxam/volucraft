@@ -19,6 +19,7 @@ import survivalblock.volucraft.client.render.CubeOfSlotsRenderState;
 import survivalblock.volucraft.client.render.screen.AmalgamationScreen;
 import survivalblock.volucraft.common.Volucraft;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,13 +29,23 @@ public class AmalgamationClientRecipe implements ReliableClientRecipe {
 
     private final Identifier id;
     private final SlotContent result;
-    private final List<SlotContent> meAndMy27Slots;
+    private final List<SlotContent> meAndMy27Slots = NonNullList.withSize(27, SlotContent.of());
 
-    public AmalgamationClientRecipe(Identifier id, ItemStackTemplate resultItem, List<Optional<Ingredient>> inputs) {
+    public AmalgamationClientRecipe(Identifier id, ItemStackTemplate resultItem, int length, int width, int height, List<Optional<Ingredient>> inputs) {
         this.id = id;
         this.result = SlotContent.of(resultItem);
-        this.meAndMy27Slots = inputs.stream().map(optional -> optional.map(SlotContent::of).orElse(SlotContent.of())).toList();
-        assert this.meAndMy27Slots.size() == Volucraft.SLOTS;
+        for (int z = 0; z < height; z++) {
+            for (int y = 0; y < width; y++) {
+                for (int x = 0; x < length; x++) {
+                    meAndMy27Slots.set(
+                            x + y * Volucraft.SIDE_LENGTH + z * Volucraft.SIDE_LENGTH * Volucraft.SIDE_LENGTH,
+                            inputs.get(x + y * length + z * length * width)
+                                    .map(SlotContent::of)
+                                    .orElse(SlotContent.of())
+                    );
+                }
+            }
+        }
     }
 
     @Override
@@ -43,7 +54,7 @@ public class AmalgamationClientRecipe implements ReliableClientRecipe {
     }
 
     public Identifier getId() {
-        return id;
+        return this.id;
     }
 
     @Override

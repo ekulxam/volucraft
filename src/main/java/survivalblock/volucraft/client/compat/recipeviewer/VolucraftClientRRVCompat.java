@@ -15,7 +15,14 @@ public class VolucraftClientRRVCompat implements ReliableRecipeViewerClientPlugi
                 if (!(recipeHolder.value() instanceof ShapedAmalgamationRecipe recipe)) {
                     return;
                 }
-                recipeList.add(new AmalgamationClientRecipe(recipeHolder.id().identifier(), recipe.getResult(), recipe.getIngredients()));
+                recipeList.add(new AmalgamationClientRecipe(
+                        recipeHolder.id().identifier(),
+                        recipe.getResult(),
+                        recipe.getLength(),
+                        recipe.getWidth(),
+                        recipe.getHeight(),
+                        recipe.getIngredients()
+                ));
             });
         });
     }
