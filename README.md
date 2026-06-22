@@ -52,6 +52,9 @@ See the example (trident recipe) below:
 
 Note how the pattern is 3 regular 2D patterns stacked on top of each other.
 
+### Viewing Recipes
+As of 0.0.3, Volucraft supports recipe viewing via Reliable Recipe Viewer integration!
+
 ## Configuration
 Volucraft can be configured on the client to match your preferences.
 It comes with two builtin resource packs and an optional config powered by YACL.
