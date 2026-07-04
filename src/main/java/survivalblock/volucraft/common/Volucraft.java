@@ -50,7 +50,7 @@ public class Volucraft implements ModInitializer {
         FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent(modContainer -> {
             ResourceLoader.registerBuiltinPack(ALL_TRANSLUCENT_SLOTS_PACK, modContainer, Component.translatable("resourcePack.volucraft.all_translucent_slots.name"), PackActivationType.NORMAL);
             ResourceLoader.registerBuiltinPack(MORE_TRANSLUCENT_SLOTS_PACK, modContainer, Component.translatable("resourcePack.volucraft.more_translucent_slots.name"), PackActivationType.NORMAL);
-            Volucraft.wrapDatapack(() ->
+            wrapDatapack(() ->
                     ResourceLoader.registerBuiltinPack(EXAMPLE_RECIPES_PACK, modContainer, Component.translatable("dataPack.volucraft.example_recipes.name"), PackActivationType.NORMAL)
             );
         });
