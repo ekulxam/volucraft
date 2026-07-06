@@ -26,6 +26,14 @@ import java.util.Optional;
  * @see CraftingMenu
  */
 public class AmalgamationMenu extends AbstractContainerMenu {
+    public static final int RESULT_SLOT_INDEX = 0;
+    public static final int CRAFT_SLOTS_START = 1;
+    public static final int CRAFT_SLOTS_END = CRAFT_SLOTS_START + Volucraft.SLOTS;
+    public static final int INV_SLOTS_START = CRAFT_SLOTS_END;
+    public static final int INV_SLOTS_END = CRAFT_SLOTS_END + 27;
+    public static final int HOTBAR_SLOTS_START = INV_SLOTS_END;
+    public static final int HOTBAR_SLOTS_END = HOTBAR_SLOTS_START + 9;
+
     protected final AmalgamationContainer craftSlots = new TransientAmalgamationContainer(this, Volucraft.SIDE_LENGTH, Volucraft.SIDE_LENGTH, Volucraft.SIDE_LENGTH);
     protected final ResultContainer resultSlots = new ResultContainer();
     private final ContainerLevelAccess access;
@@ -56,7 +64,7 @@ public class AmalgamationMenu extends AbstractContainerMenu {
 
     @SuppressWarnings({"UnusedReturnValue", "SameParameterValue"})
     protected Slot addResultSlot(final Player player, final int x, final int y) {
-        return this.addSlot(new AmalgamationResultSlot(player, this.craftSlots, this.resultSlots, 0, x, y));
+        return this.addSlot(new AmalgamationResultSlot(player, this.craftSlots, this.resultSlots, RESULT_SLOT_INDEX, x, y));
     }
 
     @SuppressWarnings("SameParameterValue")
@@ -83,8 +91,8 @@ public class AmalgamationMenu extends AbstractContainerMenu {
             }
         }
 
-        resultSlots.setItem(0, result);
-        menu.setRemoteSlot(0, result);
+        resultSlots.setItem(RESULT_SLOT_INDEX, result);
+        menu.setRemoteSlot(RESULT_SLOT_INDEX, result);
         serverPlayer.connection.send(new ClientboundContainerSetSlotPacket(menu.containerId, menu.incrementStateId(), 0, result));
     }
 
@@ -111,53 +119,48 @@ public class AmalgamationMenu extends AbstractContainerMenu {
 
     @Override
     public ItemStack quickMoveStack(final Player player, final int slotIndex) {
-        final int resultSlot = 0;
-        final int craftSlotsStart = 1;
-        final int invSlotsStart = 10 - 9 + Volucraft.SLOTS;
-        final int useSlotsStart = 37 - 9 + Volucraft.SLOTS;
-        final int useSlotsEnd = 46 - 9 + Volucraft.SLOTS;
-
-        ItemStack clicked = ItemStack.EMPTY;
         Slot slot = this.slots.get(slotIndex);
         //noinspection ConstantValue
-        if (slot != null && slot.hasItem()) {
-            ItemStack stack = slot.getItem();
-            clicked = stack.copy();
-            if (slotIndex == resultSlot) {
-                stack.getItem().onCraftedBy(stack, player);
-                if (!this.moveItemStackTo(stack, invSlotsStart, useSlotsEnd, true)) {
-                    return ItemStack.EMPTY;
-                }
+        if (slot == null || !slot.hasItem()) {
+            return ItemStack.EMPTY;
+        }
 
-                slot.onQuickCraft(stack, clicked);
-            } else if (slotIndex >= invSlotsStart && slotIndex < useSlotsEnd) {
-                if (!this.moveItemStackTo(stack, craftSlotsStart, invSlotsStart, false)) {
-                    if (slotIndex < useSlotsStart) {
-                        if (!this.moveItemStackTo(stack, useSlotsStart, useSlotsEnd, false)) {
-                            return ItemStack.EMPTY;
-                        }
-                    } else if (!this.moveItemStackTo(stack, invSlotsStart, useSlotsStart, false)) {
+        ItemStack stack = slot.getItem();
+        ItemStack clicked = stack.copy();
+        if (slotIndex == RESULT_SLOT_INDEX) {
+            stack.getItem().onCraftedBy(stack, player);
+            if (!this.moveItemStackTo(stack, INV_SLOTS_START, HOTBAR_SLOTS_END, true)) {
+                return ItemStack.EMPTY;
+            }
+
+            slot.onQuickCraft(stack, clicked);
+        } else if (slotIndex >= INV_SLOTS_START && slotIndex < HOTBAR_SLOTS_END) {
+            if (!this.moveItemStackTo(stack, CRAFT_SLOTS_START, CRAFT_SLOTS_END, false)) {
+                if (slotIndex < HOTBAR_SLOTS_START) {
+                    if (!this.moveItemStackTo(stack, HOTBAR_SLOTS_START, HOTBAR_SLOTS_END, false)) {
                         return ItemStack.EMPTY;
                     }
+                } else if (!this.moveItemStackTo(stack, INV_SLOTS_START, INV_SLOTS_END, false)) {
+                    return ItemStack.EMPTY;
                 }
-            } else if (!this.moveItemStackTo(stack, invSlotsStart, useSlotsEnd, false)) {
-                return ItemStack.EMPTY;
             }
+        } else if (!this.moveItemStackTo(stack, INV_SLOTS_START, HOTBAR_SLOTS_END, false)) {
+            return ItemStack.EMPTY;
+        }
 
-            if (stack.isEmpty()) {
-                slot.setByPlayer(ItemStack.EMPTY);
-            } else {
-                slot.setChanged();
-            }
+        if (stack.isEmpty()) {
+            slot.setByPlayer(ItemStack.EMPTY);
+        } else {
+            slot.setChanged();
+        }
 
-            if (stack.getCount() == clicked.getCount()) {
-                return ItemStack.EMPTY;
-            }
+        if (stack.getCount() == clicked.getCount()) {
+            return ItemStack.EMPTY;
+        }
 
-            slot.onTake(player, stack);
-            if (slotIndex == resultSlot) {
-                player.drop(stack, false);
-            }
+        slot.onTake(player, stack);
+        if (slotIndex == RESULT_SLOT_INDEX) {
+            player.drop(stack, false);
         }
 
         return clicked;
