@@ -19,7 +19,7 @@ public class VolucraftMixinPlugin implements IMixinConfigPlugin {
     }
 
     @Override
-    public boolean shouldApplyMixin(String mixinClassName, String targetClassName) {
+    public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
         if (mixinClassName.contains("compat.config")) {
             return FabricLoader.getInstance().isModLoaded("yet_another_config_lib_v3");
         }
@@ -36,7 +36,7 @@ public class VolucraftMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public List<String> getMixins() {
-        return List.of();
+        return null;
     }
 
     @Override

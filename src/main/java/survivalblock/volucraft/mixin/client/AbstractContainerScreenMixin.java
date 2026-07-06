@@ -21,7 +21,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import survivalblock.volucraft.client.render.screen.AmalgamationScreen;
 import survivalblock.volucraft.common.Volucraft;
 
-@Debug(export = true)
 @Mixin(AbstractContainerScreen.class)
 public class AbstractContainerScreenMixin {
     @Shadow

@@ -1,3 +1,2 @@
-Volucraft 0.0.6+26.1.2
-- Limit RRV's amalgamation recipe displays to one per Menu/Screen
-- Create actual crafting recipe for Amalgamation Table
+Volucraft 0.0.7+26.1.2
+- Fix [`NoClassDefFoundError`s](https://github.com/ekulxam/volucraft/issues/2) due to mixin config plugin issue
