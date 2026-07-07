@@ -4,8 +4,11 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Cancellable;
 import com.llamalad7.mixinextras.sugar.Local;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import org.jspecify.annotations.Nullable;
@@ -75,4 +78,16 @@ public class AbstractContainerScreenMixin {
         }
         return original.index > 0 && original.index <= Volucraft.SLOTS ? null : original;
     }
+
+    /*
+    @Inject(method = "extractSlot", at = @At(value = "RETURN"))
+    private void addIndex(GuiGraphicsExtractor graphics, Slot slot, int mouseX, int mouseY, CallbackInfo ci) {
+        if (slot.isActive()) {
+            Minecraft minecraft = Minecraft.getInstance();
+            Font font = minecraft.font;
+            String index = String.valueOf(slot.index);
+            graphics.text(font, index, slot.x + 8 - (font.width(index) / 2), slot.y + 8 - (font.lineHeight / 2), 0xFFFFFF00);
+        }
+    }
+     */
 }

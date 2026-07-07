@@ -28,11 +28,11 @@ import java.util.Optional;
 public class AmalgamationMenu extends AbstractContainerMenu {
     public static final int RESULT_SLOT_INDEX = 0;
     public static final int CRAFT_SLOTS_START = 1;
-    public static final int CRAFT_SLOTS_END = CRAFT_SLOTS_START + Volucraft.SLOTS;
-    public static final int INV_SLOTS_START = CRAFT_SLOTS_END;
-    public static final int INV_SLOTS_END = CRAFT_SLOTS_END + 27;
-    public static final int HOTBAR_SLOTS_START = INV_SLOTS_END;
-    public static final int HOTBAR_SLOTS_END = HOTBAR_SLOTS_START + 9;
+    public static final int CRAFT_SLOTS_END = CRAFT_SLOTS_START + Volucraft.SLOTS; // 28
+    public static final int INV_SLOTS_START = CRAFT_SLOTS_END; // 28
+    public static final int INV_SLOTS_END = CRAFT_SLOTS_END + 27; // 55
+    public static final int HOTBAR_SLOTS_START = INV_SLOTS_END; // 55
+    public static final int HOTBAR_SLOTS_END = HOTBAR_SLOTS_START + 9; // 64
 
     protected final AmalgamationContainer craftSlots = new TransientAmalgamationContainer(this, Volucraft.SIDE_LENGTH, Volucraft.SIDE_LENGTH, Volucraft.SIDE_LENGTH);
     protected final ResultContainer resultSlots = new ResultContainer();
@@ -93,7 +93,7 @@ public class AmalgamationMenu extends AbstractContainerMenu {
 
         resultSlots.setItem(RESULT_SLOT_INDEX, result);
         menu.setRemoteSlot(RESULT_SLOT_INDEX, result);
-        serverPlayer.connection.send(new ClientboundContainerSetSlotPacket(menu.containerId, menu.incrementStateId(), 0, result));
+        serverPlayer.connection.send(new ClientboundContainerSetSlotPacket(menu.containerId, menu.incrementStateId(), RESULT_SLOT_INDEX, result));
     }
 
     @SuppressWarnings("DataFlowIssue")
@@ -178,6 +178,6 @@ public class AmalgamationMenu extends AbstractContainerMenu {
 
     @SuppressWarnings("unused")
     public List<Slot> getInputGridSlots() {
-        return this.slots.subList(1, 1 + Volucraft.SLOTS);
+        return this.slots.subList(CRAFT_SLOTS_START, CRAFT_SLOTS_END);
     }
 }

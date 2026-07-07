@@ -19,11 +19,13 @@ import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import survivalblock.volucraft.client.compat.recipeviewer.AmalgamationClientRecipeType;
 import survivalblock.volucraft.client.compat.recipeviewer.ScreenWithCubes;
 import survivalblock.volucraft.client.render.screen.AmalgamationScreen;
 import survivalblock.volucraft.common.Volucraft;
@@ -47,9 +49,12 @@ public class AbstractContainerScreenMixin {
     protected Slot hoveredSlot;
 
     @ModifyReturnValue(method = "mouseDragged", at = @At("RETURN"))
-    private boolean rotateInRecipeView(boolean original, MouseButtonEvent event, double dx, double dy) {
+    private boolean rotateInRecipeViewRRV(boolean original, MouseButtonEvent event, double dx, double dy) {
         //noinspection rawtypes
         if (!((AbstractContainerScreen) (Object) this instanceof RecipeViewScreen screen)) {
+            return original;
+        }
+        if (!volucraft$isAmalgamation(screen)) {
             return original;
         }
         float sensitivity = 0.05F;
@@ -59,8 +64,8 @@ public class AbstractContainerScreenMixin {
 
     // see the other AbstractContainerScreenMixin
     @ModifyExpressionValue(method = "extractSlot", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;isEmpty()Z"), slice = @Slice(to = @At(value = "INVOKE", target = "Lnet/minecraft/world/inventory/Slot;isActive()Z")))
-    private boolean noRender(boolean original, @Local(argsOnly = true, name = "slot") Slot slot, @Cancellable CallbackInfo ci) {
-        if ((AbstractContainerScreen) (Object) this instanceof RecipeViewScreen) {
+    private boolean noRenderRRV(boolean original, @Local(argsOnly = true, name = "slot") Slot slot, @Cancellable CallbackInfo ci) {
+        if ((AbstractContainerScreen) (Object) this instanceof RecipeViewScreen screen && volucraft$isAmalgamation(screen)) {
             if (slot.index >= 1 && slot.index <= Volucraft.SLOTS) {
                 ci.cancel();
             }
@@ -69,8 +74,11 @@ public class AbstractContainerScreenMixin {
     }
 
     @Inject(method = {"extractSlotHighlightBack", "extractSlotHighlightFront"}, at = @At("HEAD"), cancellable = true)
-    private void noRender2DHightlightIfAmal(GuiGraphicsExtractor graphics, CallbackInfo ci) {
-        if (!((AbstractContainerScreen) (Object) this instanceof RecipeViewScreen)) {
+    private void noRender2DHightlightIfAmalRRV(GuiGraphicsExtractor graphics, CallbackInfo ci) {
+        if (!((AbstractContainerScreen) (Object) this instanceof RecipeViewScreen screen)) {
+            return;
+        }
+        if (!volucraft$isAmalgamation(screen)) {
             return;
         }
         if (this.hoveredSlot == null) {
@@ -82,8 +90,11 @@ public class AbstractContainerScreenMixin {
     }
 
     @Inject(method = "getHoveredSlot", at = @At("HEAD"), cancellable = true)
-    private void get3DSlotInstead(double x, double y, CallbackInfoReturnable<Slot> cir) {
+    private void get3DSlotInsteadRRV(double x, double y, CallbackInfoReturnable<Slot> cir) {
         if (!((AbstractContainerScreen) (Object) this instanceof RecipeViewScreen screen)) {
+            return;
+        }
+        if (!volucraft$isAmalgamation(screen)) {
             return;
         }
         Vector2f rot = ((ScreenWithCubes) screen).volucraft$getRotation();
@@ -95,13 +106,21 @@ public class AbstractContainerScreenMixin {
     }
 
     @ModifyReturnValue(method = "getHoveredSlot", at = @At("RETURN"))
-    private Slot noReturning3DSlotOtherwise(Slot original) {
-        if (!((AbstractContainerScreen) (Object) this instanceof RecipeViewScreen)) {
+    private Slot noReturning3DSlotOtherwiseRRV(Slot original) {
+        if (!((AbstractContainerScreen) (Object) this instanceof RecipeViewScreen screen)) {
+            return original;
+        }
+        if (!volucraft$isAmalgamation(screen)) {
             return original;
         }
         if (original == null) {
             return null;
         }
         return original.index > 0 && original.index <= Volucraft.SLOTS ? null : original;
+    }
+
+    @Unique
+    private static boolean volucraft$isAmalgamation(RecipeViewScreen screen) {
+        return screen.getMenu().getClientRecipeType() == AmalgamationClientRecipeType.INSTANCE;
     }
 }

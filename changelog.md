@@ -1,2 +1,4 @@
-Volucraft 0.0.7+26.1.2
-- Fix [`NoClassDefFoundError`s](https://github.com/ekulxam/volucraft/issues/2) due to mixin config plugin issue
+Volucraft 0.0.8+26.1.2
+- Fix RRV compat not checking for Amalgamation recipes
+- Append "RRV" to RRV compat methods in `AbstractContainerScreenMixin` to avoid confusion
+- Cleanup `AmalgamationMenu#quickMoveStack`
