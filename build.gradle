@@ -25,6 +25,12 @@ repositories {
             includeGroupAndSubgroups("cc.cassian")
         }
     }
+    maven {
+        url("https://api.modrinth.com/maven")
+        content {
+            includeGroupAndSubgroups("maven.modrinth")
+        }
+    }
 }
 
 fabricApi {
@@ -42,14 +48,18 @@ dependencies {
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
-    include implementation("survivalblock.atmosphere:registrar:${project.registrar_version}")
+    implementation "survivalblock.atmosphere:registrar:${project.registrar_version}"
+    include "survivalblock.atmosphere:registrar:${project.registrar_version}"
 
     compileOnly "dev.isxander:yet-another-config-lib:${project.yacl_version}"
     localRuntime "dev.isxander:yet-another-config-lib:${project.yacl_version}"
     compileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
     localRuntime "com.terraformersmc:modmenu:${project.modmenu_version}"
 
-    implementation("cc.cassian.rrv:reliable-recipe-viewer-fabric:${rrv_version}+${minecraft_version}")
+    implementation "cc.cassian.rrv:reliable-recipe-viewer-fabric:${rrv_version}+${minecraft_version}"
+
+    compileOnly "maven.modrinth:sodium:${project.sodium_version}"
+    localRuntime "maven.modrinth:sodium:${project.sodium_version}"
 }
 
 processResources {
