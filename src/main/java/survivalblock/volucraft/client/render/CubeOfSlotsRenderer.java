@@ -11,6 +11,7 @@ import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
 import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.client.renderer.feature.FeatureRenderDispatcher;
 import net.minecraft.client.renderer.item.TrackingItemStackRenderState;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.Identifier;
@@ -54,6 +55,9 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
 
         this.minecraft.gameRenderer.getLighting().setupFor(Lighting.Entry.ENTITY_IN_UI);
 
+        FeatureRenderDispatcher featureRenderDispatcher = Minecraft.getInstance().gameRenderer.getFeatureRenderDispatcher();
+        SubmitNodeStorage submitNodeStorage = featureRenderDispatcher.getSubmitNodeStorage();
+
         poseStack.mulPose(FLIP); // because LivingEntity model(?)
         poseStack.translate(0, centerFromScale(renderState.scale()), 0); // translate to center
         for (int i = 0; i < Volucraft.SLOTS; i++) {
@@ -67,27 +71,29 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
             poseStack.translate(0, -CUBE_CENTER_OFFSET, 0); // unpivot point
             transformByIndex(i, translator);
             {
-                VertexConsumer buffer = this.bufferSource.getBuffer(modelToUse.renderType(stack.isEmpty() ? texture : translucentTexture));
-                model.renderToBuffer(poseStack, buffer, 15728880, OverlayTexture.NO_OVERLAY);
+                RenderType maybeTranslucent = modelToUse.renderType(stack.isEmpty() ? texture : translucentTexture);
+                submitNodeStorage.submitModel(modelToUse, new CubeModel.State(), poseStack, maybeTranslucent, 15728880, OverlayTexture.NO_OVERLAY, 0, null);
             }
             if (i == selected) {
                 poseStack.pushPose();
                 poseStack.translate(0, CUBE_CENTER_OFFSET, 0); // pivot point
                 poseStack.scale(1.1F, 1.1F, 1.1F);
                 poseStack.translate(0, -CUBE_CENTER_OFFSET, 0); // unpivot point
-                VertexConsumer buffer = this.bufferSource.getBuffer(modelToUse.renderType(renderState.highlightTexture()));
-                model.renderToBuffer(poseStack, buffer, -1, OverlayTexture.NO_OVERLAY);
+                RenderType highlight = modelToUse.renderType(renderState.highlightTexture());
+                submitNodeStorage.submitModel(modelToUse, new CubeModel.State(), poseStack, highlight, -1, OverlayTexture.NO_OVERLAY, 0, null);
                 poseStack.popPose();
             }
             if (!stack.isEmpty()) {
-                renderItem(poseStack, stack);
+                renderItem(poseStack, stack, submitNodeStorage);
             }
             poseStack.popPose(); // pop1
             poseStack.popPose(); // pop0
+
+            featureRenderDispatcher.renderAllFeatures();
         }
     }
 
-    private void renderItem(PoseStack poseStack, ItemStack stack) {
+    private void renderItem(PoseStack poseStack, ItemStack stack, SubmitNodeStorage submitNodeStorage) {
         poseStack.pushPose();
         poseStack.scale(1.0F, -1.0F, -1.0F);
         poseStack.translate(0, -0.5, 0);
@@ -95,10 +101,7 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
         TrackingItemStackRenderState itemStackRenderState = new TrackingItemStackRenderState();
         ItemDisplayContext displayContext = ItemDisplayContext.NONE;
         this.minecraft.getItemModelResolver().updateForTopItem(itemStackRenderState, stack, displayContext, this.minecraft.level, this.minecraft.player, 0);
-        FeatureRenderDispatcher featureRenderDispatcher = Minecraft.getInstance().gameRenderer.getFeatureRenderDispatcher();
-        SubmitNodeStorage submitNodeStorage = featureRenderDispatcher.getSubmitNodeStorage();
         itemStackRenderState.submit(poseStack, submitNodeStorage, 15728880, OverlayTexture.NO_OVERLAY, 0);
-        featureRenderDispatcher.renderAllFeatures();
         poseStack.popPose();
     }
 
