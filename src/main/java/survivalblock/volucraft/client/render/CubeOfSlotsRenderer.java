@@ -52,12 +52,13 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
         final Identifier texture = renderState.texture();
         final Identifier translucentTexture = renderState.translucent();
 
+        this.minecraft.gameRenderer.getLighting().setupFor(Lighting.Entry.ENTITY_IN_UI);
+
         poseStack.mulPose(FLIP); // because LivingEntity model(?)
         poseStack.translate(0, centerFromScale(renderState.scale()), 0); // translate to center
         for (int i = 0; i < Volucraft.SLOTS; i++) {
             ItemStack stack = items.get(i);
             final CubeModel modelToUse = stack.isEmpty() ? model : modelWithItem;
-            this.minecraft.gameRenderer.getLighting().setupFor(Lighting.Entry.ENTITY_IN_UI);
             poseStack.pushPose(); // push0
             poseStack.pushPose(); // push1
             poseStack.translate(0, CUBE_CENTER_OFFSET, 0); // pivot point
