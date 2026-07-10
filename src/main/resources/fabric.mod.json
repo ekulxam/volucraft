@@ -12,7 +12,7 @@
 		"sources": "https://github.com/ekulxam/volucraft",
         "issues": "https://github.com/ekulxam/volucraft/issues"
 	},
-	"license": "ARR",
+	"license": "Apache-2.0",
 	"icon": "assets/volucraft/icon.png",
 	"environment": "*",
 	"entrypoints": {

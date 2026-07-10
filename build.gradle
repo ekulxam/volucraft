@@ -1,6 +1,7 @@
 plugins {
 	id 'net.fabricmc.fabric-loom' version "${loom_version}"
 	id 'maven-publish'
+    id("com.diffplug.spotless") version "7.0.2"
 }
 
 version = project.mod_version
@@ -115,4 +116,14 @@ publishing {
 		// The repositories here will be used for publishing your artifact, not for
 		// retrieving dependencies.
 	}
+}
+
+spotless {
+    //noinspection UnnecessaryQualifiedReference
+    lineEndings = com.diffplug.spotless.LineEnding.UNIX
+
+    java {
+        licenseHeaderFile(rootProject.file("HEADER"), "(package|\\/\\/)")
+        target("src/**/*.java", "versions/*/src/**/*.java")
+    }
 }
