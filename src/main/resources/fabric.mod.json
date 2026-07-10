@@ -33,6 +33,9 @@
         ],
         "rrv_client": [
           "survivalblock.volucraft.client.compat.recipeviewer.VolucraftClientRRVCompat"
+        ],
+        "mixinsquared": [
+          "survivalblock.volucraft.common.compat.VolucraftMixinCanceller"
         ]
 	},
 	"mixins": [
