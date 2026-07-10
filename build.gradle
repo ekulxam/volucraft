@@ -64,8 +64,10 @@ dependencies {
 
     compileOnly "maven.modrinth:sodium:${project.sodium_version}"
     localRuntime "maven.modrinth:sodium:${project.sodium_version}"
+}
 
-    implementation(annotationProcessor("com.github.bawnorton.mixinsquared:mixinsquared-fabric:0.3.7-beta.3"))
+loom {
+    accessWidenerPath = file("src/main/resources/volucraft.classtweaker")
 }
 
 processResources {

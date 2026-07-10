@@ -33,14 +33,12 @@
         ],
         "rrv_client": [
           "survivalblock.volucraft.client.compat.recipeviewer.VolucraftClientRRVCompat"
-        ],
-        "mixinsquared": [
-          "survivalblock.volucraft.common.compat.VolucraftMixinCanceller"
         ]
 	},
 	"mixins": [
 		"volucraft.mixins.json"
 	],
+    "accessWidener": "volucraft.classtweaker",
 	"depends": {
 		"fabricloader": ">=0.19.0",
 		"minecraft": "26.1.2",
