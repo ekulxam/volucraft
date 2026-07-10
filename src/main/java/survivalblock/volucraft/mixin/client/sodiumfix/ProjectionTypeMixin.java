@@ -23,7 +23,7 @@ public enum ProjectionTypeMixin {
                 long[] packeds = new long[size];
                 int[] indices = new int[size];
 
-                for(int i = 0; i < size; indices[i] = i++) {
+                for (int i = 0; i < size; indices[i] = i++) {
                     float scaledZ = -values.get(i, scratch).z() * 10000;
                     packeds[i] = ((long) scaledZ << 32) | (i & 0xFFFFFFFFL);
                 }
