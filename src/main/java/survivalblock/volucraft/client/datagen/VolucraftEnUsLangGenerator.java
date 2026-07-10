@@ -24,15 +24,19 @@ public class VolucraftEnUsLangGenerator extends FabricLanguageProvider {
         translationBuilder.add("container.volucraft.amalgamating.expandbutton.shrink", "Shrink");
 
         translationBuilder.add("dataPack.volucraft.example_recipes.name", "Volucraft: Example Recipes");
-        translationBuilder.add("resourcePack.volucraft.all_translucent_slots.name", "Volucraft: All Translucent Slots");
-        translationBuilder.add("resourcePack.volucraft.more_translucent_slots.name", "Volucraft: More Translucent Slots");
 
         translationBuilder.add("volucraft.yacl.category.main", "Volucraft Config (Powered by YACL)");
         translationBuilder.add("volucraft.yacl.category.main.tooltip", "Config");
         translationBuilder.add("volucraft.yacl.group.client", "Client");
-        translationBuilder.add("volucraft.yacl.option.boolean.cubeBackgroundColor", "Cube Background Color");
-        translationBuilder.add("volucraft.yacl.option.boolean.cubeBackgroundColor.desc", "Determines the color of the background of the cube area in the Amalgamation Table screen. Vanilla uses #8b8b8b for slots.");
+        translationBuilder.add("volucraft.yacl.option.color.cubeBackgroundColor", "Cube Background Color");
+        translationBuilder.add("volucraft.yacl.option.color.cubeBackgroundColor.desc", "Determines the color of the background of the cube area in the Amalgamation Table screen. Vanilla uses #8b8b8b for slots.");
         translationBuilder.add("volucraft.yacl.option.boolean.displayARGB", "Display ARGB");
         translationBuilder.add("volucraft.yacl.option.boolean.displayARGB.desc", "Determines whether the Cube Background Color option is displayed in ARGB or RGBA.");
+        translationBuilder.add("volucraft.yacl.option.integer.cubeAlpha", "Cube Alpha");
+        translationBuilder.add("volucraft.yacl.option.integer.cubeAlpha.desc", "Determines the translucency of the 3D slots.");
+        translationBuilder.add("volucraft.yacl.option.integer.cubeWithItemAlpha", "Cube With Item Alpha");
+        translationBuilder.add("volucraft.yacl.option.integer.cubeWithItemAlpha.desc", "Determines the translucency of a 3D slot when it has an item.");
+        translationBuilder.add("volucraft.yacl.option.integer.cubeHighlightAlpha", "Cube Highlight Alpha");
+        translationBuilder.add("volucraft.yacl.option.integer.cubeHighlightAlpha.desc", "Determines the translucency of the highlight of the selected slot.");
     }
 }

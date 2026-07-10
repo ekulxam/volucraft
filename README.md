@@ -57,6 +57,10 @@ As of 0.0.3, Volucraft supports recipe viewing via Reliable Recipe Viewer integr
 
 ## Configuration
 Volucraft can be configured on the client to match your preferences.
+
+<details>
+  <summary>Before 0.1.0</summary>
+
 It comes with two builtin resource packs and an optional config powered by YACL.
 
 The two resource packs modify the translucency of the slots.
@@ -64,6 +68,11 @@ The two resource packs modify the translucency of the slots.
 2. More Translucent Slots - slots that contain items will become even less opaque than usual
 
 The YACL config controls the color of the background of the portion of the Amalgamation Table screen that contains the cube.
+
+</details>
+
+It comes with an optional config powered by YACL (you will need to install YACL to access the config).
+The YACL config controls slot translucency and the background color of the portion of the Amalgamation Table screen that contains the slots.
 
 ## Background
 This mod was originally made with the intention of bringing it to Modfest 26.<br>

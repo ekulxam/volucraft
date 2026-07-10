@@ -5,14 +5,18 @@
   "container.volucraft.amalgamating.expandbutton.expand": "Expand",
   "container.volucraft.amalgamating.expandbutton.shrink": "Shrink",
   "dataPack.volucraft.example_recipes.name": "Volucraft: Example Recipes",
-  "resourcePack.volucraft.all_translucent_slots.name": "Volucraft: All Translucent Slots",
-  "resourcePack.volucraft.more_translucent_slots.name": "Volucraft: More Translucent Slots",
   "stat.volucraft.interact_with_amalgamation_table": "Interactions with Amalgamation Table",
   "volucraft.yacl.category.main": "Volucraft Config (Powered by YACL)",
   "volucraft.yacl.category.main.tooltip": "Config",
   "volucraft.yacl.group.client": "Client",
-  "volucraft.yacl.option.boolean.cubeBackgroundColor": "Cube Background Color",
-  "volucraft.yacl.option.boolean.cubeBackgroundColor.desc": "Determines the color of the background of the cube area in the Amalgamation Table screen. Vanilla uses #8b8b8b for slots.",
   "volucraft.yacl.option.boolean.displayARGB": "Display ARGB",
-  "volucraft.yacl.option.boolean.displayARGB.desc": "Determines whether the Cube Background Color option is displayed in ARGB or RGBA."
+  "volucraft.yacl.option.boolean.displayARGB.desc": "Determines whether the Cube Background Color option is displayed in ARGB or RGBA.",
+  "volucraft.yacl.option.color.cubeBackgroundColor": "Cube Background Color",
+  "volucraft.yacl.option.color.cubeBackgroundColor.desc": "Determines the color of the background of the cube area in the Amalgamation Table screen. Vanilla uses #8b8b8b for slots.",
+  "volucraft.yacl.option.integer.cubeAlpha": "Cube Alpha",
+  "volucraft.yacl.option.integer.cubeAlpha.desc": "Determines the translucency of the 3D slots.",
+  "volucraft.yacl.option.integer.cubeHighlightAlpha": "Cube Highlight Alpha",
+  "volucraft.yacl.option.integer.cubeHighlightAlpha.desc": "Determines the translucency of the highlight of the selected slot.",
+  "volucraft.yacl.option.integer.cubeWithItemAlpha": "Cube With Item Alpha",
+  "volucraft.yacl.option.integer.cubeWithItemAlpha.desc": "Determines the translucency of a 3D slot when it has an item."
 }

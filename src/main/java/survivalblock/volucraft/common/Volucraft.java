@@ -30,8 +30,6 @@ public class Volucraft implements ModInitializer {
     public static final int SIDE_LENGTH = 3;
     public static final int SLOTS = SIDE_LENGTH * SIDE_LENGTH * SIDE_LENGTH;
 
-    public static final Identifier ALL_TRANSLUCENT_SLOTS_PACK = Volucraft.id("all_translucent_slots");
-    public static final Identifier MORE_TRANSLUCENT_SLOTS_PACK = Volucraft.id("more_translucent_slots");
     public static final Identifier EXAMPLE_RECIPES_PACK = Volucraft.id("example_recipes");
 
     public static boolean datapacking = false;
@@ -47,24 +45,22 @@ public class Volucraft implements ModInitializer {
         VolucraftMenuTypes.init();
         Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, Volucraft.id("amalgamation"), ShapedAmalgamationRecipe.SERIALIZER);
         Registry.register(BuiltInRegistries.RECIPE_DISPLAY, Volucraft.id("amalgamation"), ShapedAmalgamationRecipeDisplay.TYPE);
-        FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent(modContainer -> {
-            ResourceLoader.registerBuiltinPack(ALL_TRANSLUCENT_SLOTS_PACK, modContainer, Component.translatable("resourcePack.volucraft.all_translucent_slots.name"), PackActivationType.NORMAL);
-            ResourceLoader.registerBuiltinPack(MORE_TRANSLUCENT_SLOTS_PACK, modContainer, Component.translatable("resourcePack.volucraft.more_translucent_slots.name"), PackActivationType.NORMAL);
-            wrapDatapack(() ->
-                    ResourceLoader.registerBuiltinPack(EXAMPLE_RECIPES_PACK, modContainer, Component.translatable("dataPack.volucraft.example_recipes.name"), PackActivationType.NORMAL)
-            );
-        });
+        FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent(modContainer ->
+                wrapDatapack(
+                        () -> ResourceLoader.registerBuiltinPack(EXAMPLE_RECIPES_PACK, modContainer, Component.translatable("dataPack.volucraft.example_recipes.name"), PackActivationType.NORMAL)
+                )
+        );
 	}
 
     public static Identifier id(String path) {
         return Identifier.fromNamespaceAndPath(MOD_ID, path);
     }
 
-    public static Identifier makeCustomStat(final String id, final StatFormatter formatter) {
-        Identifier location = id(id);
-        Registry.register(BuiltInRegistries.CUSTOM_STAT, id, location);
-        Stats.CUSTOM.get(location, formatter);
-        return location;
+    public static Identifier makeCustomStat(final String path, final StatFormatter formatter) {
+        Identifier id = id(path);
+        Registry.register(BuiltInRegistries.CUSTOM_STAT, id, id);
+        Stats.CUSTOM.get(id, formatter);
+        return id;
     }
 
     public static <T> T wrapDatapack(Supplier<T> supplier) {

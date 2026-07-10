@@ -17,6 +17,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.joml.*;
+import survivalblock.volucraft.client.compat.config.VolucraftClientConfig;
 import survivalblock.volucraft.common.Volucraft;
 
 import java.lang.Math;
@@ -50,7 +51,6 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
         final NonNullList<ItemStack> items = renderState.items();
         final int selected = renderState.selected();
         final Identifier texture = renderState.texture();
-        final Identifier translucentTexture = renderState.translucent();
 
         this.minecraft.gameRenderer.getLighting().setupFor(Lighting.Entry.ENTITY_IN_UI);
 
@@ -58,6 +58,10 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
         SubmitNodeStorage submitNodeStorage = featureRenderDispatcher.getSubmitNodeStorage();
 
         final CubeModel.State state = new CubeModel.State();
+
+        int color = ((VolucraftClientConfig.INSTANCE.getCubeAlpha() & 0xFF) << 24) | 0xFFFFFF;
+        int colorWithItem = ((VolucraftClientConfig.INSTANCE.getCubeWithItemAlpha() & 0xFF) << 24) | 0xFFFFFF;
+        int highlightColor = ((VolucraftClientConfig.INSTANCE.getCubeHighlightAlpha() & 0xFF) << 24) | 0xFFFFFF;
 
         poseStack.mulPose(FLIP); // because LivingEntity model(?)
         poseStack.translate(0, centerFromScale(renderState.scale()), 0); // translate to center
@@ -72,8 +76,8 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
             poseStack.translate(0, -CUBE_CENTER_OFFSET, 0); // unpivot point
             transformByIndex(i, translator);
             {
-                RenderType maybeTranslucent = modelToUse.renderType(stack.isEmpty() ? texture : translucentTexture);
-                submitNodeStorage.submitModel(modelToUse, state, poseStack, maybeTranslucent, 15728880, OverlayTexture.NO_OVERLAY, 0, null);
+                RenderType renderType = modelToUse.renderType(texture);
+                submitNodeStorage.submitModel(modelToUse, state, poseStack, renderType, 15728880, OverlayTexture.NO_OVERLAY, stack.isEmpty() ? color : colorWithItem, null, 0, null);
             }
             if (i == selected) {
                 poseStack.pushPose();
@@ -81,7 +85,7 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
                 poseStack.scale(1.1F, 1.1F, 1.1F);
                 poseStack.translate(0, -CUBE_CENTER_OFFSET, 0); // unpivot point
                 RenderType highlight = modelToUse.renderType(renderState.highlightTexture());
-                submitNodeStorage.submitModel(modelToUse, state, poseStack, highlight, -1, OverlayTexture.NO_OVERLAY, 0, null);
+                submitNodeStorage.submitModel(modelToUse, state, poseStack, highlight, -1, OverlayTexture.NO_OVERLAY, highlightColor, null, 0, null);
                 poseStack.popPose();
             }
             if (!stack.isEmpty()) {
@@ -91,7 +95,6 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
             poseStack.popPose(); // pop0
         }
 
-        this.minecraft.gameRenderer.getLighting().setupFor(Lighting.Entry.ENTITY_IN_UI);
         featureRenderDispatcher.renderAllFeatures();
     }
 

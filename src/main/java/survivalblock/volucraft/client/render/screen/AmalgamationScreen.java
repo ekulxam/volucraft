@@ -27,7 +27,6 @@ import java.lang.Math;
 public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu> {
     public static final Identifier CRAFTING_TABLE_LOCATION = Volucraft.id("textures/gui/container/amalgamation.png");
     public static final Identifier SLOT_CUBE_TEXTURE = Volucraft.id("textures/gui/container/slots.png");
-    public static final Identifier TRANSLUCENT_SLOT_CUBE = Volucraft.id("textures/gui/container/slots_translucent.png");
     public static final Identifier HIGHLIGHTED_SLOT_CUBE = Volucraft.id("textures/gui/container/slots_highlight.png");
 
     public static final float PICTURE_IN_PICTURE_SCALE = 11F;
@@ -130,7 +129,6 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
                         this.cubeModel,
                         this.cubeModelWithItem,
                         SLOT_CUBE_TEXTURE,
-                        TRANSLUCENT_SLOT_CUBE,
                         HIGHLIGHTED_SLOT_CUBE,
                         items,
                         selected,

@@ -102,7 +102,6 @@ public class AmalgamationClientRecipe implements ReliableClientRecipe {
                         screenWithCubes.volucraft$getCubeModel(),
                         screenWithCubes.volucraft$getCubeModelWithItem(),
                         SLOT_CUBE_TEXTURE,
-                        TRANSLUCENT_SLOT_CUBE,
                         HIGHLIGHTED_SLOT_CUBE,
                         items,
                         AmalgamationScreen.getHovered3DSlot(mouseX, mouseY, PICTURE_IN_PICTURE_SCALE, rotation, 0, 16, Minecraft.getInstance().getWindow().getGuiScale(), 1, Volucraft.debugSlotSelector ? graphics : null),
