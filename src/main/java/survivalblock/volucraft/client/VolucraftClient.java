@@ -18,6 +18,7 @@ package survivalblock.volucraft.client;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.PictureInPictureRendererRegistry;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import survivalblock.volucraft.client.compat.config.VolucraftClientConfig;
@@ -28,8 +29,10 @@ import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.init.VolucraftMenuTypes;
 
 public class VolucraftClient implements ClientModInitializer {
-
     public static final ModelLayerLocation CUBE = new ModelLayerLocation(Volucraft.id("cube"), "main");
+
+    @SuppressWarnings("PointlessBooleanExpression")
+    public static boolean debugSlotSelector = true && FabricLoader.getInstance().isDevelopmentEnvironment();
 
     @Override
     public void onInitializeClient() {

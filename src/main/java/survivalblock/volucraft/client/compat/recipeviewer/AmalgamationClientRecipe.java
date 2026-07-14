@@ -30,6 +30,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
 import org.joml.Vector2f;
+import survivalblock.volucraft.client.VolucraftClient;
 import survivalblock.volucraft.client.render.CubeOfSlotsRenderState;
 import survivalblock.volucraft.client.render.screen.AmalgamationScreen;
 import survivalblock.volucraft.common.Volucraft;
@@ -119,7 +120,7 @@ public class AmalgamationClientRecipe implements ReliableClientRecipe {
                         SLOT_CUBE_TEXTURE,
                         HIGHLIGHTED_SLOT_CUBE,
                         items,
-                        AmalgamationScreen.getHovered3DSlot(mouseX, mouseY, PICTURE_IN_PICTURE_SCALE, rotation, 0, 16, Minecraft.getInstance().getWindow().getGuiScale(), 1, Volucraft.debugSlotSelector ? graphics : null),
+                        AmalgamationScreen.getHovered3DSlot(mouseX, mouseY, PICTURE_IN_PICTURE_SCALE, rotation, 0, 16, Minecraft.getInstance().getWindow().getGuiScale(), 1, VolucraftClient.debugSlotSelector ? graphics : null),
                         1,
                         rotation,
                         cubeX0,

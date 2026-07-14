@@ -37,6 +37,8 @@ import survivalblock.volucraft.common.Volucraft;
 
 import java.lang.Math;
 
+import static net.minecraft.util.LightCoordsUtil.FULL_BRIGHT;
+
 @Environment(EnvType.CLIENT)
 public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRenderState> {
 
@@ -69,14 +71,14 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
 
         this.minecraft.gameRenderer.getLighting().setupFor(Lighting.Entry.ENTITY_IN_UI);
 
-        FeatureRenderDispatcher featureRenderDispatcher = Minecraft.getInstance().gameRenderer.getFeatureRenderDispatcher();
-        SubmitNodeStorage submitNodeStorage = featureRenderDispatcher.getSubmitNodeStorage();
+        final FeatureRenderDispatcher featureRenderDispatcher = Minecraft.getInstance().gameRenderer.getFeatureRenderDispatcher();
+        final SubmitNodeStorage submitNodeStorage = featureRenderDispatcher.getSubmitNodeStorage();
 
         final CubeModel.State state = new CubeModel.State();
 
-        int color = ((VolucraftClientConfig.INSTANCE.getCubeAlpha() & 0xFF) << 24) | 0xFFFFFF;
-        int colorWithItem = ((VolucraftClientConfig.INSTANCE.getCubeWithItemAlpha() & 0xFF) << 24) | 0xFFFFFF;
-        int highlightColor = ((VolucraftClientConfig.INSTANCE.getCubeHighlightAlpha() & 0xFF) << 24) | 0xFFFFFF;
+        final int color = ((VolucraftClientConfig.INSTANCE.getCubeAlpha() & 0xFF) << 24) | 0xFFFFFF;
+        final int colorWithItem = ((VolucraftClientConfig.INSTANCE.getCubeWithItemAlpha() & 0xFF) << 24) | 0xFFFFFF;
+        final int highlightColor = ((VolucraftClientConfig.INSTANCE.getCubeHighlightAlpha() & 0xFF) << 24) | 0xFFFFFF;
 
         poseStack.mulPose(FLIP); // because LivingEntity model(?)
         poseStack.translate(0, centerFromScale(renderState.scale()), 0); // translate to center
@@ -92,7 +94,7 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
             transformByIndex(i, translator);
             {
                 RenderType renderType = modelToUse.renderType(texture);
-                submitNodeStorage.submitModel(modelToUse, state, poseStack, renderType, 15728880, OverlayTexture.NO_OVERLAY, stack.isEmpty() ? color : colorWithItem, null, 0, null);
+                submitNodeStorage.submitModel(modelToUse, state, poseStack, renderType, FULL_BRIGHT, OverlayTexture.NO_OVERLAY, stack.isEmpty() ? color : colorWithItem, null, 0, null);
             }
             if (i == selected) {
                 poseStack.pushPose();
@@ -121,7 +123,7 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
         TrackingItemStackRenderState itemStackRenderState = new TrackingItemStackRenderState();
         ItemDisplayContext displayContext = ItemDisplayContext.NONE;
         this.minecraft.getItemModelResolver().updateForTopItem(itemStackRenderState, stack, displayContext, this.minecraft.level, this.minecraft.player, 0);
-        itemStackRenderState.submit(poseStack, submitNodeStorage, 15728880, OverlayTexture.NO_OVERLAY, 0);
+        itemStackRenderState.submit(poseStack, submitNodeStorage, FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0);
         poseStack.popPose();
     }
 

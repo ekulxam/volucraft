@@ -134,7 +134,7 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         graphics.fill(cubeX0, cubeY0, cubeX0 + SLOTS_SIDE, cubeY0 + SLOTS_SIDE, VolucraftClientConfig.INSTANCE.getCubeBackgroundColor());
 
         // render cube (center at 261, 83) in a 150x150 area
-        int selected = this.getHovered3DSlot(mouseX, mouseY, PICTURE_IN_PICTURE_SCALE, rotation(), Volucraft.debugSlotSelector ? graphics : null);
+        int selected = this.getHovered3DSlot(mouseX, mouseY, PICTURE_IN_PICTURE_SCALE, rotation(), VolucraftClient.debugSlotSelector ? graphics : null);
         NonNullList<ItemStack> items = NonNullList.withSize(Volucraft.SLOTS, ItemStack.EMPTY);
         for (int i = 0; i < items.size(); i++) {
             items.set(i, this.menu.getSlot(i + 1).getItem());
@@ -181,45 +181,42 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         final int side = SLOTS_SIDE * guiScale; // can be one variable because square
         final float renderCenter = CubeOfSlotsRenderer.centerFromScale(scale);
         final float expand = CubeOfSlotsRenderer.calculateExpansion(lerpExpansion);
-        final double invertedMouseY = yo * 2 + SLOTS_SIDE - mouseY - 3;
 
         int closestSlot = -1;
-        float closestZ = Float.POSITIVE_INFINITY;
+        float closestZ = Float.NEGATIVE_INFINITY;
 
+        Matrix4fStack poseStack = new Matrix4fStack(2);
+        final CubeOfSlotsRenderer.Translator translator = (x, y, z) -> poseStack.translate(x * expand, y * expand, z * expand);
+
+        // see the else branch of PictureInPictureRenderer#prepare
+        poseStack.translate(side / 2.0F, side, 0.0F);
+        float scaleScaledToGUI = guiScale * scale;
+        poseStack.scale(scaleScaledToGUI, scaleScaledToGUI, -scaleScaledToGUI);
+
+        // see CubeOfSlotsRenderer#renderToTexture
+        poseStack.rotate(CubeOfSlotsRenderer.FLIP);
+        poseStack.translate(0, renderCenter, 0);
         for (int i = 0; i < Volucraft.SLOTS; i++) {
-            Vector3f coordinates = new Vector3f();
-            CubeOfSlotsRenderer.transformByIndex(i, coordinates::set);
+            poseStack.pushMatrix();
 
-            // see the else branch of PictureInPictureRenderer#prepare
-            Matrix4f matrix = new Matrix4f();
-            matrix.translate(side / 2.0F, side, 0.0F);
-            float scaleScaledToGUI = guiScale * scale;
-            matrix.scale(scaleScaledToGUI, scaleScaledToGUI, -scaleScaledToGUI);
+            poseStack.translate(0, CubeOfSlotsRenderer.CUBE_CENTER_OFFSET, 0); // pivot point
+            poseStack.rotate(CubeOfSlotsRenderer.FLIP);
+            poseStack.rotate(rotation); // rotate around pivot point
+            poseStack.translate(0, -CubeOfSlotsRenderer.CUBE_CENTER_OFFSET, 0); // unpivot point
+            CubeOfSlotsRenderer.transformByIndex(i, translator);
 
-            // see CubeOfSlotsRenderer
-            /*
-            This scale call works better than two FLIPs because the second flip
-            only undoes the first one around the pivot
-
-            Also, PoseStack is weird and I don't have access to push and pop here
-            (but I wish I did, it would save me so much time and brainpower)
-             */
-            matrix.scale(1, -1, -1);
-            matrix.translate(0, renderCenter, 0);
-            matrix.translate(0, CubeOfSlotsRenderer.CUBE_CENTER_OFFSET, 0); // pivot point
-            matrix.rotate(rotation); // rotate around pivot point
-            matrix.translate(0, -CubeOfSlotsRenderer.CUBE_CENTER_OFFSET, 0); // unpivot point
-
-            // transformByIndex
-            Vector4f projectedPos = new Vector4f(coordinates.x * expand, coordinates.y * expand, coordinates.z * expand, 1.0F);
-            projectedPos.mul(matrix);
+            // 2D time
+            Vector4f projectedPos = new Vector4f(0, 0, 0, 1.0F);
+            projectedPos.mul(poseStack);
             float projectedMouseX = xo + (projectedPos.x / guiScale);
-            float projectedMouseY = yo + (projectedPos.y / guiScale);
+            float projectedMouseY = yo + (projectedPos.y / guiScale) + 3; // small offset because it's too high somehow
+
+            poseStack.popMatrix();
 
             // woah magic number
             float halfSlotSize = (5.1F * scale) / guiScale * 0.5F;
-            if (Math.abs(mouseX - projectedMouseX) <= halfSlotSize && Math.abs(invertedMouseY - projectedMouseY) <= halfSlotSize) {
-                if (projectedPos.z < closestZ) {
+            if (Math.abs(mouseX - projectedMouseX) <= halfSlotSize && Math.abs(mouseY - projectedMouseY) <= halfSlotSize) {
+                if (projectedPos.z > closestZ) {
                     closestZ = projectedPos.z;
                     closestSlot = i;
                 }
@@ -231,7 +228,7 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
                         (int) (projectedMouseY - halfSlotSize),
                         (int) (projectedMouseX + halfSlotSize),
                         (int) (projectedMouseY + halfSlotSize),
-                        2000962815
+                        0x774444FF
                 );
             }
         }
