@@ -17,6 +17,7 @@ package survivalblock.volucraft.client.render;
 
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.PictureInPictureRendererRegistry;
@@ -29,6 +30,8 @@ import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
+import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.joml.*;
@@ -41,9 +44,10 @@ import static net.minecraft.util.LightCoordsUtil.FULL_BRIGHT;
 
 @Environment(EnvType.CLIENT)
 public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRenderState> {
-
     public static final Quaternionfc FLIP = new Quaternionf().rotateZ((float) Math.PI);
     public static final float CUBE_CENTER_OFFSET = 9 / 16F; // cubes are 18x18 in blockbench, so half that and div by 16
+
+    private static final int[] GAMECUBE_PATH = { 2, 5, 8, 7, 6, 15, 24, 21, 18, 19, 20, 11 }; // gotta love the magic numbers
 
     private final Minecraft minecraft;
 
@@ -71,18 +75,55 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
 
         this.minecraft.gameRenderer.getLighting().setupFor(Lighting.Entry.ENTITY_IN_UI);
 
-        final FeatureRenderDispatcher featureRenderDispatcher = Minecraft.getInstance().gameRenderer.getFeatureRenderDispatcher();
+        final FeatureRenderDispatcher featureRenderDispatcher = this.minecraft.gameRenderer.getFeatureRenderDispatcher();
         final SubmitNodeStorage submitNodeStorage = featureRenderDispatcher.getSubmitNodeStorage();
 
         final CubeModel.State state = new CubeModel.State();
 
-        final int color = ((VolucraftClientConfig.INSTANCE.getCubeAlpha() & 0xFF) << 24) | 0xFFFFFF;
+        poseStack.mulPose(FLIP); // because LivingEntity model(?)
+        poseStack.translate(0, centerFromScale(renderState.scale()), 0); // translate to center
+
+        float anim = renderState.gameCubeAnimationProgress();
+
+        final float bounceThres = 0.8F;
+
+        int color;
+        if (anim < 1.0F) {
+            int purple = 0x6354C2;
+            int cubeAlpha = 255;
+            if (anim > bounceThres) {
+                float bounceTime = (anim - bounceThres) / (1 - bounceThres); // 0 to 1
+                float bounceScale = (float) (Math.sin(bounceTime * Math.PI) * 0.3F * (1.0F - bounceTime));
+                poseStack.mulPose(Axis.XN.rotation(bounceScale));
+                cubeAlpha = Mth.lerpInt(bounceTime, 255, VolucraftClientConfig.INSTANCE.getCubeAlpha()) & 0xFF;
+                purple = ARGB.srgbLerp(bounceTime, purple, 0xFFFFFF);
+            }
+
+            color = (cubeAlpha << 24) | purple;
+
+            anim *= (1 / bounceThres);
+        } else {
+            color = ((VolucraftClientConfig.INSTANCE.getCubeAlpha() & 0xFF) << 24) | 0xFFFFFF;
+        }
+
         final int colorWithItem = ((VolucraftClientConfig.INSTANCE.getCubeWithItemAlpha() & 0xFF) << 24) | 0xFFFFFF;
         final int highlightColor = ((VolucraftClientConfig.INSTANCE.getCubeHighlightAlpha() & 0xFF) << 24) | 0xFFFFFF;
 
-        poseStack.mulPose(FLIP); // because LivingEntity model(?)
-        poseStack.translate(0, centerFromScale(renderState.scale()), 0); // translate to center
         for (int i = 0; i < Volucraft.SLOTS; i++) {
+            if (anim < 1.0F) {
+                float appearanceThreshold = 1.0F;
+                for (int j = 0; j < GAMECUBE_PATH.length; j++) {
+                    if (GAMECUBE_PATH[j] == i) {
+                        appearanceThreshold *= ((float) j / GAMECUBE_PATH.length);
+                        break;
+                    }
+                }
+
+                if (anim < appearanceThreshold) {
+                    continue;
+                }
+            }
+
             ItemStack stack = items.get(i);
             final CubeModel modelToUse = stack.isEmpty() ? model : modelWithItem;
             poseStack.pushPose(); // push0

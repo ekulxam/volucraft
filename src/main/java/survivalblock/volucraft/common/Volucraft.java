@@ -39,7 +39,6 @@ import java.util.function.Supplier;
 
 public class Volucraft implements ModInitializer {
 	public static final String MOD_ID = "volucraft";
-
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
     public static final int SIDE_LENGTH = 3;

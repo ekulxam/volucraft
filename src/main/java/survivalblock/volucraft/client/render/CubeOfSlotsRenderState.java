@@ -43,6 +43,7 @@ public record CubeOfSlotsRenderState(
         int x1,
         int y1,
         float scale,
+        float gameCubeAnimationProgress,
         @Nullable ScreenRectangle scissorArea,
         @Nullable ScreenRectangle bounds
 ) implements PictureInPictureRenderState {
@@ -60,8 +61,28 @@ public record CubeOfSlotsRenderState(
             int x1,
             int y1,
             float scale,
+            float gameCubeAnimationProgress,
             @Nullable ScreenRectangle scissorArea
     ) {
-        this(model, model1, texture, highlightTexture, items, selected, lerpExpansion, rotation, x0, y0, x1, y1, scale, scissorArea, PictureInPictureRenderState.getBounds(x0, y0, x1, y1, scissorArea));
+        this(model, model1, texture, highlightTexture, items, selected, lerpExpansion, rotation, x0, y0, x1, y1, scale, gameCubeAnimationProgress, scissorArea, PictureInPictureRenderState.getBounds(x0, y0, x1, y1, scissorArea));
+    }
+
+    public CubeOfSlotsRenderState(
+            CubeModel model,
+            CubeModel model1,
+            Identifier texture,
+            Identifier highlightTexture,
+            NonNullList<ItemStack> items,
+            int selected,
+            float lerpExpansion,
+            Quaternionfc rotation,
+            int x0,
+            int y0,
+            int x1,
+            int y1,
+            float scale,
+            @Nullable ScreenRectangle scissorArea
+    ) {
+        this(model, model1, texture, highlightTexture, items, selected, lerpExpansion, rotation, x0, y0, x1, y1, scale, 1.0F, scissorArea);
     }
 }

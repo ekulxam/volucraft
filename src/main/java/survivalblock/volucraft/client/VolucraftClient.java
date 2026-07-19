@@ -25,20 +25,31 @@ import survivalblock.volucraft.client.compat.config.VolucraftClientConfig;
 import survivalblock.volucraft.client.render.CubeModel;
 import survivalblock.volucraft.client.render.CubeOfSlotsRenderer;
 import survivalblock.volucraft.client.render.screen.AmalgamationScreen;
+import survivalblock.volucraft.client.render.screen.GameCubeScreen;
 import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.init.VolucraftMenuTypes;
+import survivalblock.volucraft.common.menu.AmalgamationMenu;
 
 public class VolucraftClient implements ClientModInitializer {
     public static final ModelLayerLocation CUBE = new ModelLayerLocation(Volucraft.id("cube"), "main");
 
     @SuppressWarnings("PointlessBooleanExpression")
-    public static boolean debugSlotSelector = true && FabricLoader.getInstance().isDevelopmentEnvironment();
+    public static boolean debugSlotSelector = false && FabricLoader.getInstance().isDevelopmentEnvironment();
 
     @Override
     public void onInitializeClient() {
         VolucraftClientConfig.init();
         ModelLayerRegistry.registerModelLayer(CUBE, CubeModel::createBodyLayer);
         PictureInPictureRendererRegistry.register(CubeOfSlotsRenderer::new);
-        MenuScreens.register(VolucraftMenuTypes.AMALGAMATING, AmalgamationScreen::new);
+
+        // compiler got mad at me
+        //noinspection RedundantTypeArguments
+        MenuScreens.<AmalgamationMenu, AmalgamationScreen>register(
+                VolucraftMenuTypes.AMALGAMATING,
+                (menu, inventory, title) ->
+                        inventory.player.getRandom().nextFloat() < 0.1F
+                                ? new GameCubeScreen(menu, inventory, title)
+                                : new AmalgamationScreen(menu, inventory, title)
+        );
     }
 }

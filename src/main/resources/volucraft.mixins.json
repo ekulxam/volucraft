@@ -8,7 +8,6 @@
     "RecipeProviderAccessor",
     "ResourceLoaderMixin",
     "ShapedRecipePatternAccessor",
-    "SharedConstantsMixin",
     "client.compat.config.ColorControllerMixin",
     "compat.recipeviewer.RecipeViewMenuMixin"
   ],

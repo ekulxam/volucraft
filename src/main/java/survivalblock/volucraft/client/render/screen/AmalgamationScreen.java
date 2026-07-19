@@ -81,10 +81,22 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
             final int yo = (this.height - this.imageHeight) / 2 + SLOTS_Y_OFFSET;
             if (y >= yo && y <= yo + SLOTS_SIDE) {
                 float sensitivity = 0.05F;
-                rot.add((float) dx * sensitivity, (float) dy * sensitivity);
+                this.rot.add((float) dx * sensitivity, (float) dy * sensitivity);
+                this.onRotationChanged();
             }
         }
         return original;
+    }
+
+    protected void onRotationChanged() {
+        this.onDisplayTouched();
+    }
+
+    protected void onExpandToggled() {
+        this.onDisplayTouched();
+    }
+
+    protected void onDisplayTouched() {
     }
 
     @Override
@@ -93,37 +105,44 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         this.expansionButton = this.addRenderableWidget(
                 CycleButton.booleanBuilder(Component.translatable("container.volucraft.amalgamating.expandbutton.shrink"), Component.translatable("container.volucraft.amalgamating.expandbutton.expand"), this.shouldExpand)
                         .displayOnlyValue()
-                        .create(this.width / 2 - 65, this.height / 2 - 50, 60, 20, Component.translatable("container.volucraft.amalgamating.expandbutton"), (_, value) -> this.shouldExpand = value)
+                        .create(this.width / 2 - 65, this.height / 2 - 50, 60, 20, Component.translatable("container.volucraft.amalgamating.expandbutton"), (_, value) -> {
+                            this.shouldExpand = value;
+                            this.onExpandToggled();
+                        })
         );
     }
 
     @Override
     protected void containerTick() {
-        if (shouldExpand) {
-            if (expansion >= 1) {
-                expansion = 1;
+        if (this.shouldExpand) {
+            if (this.expansion >= 1) {
+                this.expansion = 1;
             } else {
-                expansion += EXPANSION_STEP;
+                this.expansion += EXPANSION_STEP;
             }
         } else {
-            if (expansion <= 0) {
-                expansion = 0;
+            if (this.expansion <= 0) {
+                this.expansion = 0;
             } else {
-                expansion -= EXPANSION_STEP;
+                this.expansion -= EXPANSION_STEP;
             }
         }
     }
 
     public Quaternionfc rotation() {
-        return new Quaternionf().rotateX(rot.y).rotateY(-rot.x);
+        return new Quaternionf().rotateX(this.rot.y).rotateY(-this.rot.x);
+    }
+
+    protected float gameCubeAnimationProgress() {
+        return 1.0F;
     }
 
     @Override
     public void extractBackground(final GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final float a) {
         super.extractBackground(graphics, mouseX, mouseY, a);
 
-        rot.y = (float) Math.clamp(rot.y, -Math.PI / 2, Math.PI / 2); // clamp -90, 90 otherwise the turn direction becomes inverted
-        rot.x = (float) (rot.x % (Math.PI * 2)); // simple mod 360 deg so the numbers don't explode
+        this.rot.y = (float) Math.clamp(this.rot.y, -Math.PI / 2, Math.PI / 2); // clamp -90, 90 otherwise the turn direction becomes inverted
+        this.rot.x = (float) (this.rot.x % (Math.PI * 2)); // simple mod 360 deg so the numbers don't explode
 
         int xo = this.leftPos;
         int yo = (this.height - this.imageHeight) / 2;
@@ -154,6 +173,7 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
                         cubeX0 + SLOTS_SIDE,
                         cubeY0 + SLOTS_SIDE,
                         PICTURE_IN_PICTURE_SCALE,
+                        this.gameCubeAnimationProgress(),
                         graphics.scissorStack.peek()
                 )
         );
