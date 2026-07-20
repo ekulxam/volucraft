@@ -1,3 +1,2 @@
-Volucraft 0.1.3+26.1.2
-- 10% chance to do an easter egg
-- Commented out unused mixin and removed it from mixins.json
+Volucraft 0.1.4+26.1.2
+- Fix RRV filter mode unexpectedly rendering a black rectangle

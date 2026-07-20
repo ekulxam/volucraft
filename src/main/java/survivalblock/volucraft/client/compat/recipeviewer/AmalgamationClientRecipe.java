@@ -34,6 +34,7 @@ import survivalblock.volucraft.client.VolucraftClient;
 import survivalblock.volucraft.client.render.CubeOfSlotsRenderState;
 import survivalblock.volucraft.client.render.screen.AmalgamationScreen;
 import survivalblock.volucraft.common.Volucraft;
+import survivalblock.volucraft.common.compat.recipeviewer.AmalgamationClientRecipeType;
 
 import java.util.List;
 import java.util.Optional;

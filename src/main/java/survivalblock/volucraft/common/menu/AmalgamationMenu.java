@@ -68,7 +68,7 @@ public class AmalgamationMenu extends AbstractContainerMenu {
         this.player = inventory.player;
         this.addResultSlot(this.player, 80, 35);
         for (int i = 0; i < Volucraft.SLOTS; i++) {
-            this.addSlot(new Slot(this.craftSlots, i, i, 0));
+            this.addSlot(new SlotShovedIntoACorner(this.craftSlots, i, i, 0));
         }
         this.addStandardInventorySlots(inventory, 8, 84);
     }
@@ -194,5 +194,17 @@ public class AmalgamationMenu extends AbstractContainerMenu {
     @SuppressWarnings("unused")
     public List<Slot> getInputGridSlots() {
         return this.slots.subList(CRAFT_SLOTS_START, CRAFT_SLOTS_END);
+    }
+
+    @SuppressWarnings("InnerClassMayBeStatic")
+    public class SlotShovedIntoACorner extends Slot {
+        public SlotShovedIntoACorner(Container container, int slot, int x, int y) {
+            super(container, slot, x, y);
+        }
+
+        @Override
+        public boolean isHighlightable() {
+            return false;
+        }
     }
 }

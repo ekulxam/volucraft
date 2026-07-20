@@ -9,7 +9,8 @@
     "ResourceLoaderMixin",
     "ShapedRecipePatternAccessor",
     "client.compat.config.ColorControllerMixin",
-    "compat.recipeviewer.RecipeViewMenuMixin"
+    "compat.recipeviewer.RecipeViewMenuMixin",
+    "compat.recipeviewer.RecipeViewMenuMixin$SlotDefinitionMixin"
   ],
   "client": [
     "client.AbstractContainerScreenAccessor",

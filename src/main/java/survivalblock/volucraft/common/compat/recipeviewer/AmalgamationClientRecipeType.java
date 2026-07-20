@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package survivalblock.volucraft.client.compat.recipeviewer;
+package survivalblock.volucraft.common.compat.recipeviewer;
 
 import cc.cassian.rrv.api.recipe.ReliableClientRecipeType;
+import cc.cassian.rrv.common.recipe.inventory.RecipeSlot;
 import cc.cassian.rrv.common.recipe.inventory.RecipeViewMenu;
-import cc.cassian.rrv.common.recipe.inventory.RecipeViewScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
 import survivalblock.volucraft.common.Volucraft;
@@ -72,5 +73,20 @@ public class AmalgamationClientRecipeType implements ReliableClientRecipeType {
     @Override
     public ItemStack getIcon() {
         return VolucraftItems.AMALGAMATION_TABLE.getDefaultInstance();
+    }
+
+    /**
+     * @see survivalblock.volucraft.common.menu.AmalgamationMenu.SlotShovedIntoACorner
+     */
+    @SuppressWarnings("InnerClassMayBeStatic")
+    public class RecipeSlotShovedIntoACorner extends RecipeSlot {
+        public RecipeSlotShovedIntoACorner(Container viewContainer, int index, int x, int y, boolean highlightWithoutContents) {
+            super(viewContainer, index, x, y, highlightWithoutContents);
+        }
+
+        @Override
+        public boolean isHighlightable() {
+            return false;
+        }
     }
 }
