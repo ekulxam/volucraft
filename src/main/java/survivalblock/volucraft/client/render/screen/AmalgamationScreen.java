@@ -158,6 +158,7 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         for (int i = 0; i < items.size(); i++) {
             items.set(i, this.menu.getSlot(i + 1).getItem());
         }
+
         graphics.guiRenderState.addPicturesInPictureState(
                 new CubeOfSlotsRenderState(
                         this.cubeModel,

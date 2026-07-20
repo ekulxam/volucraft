@@ -28,7 +28,6 @@ import survivalblock.volucraft.common.Volucraft;
 
 @Mixin(ResourceLoader.class)
 public interface ResourceLoaderMixin {
-
     @WrapOperation(method = "registerBuiltinPack(Lnet/minecraft/resources/Identifier;Lnet/fabricmc/loader/api/ModContainer;Lnet/fabricmc/fabric/api/resource/v1/pack/PackActivationType;)Z", at = @At(value = "INVOKE", target = "Lnet/fabricmc/fabric/impl/resource/ResourceLoaderImpl;registerBuiltinPack(Lnet/minecraft/resources/Identifier;Ljava/lang/String;Lnet/fabricmc/loader/api/ModContainer;Lnet/fabricmc/fabric/api/resource/v1/pack/PackActivationType;)Z"))
     private static boolean datapack(Identifier id, String subPath, ModContainer container, PackActivationType activationType, Operation<Boolean> original) {
         if (Volucraft.datapacking) {

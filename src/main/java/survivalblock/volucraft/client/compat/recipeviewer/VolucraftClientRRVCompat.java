@@ -41,4 +41,8 @@ public class VolucraftClientRRVCompat implements ReliableRecipeViewerClientPlugi
             });
         });
     }
+
+    /*static {
+        CubeOfSlotsRenderer.fillColor = () -> ItemViewOverlay.INSTANCE.isItemFilterMode() ? 0x000000 : 0xFFFFFF;
+    }*/
 }

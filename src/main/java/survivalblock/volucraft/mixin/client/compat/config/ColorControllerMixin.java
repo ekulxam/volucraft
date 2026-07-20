@@ -32,7 +32,6 @@ import java.awt.*;
 
 @Mixin(ColorController.class)
 public abstract class ColorControllerMixin {
-
     @Shadow
     @Final
     private Option<Color> option;

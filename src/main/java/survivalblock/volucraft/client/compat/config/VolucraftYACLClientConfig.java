@@ -34,7 +34,6 @@ import java.awt.*;
 
 @Environment(EnvType.CLIENT)
 public class VolucraftYACLClientConfig implements VolucraftClientConfig {
-
     public static final ConfigClassHandler<VolucraftYACLClientConfig> HANDLER = ConfigClassHandler.createBuilder(VolucraftYACLClientConfig.class)
             .id(Volucraft.id("volucraft"))
             .serializer(config -> GsonConfigSerializerBuilder.create(config)

@@ -28,7 +28,6 @@ import survivalblock.volucraft.common.block.AmalgamationTableBlock;
 import survivalblock.volucraft.common.init.VolucraftItems;
 
 public class AmalgamationClientRecipeType implements ReliableClientRecipeType {
-
     public static final AmalgamationClientRecipeType INSTANCE = new AmalgamationClientRecipeType();
     private static final Identifier ID = Volucraft.id("amalgamation");
 

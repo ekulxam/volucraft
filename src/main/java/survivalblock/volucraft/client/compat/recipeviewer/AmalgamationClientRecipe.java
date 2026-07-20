@@ -42,7 +42,6 @@ import java.util.Optional;
 import static survivalblock.volucraft.client.render.screen.AmalgamationScreen.*;
 
 public class AmalgamationClientRecipe implements ReliableClientRecipe {
-
     private final Identifier id;
     private final SlotContent result;
     private final List<SlotContent> meAndMy27Slots = NonNullList.withSize(27, SlotContent.of());

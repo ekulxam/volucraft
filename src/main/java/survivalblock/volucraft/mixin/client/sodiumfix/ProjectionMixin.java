@@ -26,7 +26,6 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(Projection.class)
 public class ProjectionMixin {
-
     @Definition(id = "ORTHOGRAPHIC", field = "Lcom/mojang/blaze3d/ProjectionType;ORTHOGRAPHIC:Lcom/mojang/blaze3d/ProjectionType;")
     @Expression("? != ORTHOGRAPHIC")
     @WrapOperation(method = "setupOrtho", at = @At("MIXINEXTRAS:EXPRESSION"))

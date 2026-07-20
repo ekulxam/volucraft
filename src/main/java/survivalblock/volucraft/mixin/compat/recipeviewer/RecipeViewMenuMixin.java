@@ -53,7 +53,7 @@ public abstract class RecipeViewMenuMixin {
 
     @SuppressWarnings("unused")
     @Mixin(RecipeViewMenu.SlotDefinition.class)
-    public abstract static class SlotDefinitionMixin {
+    public static abstract class SlotDefinitionMixin {
         @Shadow
         @Final
         RecipeViewMenu this$0;

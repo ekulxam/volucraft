@@ -24,7 +24,6 @@ import survivalblock.volucraft.common.Volucraft;
 
 @Environment(EnvType.CLIENT)
 public interface VolucraftClientConfig {
-
     VolucraftClientConfig INSTANCE = getInstance();
 
     @Nullable

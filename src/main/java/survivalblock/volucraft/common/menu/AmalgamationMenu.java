@@ -191,7 +191,6 @@ public class AmalgamationMenu extends AbstractContainerMenu {
         return this.slots.getFirst();
     }
 
-    @SuppressWarnings("unused")
     public List<Slot> getInputGridSlots() {
         return this.slots.subList(CRAFT_SLOTS_START, CRAFT_SLOTS_END);
     }

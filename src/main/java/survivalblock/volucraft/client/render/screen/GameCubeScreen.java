@@ -25,12 +25,11 @@ import org.joml.Quaternionfc;
 import survivalblock.volucraft.common.menu.AmalgamationMenu;
 
 public class GameCubeScreen extends AmalgamationScreen {
-    private boolean cubing;
+    private boolean cubing = true;
     private long animationStart;
 
     public GameCubeScreen(AmalgamationMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
-        this.cubing = true;
     }
 
     @Override
@@ -59,7 +58,11 @@ public class GameCubeScreen extends AmalgamationScreen {
     }
 
     @Override
-    public int getHovered3DSlot(double mouseX, double mouseY, float scale, Quaternionfc rotation, @Nullable GuiGraphicsExtractor graphics) {
-        return super.getHovered3DSlot(mouseX, mouseY, scale, rotation, graphics);
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        if (!this.getMenu().getInputGridSlots().isEmpty()) {
+            this.cubing = false;
+        }
+
+        super.extractBackground(graphics, mouseX, mouseY, a);
     }
 }

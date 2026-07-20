@@ -36,7 +36,6 @@ import survivalblock.volucraft.client.render.CubeModel;
 @SuppressWarnings("NullableProblems")
 @Mixin(RecipeViewScreen.class)
 public abstract class RecipeViewScreenMixin extends AbstractContainerScreen<RecipeViewMenu> implements ScreenWithCubes {
-
     @Shadow
     @Final
     private long timestamp;

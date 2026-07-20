@@ -29,7 +29,6 @@ import net.minecraft.resources.Identifier;
 import java.util.function.Function;
 
 public class CubeModel extends Model<CubeModel.State> {
-
     public CubeModel(ModelPart root, Function<Identifier, RenderType> renderType) {
         super(root, renderType);
     }
