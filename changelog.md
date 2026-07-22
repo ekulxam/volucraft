@@ -1,3 +1,4 @@
-Volucraft 0.1.5+26.1.2
-- Easter egg now stops immediately when items are inserted
-- An attempt was made to add RRV filter mode compat, but it was bad
+Volucraft 0.1.6+26.1.2
+- Fix recipe remainders
+  - Remainders are now given correctly
+  - Remainders now go in the correct slots

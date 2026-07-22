@@ -114,7 +114,7 @@ public class AmalgamationResultSlot extends Slot {
 				for (int x = 0; x < input.length(); x++) {
                     int slot = (x + recipeLeft) + (y + recipeBack) * this.craftSlots.getLength() + (z + recipeTop) * this.craftSlots.getLength() * this.craftSlots.getWidth();
                     ItemStack itemStack = this.craftSlots.getItem(slot);
-                    ItemStack replacement = remaining.get(x + y * input.width());
+                    ItemStack replacement = remaining.get(x + y * input.length() + z * input.length() * input.width());
                     if (!itemStack.isEmpty()) {
                         this.craftSlots.removeItem(slot, 1);
                         itemStack = this.craftSlots.getItem(slot);
