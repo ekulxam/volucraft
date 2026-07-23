@@ -33,7 +33,9 @@ import survivalblock.volucraft.common.init.VolucraftItems;
 import survivalblock.volucraft.common.init.VolucraftMenuTypes;
 import survivalblock.volucraft.common.init.VolucraftRecipeTypes;
 import survivalblock.volucraft.common.recipe.display.ShapedAmalgamationRecipeDisplay;
+import survivalblock.volucraft.common.recipe.display.ShapelessAmalgamationRecipeDisplay;
 import survivalblock.volucraft.common.recipe.specific.ShapedAmalgamationRecipe;
+import survivalblock.volucraft.common.recipe.specific.ShapelessAmalgamationRecipe;
 
 import java.util.function.Supplier;
 
@@ -56,6 +58,10 @@ public class Volucraft implements ModInitializer {
         VolucraftMenuTypes.init();
         Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, Volucraft.id("amalgamation"), ShapedAmalgamationRecipe.SERIALIZER);
         Registry.register(BuiltInRegistries.RECIPE_DISPLAY, Volucraft.id("amalgamation"), ShapedAmalgamationRecipeDisplay.TYPE);
+
+        Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, Volucraft.id("amalgamation_shapeless"), ShapelessAmalgamationRecipe.SERIALIZER);
+        Registry.register(BuiltInRegistries.RECIPE_DISPLAY, Volucraft.id("amalgamation_shapeless"), ShapelessAmalgamationRecipeDisplay.TYPE);
+
         FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent(modContainer ->
                 wrapDatapack(
                         () -> ResourceLoader.registerBuiltinPack(EXAMPLE_RECIPES_PACK, modContainer, Component.translatable("dataPack.volucraft.example_recipes.name"), PackActivationType.NORMAL)

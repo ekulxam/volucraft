@@ -19,10 +19,12 @@ import cc.cassian.rrv.api.ReliableRecipeViewerPlugin;
 import cc.cassian.rrv.common.recipe.ServerRecipeManager;
 import survivalblock.volucraft.common.init.VolucraftRecipeTypes;
 import survivalblock.volucraft.common.recipe.specific.ShapedAmalgamationRecipe;
+import survivalblock.volucraft.common.recipe.specific.ShapelessAmalgamationRecipe;
 
 public class VolucraftRRVCompat implements ReliableRecipeViewerPlugin {
     @Override
     public void onIntegrationInitialize() {
         ServerRecipeManager.INSTANCE.synchronizeRecipeType(ShapedAmalgamationRecipe.SERIALIZER, VolucraftRecipeTypes.AMALGAMATION);
+        ServerRecipeManager.INSTANCE.synchronizeRecipeType(ShapelessAmalgamationRecipe.SERIALIZER, VolucraftRecipeTypes.AMALGAMATION);
     }
 }

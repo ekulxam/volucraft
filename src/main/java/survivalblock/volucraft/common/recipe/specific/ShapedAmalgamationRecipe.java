@@ -38,7 +38,6 @@ import survivalblock.volucraft.common.recipe.display.ShapedAmalgamationRecipeDis
 /**
  * @see net.minecraft.world.item.crafting.ShapedRecipe
  */
-@SuppressWarnings("unused")
 public class ShapedAmalgamationRecipe extends NormalAmalgamationRecipe {
     public static final MapCodec<ShapedAmalgamationRecipe> MAP_CODEC = RecordCodecBuilder.mapCodec(
             (instance) -> instance.group(
@@ -52,9 +51,11 @@ public class ShapedAmalgamationRecipe extends NormalAmalgamationRecipe {
             CommonInfo.STREAM_CODEC, recipe -> recipe.commonInfo,
             ShapedAmalgamationRecipePattern.STREAM_CODEC, recipe -> recipe.pattern,
             ItemStackTemplate.STREAM_CODEC, recipe -> recipe.result,
-            ShapedAmalgamationRecipe::new);
+            ShapedAmalgamationRecipe::new
+    );
 
     public static final RecipeSerializer<ShapedAmalgamationRecipe> SERIALIZER = new RecipeSerializer<>(MAP_CODEC, STREAM_CODEC);
+
     private final ShapedAmalgamationRecipePattern pattern;
     private final ItemStackTemplate result;
 
@@ -73,19 +74,21 @@ public class ShapedAmalgamationRecipe extends NormalAmalgamationRecipe {
         return this.result;
     }
 
-    @VisibleForTesting
     public List<Optional<Ingredient>> getIngredients() {
         return this.pattern.ingredients();
     }
 
+    @Override
     protected PlacementInfo createPlacementInfo() {
         return PlacementInfo.createFromOptionals(this.pattern.ingredients());
     }
 
+    @Override
     public boolean matches(final AmalgamationInput input, final Level level) {
         return this.pattern.matches(input);
     }
 
+    @Override
     public ItemStack assemble(final AmalgamationInput input) {
         return this.result.create();
     }

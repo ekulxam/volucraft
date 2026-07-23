@@ -76,7 +76,7 @@ public final class ShapedAmalgamationRecipePattern {
 		this.height = height;
 		this.ingredients = ingredients;
 		this.data = data;
-		this.ingredientCount = (int)ingredients.stream().flatMap(Optional::stream).count();
+		this.ingredientCount = (int) ingredients.stream().flatMap(Optional::stream).count();
         this.computeTransformsPreservingDimensions();
 	}
 

@@ -139,7 +139,6 @@ public class AmalgamationInput implements RecipeInput, ThirdDimensionalStacksCon
 		return this.ingredientCount == 0;
 	}
 
-	@SuppressWarnings("unused")
     public StackedItemContents stackedContents() {
 		return this.stackedContents;
 	}
