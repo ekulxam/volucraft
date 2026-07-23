@@ -20,8 +20,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.Inventory;
-import org.jetbrains.annotations.Nullable;
-import org.joml.Quaternionfc;
 import survivalblock.volucraft.common.menu.AmalgamationMenu;
 
 public class GameCubeScreen extends AmalgamationScreen {
@@ -59,7 +57,7 @@ public class GameCubeScreen extends AmalgamationScreen {
 
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-        if (!this.getMenu().getInputGridSlots().isEmpty()) {
+        if (!this.getMenu().noCraftStacks()) {
             this.cubing = false;
         }
 

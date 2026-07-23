@@ -195,6 +195,15 @@ public class AmalgamationMenu extends AbstractContainerMenu {
         return this.slots.subList(CRAFT_SLOTS_START, CRAFT_SLOTS_END);
     }
 
+    public boolean noCraftStacks() {
+        for (Slot slot : this.getInputGridSlots()) {
+            if (!slot.getItem().isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     @SuppressWarnings("InnerClassMayBeStatic")
     public class SlotShovedIntoACorner extends Slot {
         public SlotShovedIntoACorner(Container container, int slot, int x, int y) {

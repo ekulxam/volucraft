@@ -347,8 +347,8 @@ public final class ShapedAmalgamationRecipePattern {
 
 		public static final MapCodec<ShapedAmalgamationRecipePattern.Data> MAP_CODEC = RecordCodecBuilder.mapCodec(
 			i -> i.group(
-					ExtraCodecs.strictUnboundedMap(SYMBOL_CODEC, Ingredient.CODEC).fieldOf("key").forGetter(d -> d.key),
-					PATTERN_CODEC.fieldOf("pattern").forGetter(d -> d.pattern)
+					ExtraCodecs.strictUnboundedMap(SYMBOL_CODEC, Ingredient.CODEC).fieldOf("key").forGetter(data -> data.key),
+					PATTERN_CODEC.fieldOf("pattern").forGetter(data -> data.pattern)
 				)
 				.apply(i, ShapedAmalgamationRecipePattern.Data::new)
 		);
