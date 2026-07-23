@@ -19,8 +19,6 @@ import cc.cassian.rrv.api.ReliableRecipeViewerClientPlugin;
 import cc.cassian.rrv.api.recipe.ItemView;
 import cc.cassian.rrv.client.recipe.ClientRecipeManager;
 import net.minecraft.world.item.crafting.Ingredient;
-import org.joml.Vector3i;
-import survivalblock.volucraft.client.render.CubeOfSlotsRenderer;
 import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.init.VolucraftRecipeTypes;
 import survivalblock.volucraft.common.recipe.specific.ShapedAmalgamationRecipe;
@@ -49,18 +47,24 @@ public class VolucraftClientRRVCompat implements ReliableRecipeViewerClientPlugi
                 }
 
                 if (recipeHolder.value() instanceof ShapelessAmalgamationRecipe recipe) {
-                    List<Ingredient> ingredients = recipe.getIngredients();
-                    int size = ingredients.size();
-                    Vector3i vector3i = new Vector3i(Volucraft.SIDE_LENGTH - 1);
-                    CubeOfSlotsRenderer.transformByIndex(size - 1, (x, y, z) -> vector3i.add(Math.round(x), Math.round(y), Math.round(z)));
-                    //noinspection SuspiciousNameCombination
+                    List<Ingredient> fromRecipe = recipe.getIngredients();
+                    int size = fromRecipe.size();
+                    List<Optional<Ingredient>> maybes = new ArrayList<>();
+                    for (int i = 0; i < Volucraft.SLOTS; i++) {
+                        if (i < size) {
+                            maybes.add(Optional.of(fromRecipe.get(i)));
+                        } else {
+                            maybes.add(Optional.empty());
+                        }
+                    }
+
                     recipeList.add(new AmalgamationClientRecipe(
                             recipeHolder.id().identifier(),
                             recipe.getResult(),
-                            vector3i.x,
-                            vector3i.y,
-                            vector3i.z,
-                            ingredients.stream().map(Optional::of).toList()
+                            Volucraft.SIDE_LENGTH,
+                            Volucraft.SIDE_LENGTH,
+                            Volucraft.SIDE_LENGTH,
+                            maybes
                     ));
                     return;
                 }
