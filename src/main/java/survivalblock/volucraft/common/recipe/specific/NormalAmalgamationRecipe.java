@@ -25,6 +25,7 @@ import survivalblock.volucraft.common.recipe.AmalgamationRecipe;
 public abstract class NormalAmalgamationRecipe implements AmalgamationRecipe {
     protected final Recipe.CommonInfo commonInfo;
     private @Nullable PlacementInfo placementInfo;
+    private boolean translatedFrom2D = false;
 
     protected NormalAmalgamationRecipe(final Recipe.CommonInfo commonInfo) {
         this.commonInfo = commonInfo;
@@ -40,7 +41,16 @@ public abstract class NormalAmalgamationRecipe implements AmalgamationRecipe {
 
     @Override
     public final boolean showNotification() {
-        return this.commonInfo.showNotification();
+        return AmalgamationRecipe.super.showNotification() && this.commonInfo.showNotification();
+    }
+
+    @Override
+    public boolean isTranslatedFrom2D() {
+        return this.translatedFrom2D;
+    }
+
+    public void setTranslatedFrom2D(boolean translatedFrom2D) {
+        this.translatedFrom2D = translatedFrom2D;
     }
 
     protected abstract PlacementInfo createPlacementInfo();

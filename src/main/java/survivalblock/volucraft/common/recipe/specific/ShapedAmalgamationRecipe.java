@@ -15,7 +15,6 @@
  */
 package survivalblock.volucraft.common.recipe.specific;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;

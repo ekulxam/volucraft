@@ -7,10 +7,17 @@
     "FabricDataGeneratorMixin",
     "RecipeProviderAccessor",
     "ResourceLoaderMixin",
-    "ShapedRecipePatternAccessor",
+    "ShapedRecipePatternInvoker",
     "client.compat.config.ColorControllerMixin",
     "compat.recipeviewer.RecipeViewMenuMixin",
-    "compat.recipeviewer.RecipeViewMenuMixin$SlotDefinitionMixin"
+    "compat.recipeviewer.RecipeViewMenuMixin$SlotDefinitionMixin",
+    "extrude.NormalCraftingRecipeAccessor",
+    "extrude.RecipeManagerMixin",
+    "extrude.ServerPlayerMixin",
+    "extrude.ServerRecipeBookMixin",
+    "extrude.ShapedRecipeAccessor",
+    "extrude.ShapedRecipePatternAccessor",
+    "extrude.ShapelessRecipeAccessor"
   ],
   "client": [
     "client.AbstractContainerScreenAccessor",

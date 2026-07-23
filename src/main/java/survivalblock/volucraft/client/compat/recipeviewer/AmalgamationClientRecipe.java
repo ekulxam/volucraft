@@ -27,6 +27,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
 import org.joml.Vector2f;
@@ -35,7 +36,11 @@ import survivalblock.volucraft.client.render.CubeOfSlotsRenderState;
 import survivalblock.volucraft.client.render.screen.AmalgamationScreen;
 import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.compat.recipeviewer.AmalgamationClientRecipeType;
+import survivalblock.volucraft.common.recipe.AmalgamationRecipe;
+import survivalblock.volucraft.common.recipe.specific.ShapedAmalgamationRecipe;
+import survivalblock.volucraft.common.recipe.specific.ShapelessAmalgamationRecipe;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,7 +49,7 @@ import static survivalblock.volucraft.client.render.screen.AmalgamationScreen.*;
 public class AmalgamationClientRecipe implements ReliableClientRecipe {
     private final Identifier id;
     private final SlotContent result;
-    private final List<SlotContent> meAndMy27Slots = NonNullList.withSize(27, SlotContent.of());
+    private final List<SlotContent> meAndMy27Slots = NonNullList.withSize(Volucraft.SLOTS, SlotContent.of());
 
     public AmalgamationClientRecipe(Identifier id, ItemStackTemplate resultItem, int length, int width, int height, List<Optional<Ingredient>> inputs) {
         this.id = id;
@@ -52,7 +57,7 @@ public class AmalgamationClientRecipe implements ReliableClientRecipe {
         for (int z = 0; z < height; z++) {
             for (int y = 0; y < width; y++) {
                 for (int x = 0; x < length; x++) {
-                    meAndMy27Slots.set(
+                    this.meAndMy27Slots.set(
                             x + y * Volucraft.SIDE_LENGTH + z * Volucraft.SIDE_LENGTH * Volucraft.SIDE_LENGTH,
                             inputs.get(x + y * length + z * length * width)
                                     .map(SlotContent::of)
@@ -61,6 +66,39 @@ public class AmalgamationClientRecipe implements ReliableClientRecipe {
                 }
             }
         }
+    }
+
+    public static AmalgamationClientRecipe fromShaped(RecipeHolder<AmalgamationRecipe> recipeHolder, ShapedAmalgamationRecipe recipe) {
+        return new AmalgamationClientRecipe(
+                recipeHolder.id().identifier(),
+                recipe.getResult(),
+                recipe.getLength(),
+                recipe.getWidth(),
+                recipe.getHeight(),
+                recipe.getIngredients()
+        );
+    }
+
+    public static AmalgamationClientRecipe fromShapeless(RecipeHolder<AmalgamationRecipe> recipeHolder, ShapelessAmalgamationRecipe recipe) {
+        List<Ingredient> fromRecipe = recipe.getIngredients();
+        int size = fromRecipe.size();
+        List<Optional<Ingredient>> maybes = new ArrayList<>();
+        for (int i = 0; i < Volucraft.SLOTS; i++) {
+            if (i < size) {
+                maybes.add(Optional.of(fromRecipe.get(i)));
+            } else {
+                maybes.add(Optional.empty());
+            }
+        }
+
+        return new AmalgamationClientRecipe(
+                recipeHolder.id().identifier(),
+                recipe.getResult(),
+                Volucraft.SIDE_LENGTH,
+                Volucraft.SIDE_LENGTH,
+                Volucraft.SIDE_LENGTH,
+                maybes
+        );
     }
 
     @Override
@@ -96,7 +134,7 @@ public class AmalgamationClientRecipe implements ReliableClientRecipe {
         final int cubeY0 = recipePosition.top() + 16;
         ScreenWithCubes screenWithCubes = (ScreenWithCubes) screen;
 
-        final NonNullList<ItemStack> items = NonNullList.withSize(27, ItemStack.EMPTY);
+        final NonNullList<ItemStack> items = NonNullList.withSize(Volucraft.SLOTS, ItemStack.EMPTY);
         for (int i = 0; i < this.meAndMy27Slots.size(); i++) {
             List<ItemStack> options = this.meAndMy27Slots.get(i).getValidContents();
             if (options.isEmpty()) {

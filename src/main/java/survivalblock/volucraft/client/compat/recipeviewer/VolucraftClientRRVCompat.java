@@ -21,6 +21,7 @@ import cc.cassian.rrv.client.recipe.ClientRecipeManager;
 import net.minecraft.world.item.crafting.Ingredient;
 import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.init.VolucraftRecipeTypes;
+import survivalblock.volucraft.common.recipe.AmalgamationRecipe;
 import survivalblock.volucraft.common.recipe.specific.ShapedAmalgamationRecipe;
 import survivalblock.volucraft.common.recipe.specific.ShapelessAmalgamationRecipe;
 
@@ -34,39 +35,11 @@ public class VolucraftClientRRVCompat implements ReliableRecipeViewerClientPlugi
         //noinspection CodeBlock2Expr
         ItemView.addClientRecipeProvider(recipeList -> {
             ClientRecipeManager.INSTANCE.getRecipesForType(VolucraftRecipeTypes.AMALGAMATION).forEach(recipeHolder -> {
-                if (recipeHolder.value() instanceof ShapedAmalgamationRecipe recipe) {
-                    recipeList.add(new AmalgamationClientRecipe(
-                            recipeHolder.id().identifier(),
-                            recipe.getResult(),
-                            recipe.getLength(),
-                            recipe.getWidth(),
-                            recipe.getHeight(),
-                            recipe.getIngredients()
-                    ));
-                    return;
-                }
-
-                if (recipeHolder.value() instanceof ShapelessAmalgamationRecipe recipe) {
-                    List<Ingredient> fromRecipe = recipe.getIngredients();
-                    int size = fromRecipe.size();
-                    List<Optional<Ingredient>> maybes = new ArrayList<>();
-                    for (int i = 0; i < Volucraft.SLOTS; i++) {
-                        if (i < size) {
-                            maybes.add(Optional.of(fromRecipe.get(i)));
-                        } else {
-                            maybes.add(Optional.empty());
-                        }
-                    }
-
-                    recipeList.add(new AmalgamationClientRecipe(
-                            recipeHolder.id().identifier(),
-                            recipe.getResult(),
-                            Volucraft.SIDE_LENGTH,
-                            Volucraft.SIDE_LENGTH,
-                            Volucraft.SIDE_LENGTH,
-                            maybes
-                    ));
-                    return;
+                AmalgamationRecipe value = recipeHolder.value();
+                if (value instanceof ShapedAmalgamationRecipe recipe) {
+                    recipeList.add(AmalgamationClientRecipe.fromShaped(recipeHolder, recipe));
+                } else if (value instanceof ShapelessAmalgamationRecipe recipe) {
+                    recipeList.add(AmalgamationClientRecipe.fromShapeless(recipeHolder, recipe));
                 }
             });
         });

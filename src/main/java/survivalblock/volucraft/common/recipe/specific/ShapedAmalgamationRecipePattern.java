@@ -41,8 +41,8 @@ import survivalblock.volucraft.common.recipe.AmalgamationInput;
 import survivalblock.volucraft.common.recipe.ThirdDimensionalStacksContainer;
 
 import static net.minecraft.world.item.crafting.ShapedRecipePattern.EMPTY_SLOT;
-import static survivalblock.volucraft.mixin.ShapedRecipePatternAccessor.volucraft$invokeFirstNonEmpty;
-import static survivalblock.volucraft.mixin.ShapedRecipePatternAccessor.volucraft$invokeLastNonEmpty;
+import static survivalblock.volucraft.mixin.ShapedRecipePatternInvoker.volucraft$invokeFirstNonEmpty;
+import static survivalblock.volucraft.mixin.ShapedRecipePatternInvoker.volucraft$invokeLastNonEmpty;
 
 /**
  * @see ShapedRecipePattern

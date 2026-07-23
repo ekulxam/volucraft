@@ -50,7 +50,16 @@ public interface AmalgamationRecipe extends Recipe<AmalgamationInput> {
 		return result;
 	}
 
-	@Override
+    @Override
+    default boolean showNotification() {
+        return !this.isTranslatedFrom2D();
+    }
+
+    boolean isTranslatedFrom2D();
+
+    void setTranslatedFrom2D(boolean translated);
+
+    @Override
 	default RecipeBookCategory recipeBookCategory() {
 		return RecipeBookCategories.CRAFTING_MISC;
 	}
