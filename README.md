@@ -4,8 +4,8 @@
 I've been waiting for this for so long...
 
 ## How to Volucraft
-To start, obtain an Amalgamation Table from the Creative Inventory (in Functional Blocks after the Crafting Table).
-This currently doesn't have a recipe, but I'm thinking of adding one soon.
+To start, obtain an Amalgamation Table from the Creative Inventory (in Functional Blocks after the Crafting Table),
+or craft one (3 iron ingots on the top, any shulker box in the middle surrounded by 3 adjacent crafting tables, and one hopper in each of the two remaining slots).
 
 ## Recipes
 Due to the nature of 3D recipes, any orientation of ItemStacks that can be transformed rigidly* to match a recipe is a valid input.
