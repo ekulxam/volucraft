@@ -65,7 +65,7 @@ As of 0.0.3, Volucraft supports recipe viewing via Reliable Recipe Viewer integr
 As of 0.2.0, the Amalgamation Table now accepts regular crafting recipes.
 Currently, only Shaped and Shapeless recipes are supported (that means no special recipes that use components, i.e. fireworks and item durability combining).
 2D Shaped and Shapeless recipes are automatically added as Shaped and Shapeless Amalgamation recipes, respectively. 
-Note that the id of the extruded recipe is the original recipe's id appended with `_volucraft.autoextruded`.
+Note that the id of the extruded recipe is the original recipe's id appended with `.volucraft_autoextruded`.
 
 Extruded recipes are automatically granted and revoked along with their 2D counterparts.
 
