@@ -8,12 +8,15 @@ To start, obtain an Amalgamation Table from the Creative Inventory (in Functiona
 This currently doesn't have a recipe, but I'm thinking of adding one soon.
 
 ## Recipes
-Due to the nature of 3D recipes, any orientation of ItemStacks that can be reflected or rotated to match a recipe is a valid input.
+Due to the nature of 3D recipes, any orientation of ItemStacks that can be transformed rigidly* to match a recipe is a valid input.
 
-Volucraft comes with one builtin datapack with two recipes:
+*Rotations, reflections, and translations are all accepted as long as the recipe remains within the bounds of the Amalgamation Table.
+
+Volucraft comes with one builtin datapack with four recipes:
 1. Enchanted Golden Apple - 26 Gold Blocks surround 1 Apple in the center.
 2. Trident - One Prismarine Shard is placed in the center, then another shard is placed in one of the corners. A bone is placed in the opposite corner of the shard, then the other two bones are placed in adjacent corners.
 3. Crying Obsidian (x4) - 4 Obsidian are placed the bottom, then alternating Ghast Tears and Dragon's Breath are placed in the 4 tiles immediately above it, and then 4 more Obsidian are placed above those.
+4. Diamond - 27 Coal Blocks
 
 ### Creating Your Own Recipe
 Volucraft recipes are data-driven, like regular crafting recipes!
@@ -50,10 +53,21 @@ See the example (trident recipe) below:
 }
 ```
 
-Note how the pattern is 3 regular 2D patterns stacked on top of each other.
+Note how the pattern consists of 3 regular 2D patterns stacked on top of each other.
+
+As of 0.2.0, Shapeless Recipes (type `volucraft:amalgamation_shapeless`) are also supported.
+They have the same format as `crafting_shapeless` recipes, but support up to 27 ingredients instead of the usual 9.
 
 ### Viewing Recipes
 As of 0.0.3, Volucraft supports recipe viewing via Reliable Recipe Viewer integration!
+
+### 2D Crafting Recipes
+As of 0.2.0, the Amalgamation Table now accepts regular crafting recipes.
+Currently, only Shaped and Shapeless recipes are supported (that means no special recipes that use components, i.e. fireworks and item durability combining).
+2D Shaped and Shapeless recipes are automatically added as Shaped and Shapeless Amalgamation recipes, respectively. 
+Note that the id of the extruded recipe is the original recipe's id appended with `_volucraft.autoextruded`.
+
+Extruded recipes are automatically granted and revoked along with their 2D counterparts.
 
 ## Configuration
 Volucraft can be configured on the client to match your preferences.
