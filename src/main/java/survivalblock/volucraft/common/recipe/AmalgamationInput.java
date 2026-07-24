@@ -15,13 +15,17 @@
  */
 package survivalblock.volucraft.common.recipe;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
+import com.mojang.math.OctahedralGroup;
 import net.minecraft.world.entity.player.StackedItemContents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.RecipeInput;
 import org.jetbrains.annotations.ApiStatus;
+import org.joml.Matrix3fc;
+import org.joml.Vector3f;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Using x as length, y as width, and z as height
@@ -35,6 +39,10 @@ public class AmalgamationInput implements RecipeInput, ThirdDimensionalStacksCon
 	private final List<ItemStack> items;
 	private final StackedItemContents stackedContents = new StackedItemContents();
 	private final int ingredientCount;
+    @Nullable
+    private CraftingInput basicallyShapelessCraftInput = null;
+    @Nullable
+    private List<CraftingInput> possibleCraftInputs = null;
 
 	private AmalgamationInput(final int length, final int width, final int height, final List<ItemStack> items) {
         this.length = length;
@@ -189,14 +197,96 @@ public class AmalgamationInput implements RecipeInput, ThirdDimensionalStacksCon
 		return 31 * result + this.height;
 	}
 
+    @SuppressWarnings("SuspiciousNameCombination")
+    @ApiStatus.Experimental
+    public CraftingInput asBasicallyShapelessCraftInput() {
+        if (this.basicallyShapelessCraftInput == null) {
+            int max = Math.max(this.length, Math.max(this.width, this.height));
+            int width2D;
+            int height2D;
+            if (this.length == max) {
+                width2D = this.length;
+                height2D = this.width * this.height;
+            } else if (this.width == max) {
+                width2D = this.width;
+                height2D = this.length * this.height;
+            } else {
+                width2D = this.height;
+                height2D = this.length * this.width;
+            }
+            this.basicallyShapelessCraftInput = CraftingInput.of(width2D, height2D, this.items);
+        }
+
+        return this.basicallyShapelessCraftInput;
+    }
+
     /**
      * May output an incorrect result
-     * @return the squished 2D input
+     * @return a list of inputs that could be a correct 2D input
      */
     @ApiStatus.Experimental
-    @SuppressWarnings("unused")
-    public CraftingInput asCraftInput() {
-        return CraftingInput.of(this.length, this.width * this.height, this.items);
+    public List<CraftingInput> asPossibleCraftInputs() {
+        if (this.possibleCraftInputs == null) {
+            this.possibleCraftInputs = this.computePossibleCraftInputs();
+        }
+
+        return this.possibleCraftInputs;
+    }
+
+    /**
+     * @see survivalblock.volucraft.common.recipe.specific.ShapedAmalgamationRecipePattern#computeTransformsPreservingDimensions()
+     */
+    @SuppressWarnings("JavadocReference")
+    private List<CraftingInput> computePossibleCraftInputs() {
+        if (this == EMPTY || this.length == 0 || this.width == 0 || this.height == 0) {
+            return List.of(CraftingInput.EMPTY);
+        }
+        if (this.length != 1 && this.width != 1 && this.height != 1) {
+            return List.of();
+        }
+
+        List<CraftingInput> uniques = new ArrayList<>();
+        Vector3f dimensions = new Vector3f();
+        Vector3f coordinates = new Vector3f();
+        List<ItemStack> stacks2D;
+
+        for (OctahedralGroup symmetry : OctahedralGroup.values()) {
+            Matrix3fc transform = symmetry.transformation();
+            //noinspection SuspiciousNameCombination
+            dimensions.set(this.length, this.width, this.height).mul(transform);
+            final int actualLength = Math.abs(Math.round(dimensions.x));
+            final int actualWidth = Math.abs(Math.round(dimensions.y));
+            final int actualHeight = Math.abs(Math.round(dimensions.z));
+
+            if (actualHeight != 1) {
+                continue; // just remove all the transforms that use height
+            }
+
+            final int offsetX = dimensions.x < 0 ? actualLength - 1 : 0;
+            final int offsetY = dimensions.y < 0 ? actualWidth - 1 : 0;
+            stacks2D = new ArrayList<>(Collections.nCopies(actualLength * actualWidth, ItemStack.EMPTY));
+            for (int z = 0; z < this.height; z++) {
+                for (int y = 0; y < this.width; y++) {
+                    for (int x = 0; x < this.length; x++) {
+                        coordinates.set(x, y, z).mul(transform);
+                        int finalX = Math.round(coordinates.x) + offsetX;
+                        int finalY = Math.round(coordinates.y) + offsetY;
+
+                        stacks2D.set(
+                                finalX + (finalY * actualLength),
+                                this.items.get(x + y * this.length + z * this.length * this.width)
+                        );
+                    }
+                }
+            }
+
+            //noinspection SuspiciousNameCombination
+            CraftingInput craftingInput = CraftingInput.of(actualLength, actualWidth, stacks2D);
+            if (!uniques.contains(craftingInput)) {
+                uniques.add(craftingInput);
+            }
+        }
+        return uniques;
     }
 
 	public record Positioned(AmalgamationInput input, int left, int back, int top) {

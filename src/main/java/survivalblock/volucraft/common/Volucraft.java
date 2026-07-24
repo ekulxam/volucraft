@@ -34,6 +34,9 @@ import survivalblock.volucraft.common.init.VolucraftMenuTypes;
 import survivalblock.volucraft.common.init.VolucraftRecipeTypes;
 import survivalblock.volucraft.common.recipe.display.ShapedAmalgamationRecipeDisplay;
 import survivalblock.volucraft.common.recipe.display.ShapelessAmalgamationRecipeDisplay;
+import survivalblock.volucraft.common.recipe.extrude.ExtrusionFormula;
+import survivalblock.volucraft.common.recipe.specific.wrapper.BasicallyShapelessAmalgamationRecipe;
+import survivalblock.volucraft.common.recipe.specific.wrapper.FlattenedAmalgamationRecipe;
 import survivalblock.volucraft.common.recipe.specific.ShapedAmalgamationRecipe;
 import survivalblock.volucraft.common.recipe.specific.ShapelessAmalgamationRecipe;
 
@@ -61,6 +64,11 @@ public class Volucraft implements ModInitializer {
 
         Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, Volucraft.id("amalgamation_shapeless"), ShapelessAmalgamationRecipe.SERIALIZER);
         Registry.register(BuiltInRegistries.RECIPE_DISPLAY, Volucraft.id("amalgamation_shapeless"), ShapelessAmalgamationRecipeDisplay.TYPE);
+
+        Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, Volucraft.id("amalgamation_flattened"), FlattenedAmalgamationRecipe.SERIALIZER);
+        Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, Volucraft.id("amalgamation_basically_shapeless"), BasicallyShapelessAmalgamationRecipe.SERIALIZER);
+
+        ExtrusionFormula.init();
 
         FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent(modContainer ->
                 wrapDatapack(

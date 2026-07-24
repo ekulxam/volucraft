@@ -182,10 +182,11 @@ public final class ShapedAmalgamationRecipePattern {
         }
 
         // I think this is fine? ArrayList, Optional, and Ingredient all implement correct equals methods so Set#contains should function correctly
-        Set<List<Optional<Ingredient>>> uniques = new HashSet<>();
+        Map<ThreePeasInAPod, Set<List<Optional<Ingredient>>>> uniques = new HashMap<>();
         Vector3f dimensions = new Vector3f();
         Vector3f coordinates = new Vector3f();
         List<Optional<Ingredient>> simulatedItemStacks;
+
         // 48 symmetries of a 3x3x3 grid, apparently
         for (OctahedralGroup symmetry : OctahedralGroup.values()) {
             Matrix3fc transform = symmetry.transformation();
@@ -215,9 +216,10 @@ public final class ShapedAmalgamationRecipePattern {
                 }
             }
 
-            if (!uniques.contains(simulatedItemStacks)) {
-                uniques.add(simulatedItemStacks);
-                ThreePeasInAPod peas = new ThreePeasInAPod(actualLength, actualWidth, actualHeight);
+            ThreePeasInAPod peas = new ThreePeasInAPod(actualLength, actualWidth, actualHeight);
+            Set<List<Optional<Ingredient>>> seen = uniques.computeIfAbsent(peas, _ -> new HashSet<>());
+            if (!seen.contains(simulatedItemStacks)) {
+                seen.add(simulatedItemStacks);
                 this.transformsPreservingDimensions.computeIfAbsent(peas, _ -> new ArrayList<>()).add(symmetry);
             }
         }

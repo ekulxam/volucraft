@@ -32,6 +32,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.recipe.AmalgamationRecipe;
+import survivalblock.volucraft.common.recipe.extrude.ExtrusionFormula;
 import survivalblock.volucraft.common.recipe.specific.ShapedAmalgamationRecipe;
 import survivalblock.volucraft.common.recipe.specific.ShapedAmalgamationRecipePattern;
 import survivalblock.volucraft.common.recipe.specific.ShapelessAmalgamationRecipe;
@@ -59,31 +60,14 @@ public class RecipeManagerMixin implements ExtrudedRecipes {
                 continue;
             }
 
-            AmalgamationRecipe amal = null;
-            if (recipe instanceof ShapedRecipe shapedRecipe) {
-                Optional<ShapedRecipePattern.Data> optional = ((ShapedRecipePatternAccessor) (Object) ((ShapedRecipeAccessor) shapedRecipe).volucraft$getPattern()).volucraft$getData();
-                if (optional.isPresent()) {
-                    ShapedRecipePattern.Data data = optional.get();
-                    try {
-                        amal = new ShapedAmalgamationRecipe(
-                                ((NormalCraftingRecipeAccessor) shapedRecipe).volucraft$getCommonInfo(),
-                                ShapedAmalgamationRecipePattern.of(
-                                        data.key(),
-                                        List.of(data.pattern())
-                                ),
-                                ((ShapedRecipeAccessor) shapedRecipe).volucraft$getResult()
-                        );
-                    } catch (Exception e) {
-                        Volucraft.LOGGER.error("Unable to create ShapedAmalgamationRecipe from ShapedRecipe!", e);
-                    }
-                }
-            } else if (recipe instanceof ShapelessRecipe shapelessRecipe) {
-                amal = new ShapelessAmalgamationRecipe(
-                        ((NormalCraftingRecipeAccessor) shapelessRecipe).volucraft$getCommonInfo(),
-                        ((ShapelessRecipeAccessor) shapelessRecipe).volucraft$getResult(),
-                        ((ShapelessRecipeAccessor) shapelessRecipe).volucraft$getIngredients()
-                );
+            //noinspection rawtypes
+            ExtrusionFormula.Extruder extruder = ExtrusionFormula.getHandler(recipe.getSerializer());
+            if (extruder == null) {
+                continue; // not translatable
             }
+
+            //noinspection unchecked
+            AmalgamationRecipe amal = extruder.create(recipe);
 
             if (amal != null) {
                 amal.setTranslatedFrom2D(true);
@@ -125,7 +109,7 @@ public class RecipeManagerMixin implements ExtrudedRecipes {
 
     @Unique
     private static Identifier volucraft$translate(Identifier identifier) {
-        return identifier.withPath(s -> s + "_volucraft.autoextruded");
+        return identifier.withPath(s -> s + ".volucraft_autoextruded");
     }
 
     @Override
