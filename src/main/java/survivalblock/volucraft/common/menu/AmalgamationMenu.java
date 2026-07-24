@@ -23,10 +23,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingInput;
-import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.RecipeType;
 import org.jspecify.annotations.Nullable;
 import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.init.VolucraftBlocks;
@@ -105,19 +102,6 @@ public class AmalgamationMenu extends AbstractContainerMenu {
                 ItemStack recipeResult = recipe.assemble(input);
                 if (recipeResult.isItemEnabled(level.enabledFeatures())) {
                     result = recipeResult;
-                }
-            }
-        } else {
-            CraftingInput craftingInput = input.asCraftInput();
-            Optional<RecipeHolder<CraftingRecipe>> maybeCraft = level.getServer().getRecipeManager().getRecipeFor(RecipeType.CRAFTING, craftingInput, level, (RecipeHolder<CraftingRecipe>) null);
-            if (maybeCraft.isPresent()) {
-                RecipeHolder<CraftingRecipe> recipeHolder = maybeCraft.get();
-                CraftingRecipe recipe = recipeHolder.value();
-                if (resultSlots.setRecipeUsed(serverPlayer, recipeHolder)) {
-                    ItemStack recipeResult = recipe.assemble(craftingInput);
-                    if (recipeResult.isItemEnabled(level.enabledFeatures())) {
-                        result = recipeResult;
-                    }
                 }
             }
         }

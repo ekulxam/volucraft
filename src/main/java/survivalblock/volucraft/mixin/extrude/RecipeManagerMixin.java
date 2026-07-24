@@ -34,7 +34,6 @@ public class RecipeManagerMixin implements ExtrudedRecipes {
         this.volucraft$recipePairs.clear();
     }
 
-    /*
     @SuppressWarnings("DiscouragedShift")
     @Inject(method = "prepare(Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)Lnet/minecraft/world/item/crafting/RecipeMap;", at = @At(value = "INVOKE", target = "Ljava/util/SortedMap;size()I", shift = At.Shift.BEFORE))
     private void translateBasic2DRecipes(ResourceManager manager, ProfilerFiller profiler, CallbackInfoReturnable<RecipeMap> cir, @Local(name = "recipes") SortedMap<Identifier, Recipe<?>> recipes, @Share(value = "translated", namespace = "volucraft")LocalRef<Map<CraftingRecipe, AmalgamationRecipe>> localRef) {
@@ -113,8 +112,6 @@ public class RecipeManagerMixin implements ExtrudedRecipes {
     private static Identifier volucraft$translate(Identifier identifier) {
         return identifier.withPath(s -> s + "_volucraft.autoextruded");
     }
-
-     */
 
     @Override
     public BiMap<ResourceKey<Recipe<?>>, ResourceKey<Recipe<?>>> volucraft$getRecipePairs() {

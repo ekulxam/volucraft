@@ -25,7 +25,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 /**
  * Using x as length, y as width, and z as height
- * @see net.minecraft.world.item.crafting.CraftingInput
+ * @see CraftingInput
  */
 public class AmalgamationInput implements RecipeInput, ThirdDimensionalStacksContainer {
 	public static final AmalgamationInput EMPTY = new AmalgamationInput(0, 0, 0, List.of());
@@ -189,7 +189,12 @@ public class AmalgamationInput implements RecipeInput, ThirdDimensionalStacksCon
 		return 31 * result + this.height;
 	}
 
+    /**
+     * May output an incorrect result
+     * @return the squished 2D input
+     */
     @ApiStatus.Experimental
+    @SuppressWarnings("unused")
     public CraftingInput asCraftInput() {
         return CraftingInput.of(this.length, this.width * this.height, this.items);
     }
