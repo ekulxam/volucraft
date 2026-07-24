@@ -26,8 +26,10 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.init.VolucraftItems;
 import survivalblock.volucraft.common.recipe.datagen.ShapedAmalgamationRecipeBuilder;
+import survivalblock.volucraft.common.recipe.datagen.ShapelessAmalgamationRecipeBuilder;
 import survivalblock.volucraft.mixin.RecipeProviderAccessor;
 
 import java.util.List;
@@ -104,7 +106,7 @@ public class VolucraftRecipeGenerators {
                             .define('A', Items.APPLE)
                             .unlockedBy(getHasName(Blocks.GOLD_BLOCK), has(Blocks.GOLD_BLOCK))
                             .unlockedBy(getHasName(Items.APPLE), has(Items.APPLE))
-                            .save(this.output);
+                            .save(this.output, Volucraft.id("enchanted_golden_apple"));
                     ShapedAmalgamationRecipeBuilder.shaped(items, RecipeCategory.MISC, Items.TRIDENT)
                             .pattern(
                                     List.of(
@@ -131,7 +133,7 @@ public class VolucraftRecipeGenerators {
                             .define('V', Items.BONE)
                             .unlockedBy(getHasName(Items.PRISMARINE_SHARD), has(Items.PRISMARINE_SHARD))
                             .unlockedBy(getHasName(Items.BONE), has(Items.BONE))
-                            .save(this.output);
+                            .save(this.output, Volucraft.id("trident"));
                     ShapedAmalgamationRecipeBuilder.shaped(items, RecipeCategory.MISC, Blocks.CRYING_OBSIDIAN, 4)
                             .pattern(
                                     List.of(
@@ -153,7 +155,11 @@ public class VolucraftRecipeGenerators {
                             .unlockedBy(getHasName(Blocks.OBSIDIAN), has(Blocks.OBSIDIAN))
                             .unlockedBy(getHasName(Items.GHAST_TEAR), has(Items.GHAST_TEAR))
                             .unlockedBy(getHasName(Items.DRAGON_BREATH), has(Items.DRAGON_BREATH))
-                            .save(this.output);
+                            .save(this.output, Volucraft.id("crying_obsidian"));
+                    ShapelessAmalgamationRecipeBuilder.shapeless(items, RecipeCategory.MISC, Items.DIAMOND)
+                            .requires(Blocks.COAL_BLOCK, 27)
+                            .unlockedBy(getHasName(Blocks.COAL_BLOCK), has(Blocks.COAL_BLOCK))
+                            .save(this.output, Volucraft.id("diamond"));
                 }
             };
         }

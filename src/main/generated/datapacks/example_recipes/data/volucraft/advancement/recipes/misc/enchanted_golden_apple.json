@@ -1,31 +1,21 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_dragon_breath": {
+    "has_apple": {
       "conditions": {
         "items": [
           {
-            "items": "minecraft:dragon_breath"
+            "items": "minecraft:apple"
           }
         ]
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_ghast_tear": {
+    "has_gold_block": {
       "conditions": {
         "items": [
           {
-            "items": "minecraft:ghast_tear"
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
-    },
-    "has_obsidian": {
-      "conditions": {
-        "items": [
-          {
-            "items": "minecraft:obsidian"
+            "items": "minecraft:gold_block"
           }
         ]
       },
@@ -33,7 +23,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "minecraft:crying_obsidian"
+        "recipe": "volucraft:enchanted_golden_apple"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -41,14 +31,13 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_obsidian",
-      "has_ghast_tear",
-      "has_dragon_breath"
+      "has_gold_block",
+      "has_apple"
     ]
   ],
   "rewards": {
     "recipes": [
-      "minecraft:crying_obsidian"
+      "volucraft:enchanted_golden_apple"
     ]
   }
 }

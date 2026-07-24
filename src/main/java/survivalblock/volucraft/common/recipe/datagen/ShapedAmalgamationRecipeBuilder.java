@@ -24,7 +24,6 @@ import net.minecraft.core.HolderGetter;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.data.recipes.RecipeUnlockAdvancementBuilder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -39,25 +38,22 @@ import survivalblock.volucraft.common.recipe.specific.ShapedAmalgamationRecipePa
 
 import static net.minecraft.world.item.crafting.ShapedRecipePattern.EMPTY_SLOT;
 
-@SuppressWarnings("unused")
-public class ShapedAmalgamationRecipeBuilder implements RecipeBuilder {
-	private final HolderGetter<Item> items;
-	private final RecipeCategory category;
-	private final ItemStackTemplate result;
-	private final List<List<String>> pattern = new ArrayList<>();
-	private final Map<Character, Ingredient> key = new LinkedHashMap<>();
-	private final RecipeUnlockAdvancementBuilder advancementBuilder = new RecipeUnlockAdvancementBuilder();
-    private boolean showNotification = true;
+public class ShapedAmalgamationRecipeBuilder extends AmalgamationRecipeBuilder {
+    protected final List<List<String>> pattern = new ArrayList<>();
+    protected final Map<Character, Ingredient> key = new LinkedHashMap<>();
 
-	private ShapedAmalgamationRecipeBuilder(final HolderGetter<Item> items, final RecipeCategory category, final ItemStackTemplate result) {
-		this.items = items;
-		this.category = category;
-		this.result = result;
+	protected ShapedAmalgamationRecipeBuilder(final HolderGetter<Item> items, final RecipeCategory category, final ItemStackTemplate result) {
+		super(items, category, result);
 	}
 
-	private ShapedAmalgamationRecipeBuilder(final HolderGetter<Item> items, final RecipeCategory category, final ItemLike result, final int count) {
+    protected ShapedAmalgamationRecipeBuilder(final HolderGetter<Item> items, final RecipeCategory category, final ItemLike result, final int count) {
 		this(items, category, new ItemStackTemplate(result.asItem(), count));
 	}
+
+    @SuppressWarnings("unused")
+    public static ShapedAmalgamationRecipeBuilder shaped(final HolderGetter<Item> items, final RecipeCategory category, final ItemStackTemplate result) {
+        return new ShapedAmalgamationRecipeBuilder(items, category, result);
+    }
 
 	public static ShapedAmalgamationRecipeBuilder shaped(final HolderGetter<Item> items, final RecipeCategory category, final ItemLike item) {
 		return shaped(items, category, item, 1);
@@ -67,6 +63,7 @@ public class ShapedAmalgamationRecipeBuilder implements RecipeBuilder {
 		return new ShapedAmalgamationRecipeBuilder(items, category, item, count);
 	}
 
+    @SuppressWarnings("unused")
 	public ShapedAmalgamationRecipeBuilder define(final Character symbol, final TagKey<Item> tag) {
 		return this.define(symbol, Ingredient.of(this.items.getOrThrow(tag)));
 	}
@@ -105,27 +102,26 @@ public class ShapedAmalgamationRecipeBuilder implements RecipeBuilder {
 		return this;
 	}
 
-	public ShapedAmalgamationRecipeBuilder unlockedBy(final String name, final Criterion<?> criterion) {
-		this.advancementBuilder.unlockedBy(name, criterion);
-		return this;
-	}
-
-    @ApiStatus.Obsolete
-	public ShapedAmalgamationRecipeBuilder group(final @Nullable String group) {
+    @Override
+    public ShapedAmalgamationRecipeBuilder unlockedBy(String name, Criterion<?> criterion) {
+        super.unlockedBy(name, criterion);
         return this;
-	}
+    }
 
-	public ShapedAmalgamationRecipeBuilder showNotification(final boolean showNotification) {
-		this.showNotification = showNotification;
-		return this;
-	}
+    @Override
+    @ApiStatus.Obsolete
+    public ShapedAmalgamationRecipeBuilder group(final @Nullable String group) {
+        super.group(group);
+        return this;
+    }
 
-	@Override
-	public ResourceKey<Recipe<?>> defaultId() {
-		return RecipeBuilder.getDefaultRecipeId(this.result);
-	}
+    @Override
+    public ShapedAmalgamationRecipeBuilder showNotification(final boolean showNotification) {
+        super.showNotification(showNotification);
+        return this;
+    }
 
-	@Override
+    @Override
 	public void save(final RecipeOutput output, final ResourceKey<Recipe<?>> id) {
         ShapedAmalgamationRecipePattern pattern = ShapedAmalgamationRecipePattern.of(this.key, this.pattern);
 		ShapedAmalgamationRecipe recipe = new ShapedAmalgamationRecipe(
