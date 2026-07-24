@@ -19,7 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.world.entity.player.StackedItemContents;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.RecipeInput;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * Using x as length, y as width, and z as height
@@ -186,6 +188,11 @@ public class AmalgamationInput implements RecipeInput, ThirdDimensionalStacksCon
 		result = 31 * result + this.width;
 		return 31 * result + this.height;
 	}
+
+    @ApiStatus.Experimental
+    public CraftingInput asCraftInput() {
+        return CraftingInput.of(this.length, this.width * this.height, this.items);
+    }
 
 	public record Positioned(AmalgamationInput input, int left, int back, int top) {
 		public static final AmalgamationInput.Positioned EMPTY = new AmalgamationInput.Positioned(AmalgamationInput.EMPTY, 0, 0, 0);
