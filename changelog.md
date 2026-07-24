@@ -3,3 +3,4 @@ Volucraft 0.2.1+26.1.2
 - Added support for all vanilla recipes (in theory)
   - See `survivalblock/volucraft/common/recipe/extrude/ExtrusionFormula`
 - Fixed issue in ShapedAmalgamationRecipe where some transformations were not considered
+- Bump `registrar` version to 0.0.4
