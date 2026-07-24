@@ -93,5 +93,14 @@ public final class ExtrusionFormula {
          * @return an id that represents this {@linkplain Extruder}
          */
         Identifier id();
+
+        /**
+         * Creates an id for the extruded recipe
+         * @param original the id of the 2D crafting recipe
+         * @return the id of the created 3D amalgamation recipe
+         */
+        default Identifier translate(Identifier original) {
+            return original.withPath(s -> s + ".volucraft_autoextruded");
+        }
     }
 }

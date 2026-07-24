@@ -71,7 +71,7 @@ public class RecipeManagerMixin implements ExtrudedRecipes {
 
             if (amal != null) {
                 amal.setTranslatedFrom2D(true);
-                additions.put(volucraft$translate(entry.getKey()), amal);
+                additions.put(extruder.translate(entry.getKey()), amal);
                 translated.put(recipe, amal);
             }
         }
@@ -105,11 +105,6 @@ public class RecipeManagerMixin implements ExtrudedRecipes {
 
             this.volucraft$recipePairs.put(crafting, amalgamation);
         }
-    }
-
-    @Unique
-    private static Identifier volucraft$translate(Identifier identifier) {
-        return identifier.withPath(s -> s + ".volucraft_autoextruded");
     }
 
     @Override

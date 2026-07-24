@@ -1,7 +1,5 @@
-Volucraft 0.2.0+26.1.2
-- Add Shapeless Amalgamation Recipes
-  - These are simply shapeless recipes that support up to 27 slots instead of the usual 9
-- Amalgamation Table now accepts Crafting recipes
-  - See README for more details
-- Move example recipes to Volucraft namespace
-- Add diamond compression recipe
+Volucraft 0.2.1+26.1.2
+- Extruded recipe appended identifier is now `.volucraft_autoextruded` instead of the old `_volucraft.autoextruded`
+- Added support for all vanilla recipes (in theory)
+  - See `survivalblock/volucraft/common/recipe/extrude/ExtrusionFormula`
+- Fixed issue in ShapedAmalgamationRecipe where some transformations were not considered

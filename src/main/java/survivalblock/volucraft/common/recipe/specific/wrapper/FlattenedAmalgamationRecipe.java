@@ -70,15 +70,13 @@ public class FlattenedAmalgamationRecipe extends ExtrudedAmalgamationRecipe {
         return this.delegate.isSpecial();
     }
 
+    /**
+     * From what I can tell, this is correct for Basically Shapeless but not for Flattened.
+     * By this, I mean that the correct remainders will be given, but it isn't guaranteed
+     * that they will end up in the correct locations for Flattened recipes.
+     */
     @Override
     public NonNullList<ItemStack> getRemainingItems(AmalgamationInput input) {
-        NonNullList<ItemStack> stacks;
-        for (CraftingInput craftingInput : input.asPossibleCraftInputs()) {
-            stacks = this.delegate.getRemainingItems(craftingInput);
-            if (!stacks.isEmpty()) {
-                return stacks;
-            }
-        }
         return super.getRemainingItems(input);
     }
 }
