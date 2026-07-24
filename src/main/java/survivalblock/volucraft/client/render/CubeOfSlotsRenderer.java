@@ -31,6 +31,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
+import net.minecraft.util.Ease;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -169,7 +170,8 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
     }
 
     public static float calculateExpansion(float lerpExpansion) {
-        return (Math.clamp(lerpExpansion, 0, 1) * 1.5F + 1) * 1.2F;
+        float clamped = Math.clamp(lerpExpansion, 0, 1);
+        return (Ease.inOutCubic(clamped) * 1.5F + 1) * 1.2F;
     }
 
     /**

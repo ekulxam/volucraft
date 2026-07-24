@@ -24,6 +24,7 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -57,6 +58,7 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
     @SuppressWarnings({"FieldCanBeLocal", "unused", "NotNullFieldNotInitialized"})
     private CycleButton<Boolean> expansionButton;
     private boolean shouldExpand = false;
+    private float prevExpansion = 0F;
     private float expansion = 0F;
     private final Vector2f rot = new Vector2f((float) (Math.PI / 4), (float) (Math.PI / 4));
 
@@ -114,6 +116,7 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
 
     @Override
     protected void containerTick() {
+        this.prevExpansion = this.expansion;
         if (this.shouldExpand) {
             if (this.expansion >= 1) {
                 this.expansion = 1;
@@ -137,9 +140,13 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         return 1.0F;
     }
 
+    public float lerpExpansion(float tickProgress) {
+        return Mth.lerp(tickProgress, this.prevExpansion, this.expansion);
+    }
+
     @Override
-    public void extractBackground(final GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final float a) {
-        super.extractBackground(graphics, mouseX, mouseY, a);
+    public void extractBackground(final GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final float tickProgress) {
+        super.extractBackground(graphics, mouseX, mouseY, tickProgress);
 
         this.rot.y = (float) Math.clamp(this.rot.y, -Math.PI / 2, Math.PI / 2); // clamp -90, 90 otherwise the turn direction becomes inverted
         this.rot.x = (float) (this.rot.x % (Math.PI * 2)); // simple mod 360 deg so the numbers don't explode
@@ -167,7 +174,7 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
                         HIGHLIGHTED_SLOT_CUBE,
                         items,
                         selected,
-                        this.expansion,
+                        this.lerpExpansion(tickProgress),
                         rotation(),
                         cubeX0,
                         cubeY0,
@@ -186,7 +193,7 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
 
         final int guiScale = this.minecraft.getWindow().getGuiScale();
 
-        return getHovered3DSlot(mouseX, mouseY, scale, rotation, xo, yo, guiScale, this.expansion, graphics);
+        return getHovered3DSlot(mouseX, mouseY, scale, rotation, xo, yo, guiScale, this.lerpExpansion(this.minecraft.getDeltaTracker().getGameTimeDeltaTicks()), graphics);
     }
 
     /**
