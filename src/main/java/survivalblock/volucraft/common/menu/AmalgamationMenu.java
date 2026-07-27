@@ -38,6 +38,7 @@ import survivalblock.volucraft.common.recipe.AmalgamationRecipe;
 import survivalblock.volucraft.common.menu.slot.AmalgamationResultSlot;
 import survivalblock.volucraft.mixin.multimatch.RecipeManagerAccessor;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -92,29 +93,31 @@ public class AmalgamationMenu extends AbstractContainerMenu {
     protected static void slotChangedCraftingGrid(
             final AbstractContainerMenu menu,
             final ServerLevel level,
-            final Player player,
+            final ServerPlayer player,
             final AmalgamationContainer container,
             final ResultContainer resultSlots,
             final @Nullable RecipeHolder<AmalgamationRecipe> recipeHint
     ) {
         AmalgamationInput input = container.asCraftInput();
-        ServerPlayer serverPlayer = (ServerPlayer) player;
         ItemStack result = ItemStack.EMPTY;
         RecipeManager recipeManager = level.getServer().getRecipeManager();
         Optional<RecipeHolder<AmalgamationRecipe>> maybeRecipe = recipeManager.getRecipeFor(VolucraftRecipeTypes.AMALGAMATION, input, level, recipeHint);
         if (maybeRecipe.isPresent()) {
             if (recipeHint == null) {
-                List<RecipeHolder<AmalgamationRecipe>> recipes = ((RecipeManagerAccessor) recipeManager).volucraft$getRecipes().getRecipesFor(VolucraftRecipeTypes.AMALGAMATION, input, level).toList();
+                List<RecipeHolder<AmalgamationRecipe>> recipes = ((RecipeManagerAccessor) recipeManager).volucraft$getRecipes()
+                        .getRecipesFor(VolucraftRecipeTypes.AMALGAMATION, input, level)
+                        .sorted(Comparator.comparing(recipeHolder -> recipeHolder.id().identifier()))
+                        .toList();
                 if (recipes.size() <= 1) {
-                    ServerPlayNetworking.send(serverPlayer, CancelMultimatchS2CPayload.INSTANCE);
+                    ServerPlayNetworking.send(player, CancelMultimatchS2CPayload.INSTANCE);
                 } else {
-                    ServerPlayNetworking.send(serverPlayer, MultimatchS2CPayload.cast(recipes));
+                    ServerPlayNetworking.send(player, MultimatchS2CPayload.cast(recipes));
                 }
             }
 
             RecipeHolder<AmalgamationRecipe> recipeHolder = maybeRecipe.get();
             AmalgamationRecipe recipe = recipeHolder.value();
-            if (resultSlots.setRecipeUsed(serverPlayer, recipeHolder)) {
+            if (resultSlots.setRecipeUsed(player, recipeHolder)) {
                 ItemStack recipeResult = recipe.assemble(input);
                 if (recipeResult.isItemEnabled(level.enabledFeatures())) {
                     result = recipeResult;
@@ -122,14 +125,14 @@ public class AmalgamationMenu extends AbstractContainerMenu {
             }
         } else {
             if (resultSlots.getRecipeUsed() != null) {
-                ServerPlayNetworking.send(serverPlayer, CancelMultimatchS2CPayload.INSTANCE);
+                ServerPlayNetworking.send(player, CancelMultimatchS2CPayload.INSTANCE);
                 resultSlots.setRecipeUsed(null);
             }
         }
 
         resultSlots.setItem(RESULT_SLOT_INDEX, result);
         menu.setRemoteSlot(RESULT_SLOT_INDEX, result);
-        serverPlayer.connection.send(new ClientboundContainerSetSlotPacket(menu.containerId, menu.incrementStateId(), RESULT_SLOT_INDEX, result));
+        player.connection.send(new ClientboundContainerSetSlotPacket(menu.containerId, menu.incrementStateId(), RESULT_SLOT_INDEX, result));
     }
 
     @Override
@@ -137,11 +140,10 @@ public class AmalgamationMenu extends AbstractContainerMenu {
         this.multimatch(null);
     }
 
-    @SuppressWarnings("DataFlowIssue")
     public void multimatch(@Nullable RecipeHolder<AmalgamationRecipe> recipeHint) {
         this.access.execute((level, _) -> {
-            if (level instanceof ServerLevel serverLevel) {
-                slotChangedCraftingGrid(this, serverLevel, this.player, this.craftSlots, this.resultSlots, recipeHint);
+            if (level instanceof ServerLevel serverLevel && this.player instanceof ServerPlayer serverPlayer) {
+                slotChangedCraftingGrid(this, serverLevel, serverPlayer, this.craftSlots, this.resultSlots, recipeHint);
             }
         });
     }
@@ -227,6 +229,10 @@ public class AmalgamationMenu extends AbstractContainerMenu {
             }
         }
         return true;
+    }
+
+    public AmalgamationInput getInput() {
+        return this.craftSlots.asCraftInput();
     }
 
     @SuppressWarnings("InnerClassMayBeStatic")

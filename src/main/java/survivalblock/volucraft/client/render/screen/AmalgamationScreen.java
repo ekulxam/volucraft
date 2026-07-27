@@ -15,11 +15,10 @@
  */
 package survivalblock.volucraft.client.render.screen;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.CycleButton;
-import net.minecraft.client.gui.components.ImageButton;
-import net.minecraft.client.gui.components.WidgetSprites;
+import net.minecraft.client.gui.components.*;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -44,6 +43,7 @@ import survivalblock.volucraft.client.render.CubeOfSlotsRenderState;
 import survivalblock.volucraft.client.render.CubeOfSlotsRenderer;
 import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.menu.AmalgamationMenu;
+import survivalblock.volucraft.common.recipe.AmalgamationInput;
 import survivalblock.volucraft.common.recipe.AmalgamationRecipe;
 import survivalblock.volucraft.mixin.client.AbstractContainerScreenAccessor;
 
@@ -72,6 +72,7 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
     protected Button displayMultimatchButton;
     private final List<RecipeHolder<AmalgamationRecipe>> matches = new ArrayList<>();
     private boolean displayingMultimatches = false;
+    private MultimatchWidget whateverThisIs;
 
     @SuppressWarnings({"FieldCanBeLocal", "unused", "NotNullFieldNotInitialized"})
     protected CycleButton<Boolean> expansionButton;
@@ -136,8 +137,15 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
                         18,
                         18,
                         MULTIMATCH,
-                        _ -> this.displayingMultimatches = !this.displayingMultimatches
+                        _ -> {
+                            this.displayingMultimatches = !this.displayingMultimatches;
+                            this.whateverThisIs.active = this.displayingMultimatches;
+                            this.whateverThisIs.visible = this.displayingMultimatches;
+                        }
                 )
+        );
+        this.whateverThisIs = this.addRenderableWidget(
+                new MultimatchWidget(Minecraft.getInstance(), 18, 40, this.height / 2 - 49, 16)
         );
     }
 
@@ -216,10 +224,22 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
 
     public void clearMatches() {
         this.matches.clear();
+        this.displayingMultimatches = false;
+        this.displayMultimatchButton.active = false;
+        this.displayMultimatchButton.visible = false;
+        this.whateverThisIs.clearEntries();
+        this.whateverThisIs.active = false;
+        this.whateverThisIs.visible = false;
     }
 
     public void addToMatches(List<RecipeHolder<AmalgamationRecipe>> other) {
         this.matches.addAll(other);
+        this.displayMultimatchButton.active = true;
+        this.displayMultimatchButton.visible = true;
+        AmalgamationInput input = this.menu.getInput();
+        for (RecipeHolder<AmalgamationRecipe> match : this.matches) {
+            this.whateverThisIs.addEntry(new MultimatchWidget.AssembledEntry(match.value().assemble(input)));
+        }
     }
 
     public int getHovered3DSlot(double mouseX, double mouseY, final float scale, final Quaternionfc rotation, @Nullable GuiGraphicsExtractor graphics) {
