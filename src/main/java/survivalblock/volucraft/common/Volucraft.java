@@ -17,11 +17,14 @@ package survivalblock.volucraft.common;
 
 import net.fabricmc.api.ModInitializer;
 
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.stats.StatFormatter;
@@ -32,6 +35,9 @@ import survivalblock.volucraft.common.init.VolucraftBlocks;
 import survivalblock.volucraft.common.init.VolucraftItems;
 import survivalblock.volucraft.common.init.VolucraftMenuTypes;
 import survivalblock.volucraft.common.init.VolucraftRecipeTypes;
+import survivalblock.volucraft.common.networking.CancelMultimatchS2CPayload;
+import survivalblock.volucraft.common.networking.MultimatchS2CPayload;
+import survivalblock.volucraft.common.networking.SelectFromMultimatchC2SPayload;
 import survivalblock.volucraft.common.recipe.display.ShapedAmalgamationRecipeDisplay;
 import survivalblock.volucraft.common.recipe.display.ShapelessAmalgamationRecipeDisplay;
 import survivalblock.volucraft.common.recipe.extrude.ExtrusionFormula;
@@ -70,12 +76,25 @@ public class Volucraft implements ModInitializer {
 
         ExtrusionFormula.init();
 
+        registerNetworking();
+
         FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent(modContainer ->
                 wrapDatapack(
                         () -> ResourceLoader.registerBuiltinPack(EXAMPLE_RECIPES_PACK, modContainer, Component.translatable("dataPack.volucraft.example_recipes.name"), PackActivationType.NORMAL)
                 )
         );
 	}
+
+    private void registerNetworking() {
+        PayloadTypeRegistry<RegistryFriendlyByteBuf> s2c = PayloadTypeRegistry.clientboundPlay();
+        s2c.register(CancelMultimatchS2CPayload.ID, CancelMultimatchS2CPayload.CODEC);
+        s2c.registerLarge(MultimatchS2CPayload.ID, MultimatchS2CPayload.CODEC, 1048576); // 2 ^ 20, probably fine
+
+        PayloadTypeRegistry<RegistryFriendlyByteBuf> c2s = PayloadTypeRegistry.serverboundPlay();
+        c2s.register(SelectFromMultimatchC2SPayload.ID, SelectFromMultimatchC2SPayload.CODEC);
+
+        ServerPlayNetworking.registerGlobalReceiver(SelectFromMultimatchC2SPayload.ID, SelectFromMultimatchC2SPayload.Receiver.INSTANCE);
+    }
 
     public static Identifier id(String path) {
         return Identifier.fromNamespaceAndPath(MOD_ID, path);

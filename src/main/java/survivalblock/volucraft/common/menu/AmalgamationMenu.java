@@ -15,6 +15,7 @@
  */
 package survivalblock.volucraft.common.menu;
 
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -24,17 +25,22 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeManager;
 import org.jspecify.annotations.Nullable;
 import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.init.VolucraftBlocks;
 import survivalblock.volucraft.common.init.VolucraftMenuTypes;
 import survivalblock.volucraft.common.init.VolucraftRecipeTypes;
+import survivalblock.volucraft.common.networking.CancelMultimatchS2CPayload;
+import survivalblock.volucraft.common.networking.MultimatchS2CPayload;
 import survivalblock.volucraft.common.recipe.AmalgamationInput;
 import survivalblock.volucraft.common.recipe.AmalgamationRecipe;
 import survivalblock.volucraft.common.menu.slot.AmalgamationResultSlot;
+import survivalblock.volucraft.mixin.multimatch.RecipeManagerAccessor;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * @see AbstractCraftingMenu
@@ -94,8 +100,18 @@ public class AmalgamationMenu extends AbstractContainerMenu {
         AmalgamationInput input = container.asCraftInput();
         ServerPlayer serverPlayer = (ServerPlayer) player;
         ItemStack result = ItemStack.EMPTY;
-        Optional<RecipeHolder<AmalgamationRecipe>> maybeRecipe = level.getServer().getRecipeManager().getRecipeFor(VolucraftRecipeTypes.AMALGAMATION, input, level, recipeHint);
+        RecipeManager recipeManager = level.getServer().getRecipeManager();
+        Optional<RecipeHolder<AmalgamationRecipe>> maybeRecipe = recipeManager.getRecipeFor(VolucraftRecipeTypes.AMALGAMATION, input, level, recipeHint);
         if (maybeRecipe.isPresent()) {
+            if (recipeHint == null) {
+                List<RecipeHolder<AmalgamationRecipe>> recipes = ((RecipeManagerAccessor) recipeManager).volucraft$getRecipes().getRecipesFor(VolucraftRecipeTypes.AMALGAMATION, input, level).toList();
+                if (recipes.size() <= 1) {
+                    ServerPlayNetworking.send(serverPlayer, CancelMultimatchS2CPayload.INSTANCE);
+                } else {
+                    ServerPlayNetworking.send(serverPlayer, MultimatchS2CPayload.cast(recipes));
+                }
+            }
+
             RecipeHolder<AmalgamationRecipe> recipeHolder = maybeRecipe.get();
             AmalgamationRecipe recipe = recipeHolder.value();
             if (resultSlots.setRecipeUsed(serverPlayer, recipeHolder)) {
@@ -104,6 +120,11 @@ public class AmalgamationMenu extends AbstractContainerMenu {
                     result = recipeResult;
                 }
             }
+        } else {
+            if (resultSlots.getRecipeUsed() != null) {
+                ServerPlayNetworking.send(serverPlayer, CancelMultimatchS2CPayload.INSTANCE);
+                resultSlots.setRecipeUsed(null);
+            }
         }
 
         resultSlots.setItem(RESULT_SLOT_INDEX, result);
@@ -111,12 +132,16 @@ public class AmalgamationMenu extends AbstractContainerMenu {
         serverPlayer.connection.send(new ClientboundContainerSetSlotPacket(menu.containerId, menu.incrementStateId(), RESULT_SLOT_INDEX, result));
     }
 
-    @SuppressWarnings("DataFlowIssue")
     @Override
     public void slotsChanged(final Container container) {
+        this.multimatch(null);
+    }
+
+    @SuppressWarnings("DataFlowIssue")
+    public void multimatch(@Nullable RecipeHolder<AmalgamationRecipe> recipeHint) {
         this.access.execute((level, _) -> {
             if (level instanceof ServerLevel serverLevel) {
-                slotChangedCraftingGrid(this, serverLevel, this.player, this.craftSlots, this.resultSlots, null);
+                slotChangedCraftingGrid(this, serverLevel, this.player, this.craftSlots, this.resultSlots, recipeHint);
             }
         });
     }

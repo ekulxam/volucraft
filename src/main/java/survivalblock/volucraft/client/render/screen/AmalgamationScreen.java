@@ -16,7 +16,10 @@
 package survivalblock.volucraft.client.render.screen;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
+import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -27,8 +30,13 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import org.jetbrains.annotations.Nullable;
-import org.joml.*;
+import org.joml.Matrix4fStack;
+import org.joml.Quaternionf;
+import org.joml.Quaternionfc;
+import org.joml.Vector2f;
+import org.joml.Vector4f;
 import survivalblock.volucraft.client.VolucraftClient;
 import survivalblock.volucraft.client.compat.config.VolucraftClientConfig;
 import survivalblock.volucraft.client.render.CubeModel;
@@ -36,9 +44,12 @@ import survivalblock.volucraft.client.render.CubeOfSlotsRenderState;
 import survivalblock.volucraft.client.render.CubeOfSlotsRenderer;
 import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.menu.AmalgamationMenu;
+import survivalblock.volucraft.common.recipe.AmalgamationRecipe;
 import survivalblock.volucraft.mixin.client.AbstractContainerScreenAccessor;
 
 import java.lang.Math;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu> {
     public static final Identifier CRAFTING_TABLE_LOCATION = Volucraft.id("textures/gui/container/amalgamation.png");
@@ -47,16 +58,23 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
 
     public static final float PICTURE_IN_PICTURE_SCALE = 11F;
 
-    private static final float EXPANSION_STEP = 0.05F;
+    public static final float EXPANSION_STEP = 0.05F;
     public static final int SLOTS_SIDE = 150;
-    private static final int SLOTS_X_OFFSET = 186;
-    private static final int SLOTS_Y_OFFSET = 8;
+    public static final int SLOTS_X_OFFSET = 186;
+    public static final int SLOTS_Y_OFFSET = 8;
 
-    private final CubeModel cubeModel;
-    private final CubeModel cubeModelWithItem;
+    protected final CubeModel cubeModel;
+    protected final CubeModel cubeModelWithItem;
+
+    public static final WidgetSprites MULTIMATCH = new WidgetSprites(Volucraft.id("multimatch"), Volucraft.id("multimatch_activated"));
 
     @SuppressWarnings({"FieldCanBeLocal", "unused", "NotNullFieldNotInitialized"})
-    private CycleButton<Boolean> expansionButton;
+    protected Button displayMultimatchButton;
+    private final List<RecipeHolder<AmalgamationRecipe>> matches = new ArrayList<>();
+    private boolean displayingMultimatches = false;
+
+    @SuppressWarnings({"FieldCanBeLocal", "unused", "NotNullFieldNotInitialized"})
+    protected CycleButton<Boolean> expansionButton;
     private boolean shouldExpand = false;
     private float prevExpansion = 0F;
     private float expansion = 0F;
@@ -72,8 +90,7 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
     public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
         boolean original = super.mouseDragged(event, dx, dy);
         // handle rotation if within bounds of cube area
-        AbstractContainerScreenAccessor accessor = (AbstractContainerScreenAccessor) this;
-        if (accessor.volucraft$getClickedSlot() != null || !accessor.volucraft$getDraggingItem().isEmpty()) {
+        if (((AbstractContainerScreenAccessor) this).volucraft$getClickedSlot() != null || !((AbstractContainerScreenAccessor) this).volucraft$getDraggingItem().isEmpty()) {
             return original;
         }
         final double x = event.x();
@@ -111,6 +128,16 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
                             this.shouldExpand = value;
                             this.onExpandToggled();
                         })
+        );
+        this.displayMultimatchButton = this.addRenderableWidget(
+                new ImageButton(
+                        this.width / 2 - 120,
+                        this.height / 2 - 49,
+                        18,
+                        18,
+                        MULTIMATCH,
+                        _ -> this.displayingMultimatches = !this.displayingMultimatches
+                )
         );
     }
 
@@ -185,6 +212,14 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
                         graphics.scissorStack.peek()
                 )
         );
+    }
+
+    public void clearMatches() {
+        this.matches.clear();
+    }
+
+    public void addToMatches(List<RecipeHolder<AmalgamationRecipe>> other) {
+        this.matches.addAll(other);
     }
 
     public int getHovered3DSlot(double mouseX, double mouseY, final float scale, final Quaternionfc rotation, @Nullable GuiGraphicsExtractor graphics) {

@@ -17,7 +17,8 @@
     "extrude.ServerRecipeBookMixin",
     "extrude.ShapedRecipeAccessor",
     "extrude.ShapedRecipePatternAccessor",
-    "extrude.ShapelessRecipeAccessor"
+    "extrude.ShapelessRecipeAccessor",
+    "multimatch.RecipeManagerAccessor"
   ],
   "client": [
     "client.AbstractContainerScreenAccessor",

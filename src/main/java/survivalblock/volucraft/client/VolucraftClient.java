@@ -16,6 +16,7 @@
 package survivalblock.volucraft.client;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.PictureInPictureRendererRegistry;
 import net.fabricmc.loader.api.FabricLoader;
@@ -29,6 +30,8 @@ import survivalblock.volucraft.client.render.screen.GameCubeScreen;
 import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.init.VolucraftMenuTypes;
 import survivalblock.volucraft.common.menu.AmalgamationMenu;
+import survivalblock.volucraft.common.networking.CancelMultimatchS2CPayload;
+import survivalblock.volucraft.common.networking.MultimatchS2CPayload;
 
 public class VolucraftClient implements ClientModInitializer {
     public static final ModelLayerLocation CUBE = new ModelLayerLocation(Volucraft.id("cube"), "main");
@@ -51,5 +54,19 @@ public class VolucraftClient implements ClientModInitializer {
                                 ? new GameCubeScreen(menu, inventory, title)
                                 : new AmalgamationScreen(menu, inventory, title)
         );
+
+        ClientPlayNetworking.registerGlobalReceiver(CancelMultimatchS2CPayload.ID, (_, context) -> {
+            if (!(context.player().containerMenu instanceof AmalgamationMenu) || !(context.client().screen instanceof AmalgamationScreen screen)) {
+                return;
+            }
+            screen.clearMatches();
+        });
+
+        ClientPlayNetworking.registerGlobalReceiver(MultimatchS2CPayload.ID, (payload, context) -> {
+            if (!(context.player().containerMenu instanceof AmalgamationMenu) || !(context.client().screen instanceof AmalgamationScreen screen)) {
+                return;
+            }
+            screen.addToMatches(payload.castMatches());
+        });
     }
 }
