@@ -15,10 +15,8 @@
  */
 package survivalblock.volucraft.client.render.screen;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.*;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -70,9 +68,11 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
 
     @SuppressWarnings({"FieldCanBeLocal", "unused", "NotNullFieldNotInitialized"})
     protected Button displayMultimatchButton;
+    @SuppressWarnings({"FieldCanBeLocal", "unused", "NotNullFieldNotInitialized"})
+    private MultimatchWidget multimatchList;
     private final List<RecipeHolder<AmalgamationRecipe>> matches = new ArrayList<>();
+    private boolean showMultimatchButton = false;
     private boolean displayingMultimatches = false;
-    private MultimatchWidget whateverThisIs;
 
     @SuppressWarnings({"FieldCanBeLocal", "unused", "NotNullFieldNotInitialized"})
     protected CycleButton<Boolean> expansionButton;
@@ -132,21 +132,21 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         );
         this.displayMultimatchButton = this.addRenderableWidget(
                 new ImageButton(
-                        this.width / 2 - 120,
+                        this.width / 2 - 122,
                         this.height / 2 - 49,
                         18,
                         18,
                         MULTIMATCH,
-                        _ -> {
-                            this.displayingMultimatches = !this.displayingMultimatches;
-                            this.whateverThisIs.active = this.displayingMultimatches;
-                            this.whateverThisIs.visible = this.displayingMultimatches;
-                        }
+                        _ -> this.displayMultimatches(!this.displayingMultimatches)
                 )
         );
-        this.whateverThisIs = this.addRenderableWidget(
-                new MultimatchWidget(Minecraft.getInstance(), 18, 40, this.height / 2 - 49, 16)
+        this.multimatchList = this.addRenderableWidget(
+                new MultimatchWidget(this.minecraft, 18, 36, this.height / 2 - 59, 18)
+                        .withX(this.width / 2 - 153)
         );
+
+        this.showMultimatchButton(this.showMultimatchButton);
+        this.displayMultimatches(this.displayingMultimatches);
     }
 
     @Override
@@ -224,21 +224,33 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
 
     public void clearMatches() {
         this.matches.clear();
-        this.displayingMultimatches = false;
-        this.displayMultimatchButton.active = false;
-        this.displayMultimatchButton.visible = false;
-        this.whateverThisIs.clearEntries();
-        this.whateverThisIs.active = false;
-        this.whateverThisIs.visible = false;
+        this.showMultimatchButton(false);
+        this.multimatchList.clearEntries();
+        this.displayMultimatches(false);
     }
 
     public void addToMatches(List<RecipeHolder<AmalgamationRecipe>> other) {
         this.matches.addAll(other);
-        this.displayMultimatchButton.active = true;
-        this.displayMultimatchButton.visible = true;
-        AmalgamationInput input = this.menu.getInput();
-        for (RecipeHolder<AmalgamationRecipe> match : this.matches) {
-            this.whateverThisIs.addEntry(new MultimatchWidget.AssembledEntry(match.value().assemble(input)));
+        this.showMultimatchButton(true);
+    }
+
+    public void showMultimatchButton(boolean value) {
+        this.showMultimatchButton = value;
+        this.displayMultimatchButton.active = value;
+        this.displayMultimatchButton.visible = value;
+    }
+
+    public void displayMultimatches(boolean value) {
+        this.multimatchList.clearEntries();
+        this.displayingMultimatches = value;
+        this.multimatchList.active = value;
+        this.multimatchList.visible = value;
+
+        if (value) {
+            AmalgamationInput input = this.menu.getInput();
+            for (RecipeHolder<AmalgamationRecipe> match : this.matches) {
+                this.multimatchList.addEntry(new MultimatchWidget.AssembledEntry(match, match.value().assemble(input)));
+            }
         }
     }
 

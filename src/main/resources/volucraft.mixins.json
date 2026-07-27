@@ -25,6 +25,7 @@
     "client.AbstractContainerScreenMixin",
     "client.compat.recipeviewer.AbstractContainerScreenMixin",
     "client.compat.recipeviewer.RecipeViewScreenMixin",
+    "client.multimatch.AbstractSelectionListMixin",
     "client.sodiumfix.PictureInPictureRendererMixin",
     "client.sodiumfix.ProjectionMixin",
     "client.sodiumfix.ProjectionTypeMixin"

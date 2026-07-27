@@ -143,6 +143,9 @@ public class AmalgamationMenu extends AbstractContainerMenu {
     public void multimatch(@Nullable RecipeHolder<AmalgamationRecipe> recipeHint) {
         this.access.execute((level, _) -> {
             if (level instanceof ServerLevel serverLevel && this.player instanceof ServerPlayer serverPlayer) {
+                if (this.resultSlots.getRecipeUsed() == null && recipeHint != null) {
+                    return;
+                }
                 slotChangedCraftingGrid(this, serverLevel, serverPlayer, this.craftSlots, this.resultSlots, recipeHint);
             }
         });
