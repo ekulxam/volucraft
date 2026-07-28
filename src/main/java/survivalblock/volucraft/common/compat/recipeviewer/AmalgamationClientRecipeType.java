@@ -26,6 +26,7 @@ import org.jspecify.annotations.Nullable;
 import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.block.AmalgamationTableBlock;
 import survivalblock.volucraft.common.init.VolucraftItems;
+import survivalblock.volucraft.mixin.compat.recipeviewer.RecipeViewMenuAccessor;
 
 public class AmalgamationClientRecipeType implements ReliableClientRecipeType {
     public static final AmalgamationClientRecipeType INSTANCE = new AmalgamationClientRecipeType();
@@ -58,10 +59,16 @@ public class AmalgamationClientRecipeType implements ReliableClientRecipeType {
 
     @Override
     public void placeSlots(RecipeViewMenu.SlotDefinition slotDefinition) {
-        slotDefinition.addItemSlot(0, this.getDisplayWidth() / 2 - 8, 0);
+        addItemSlot(slotDefinition, 0, this.getDisplayWidth() / 2 - 8, 0);
         for (int i = 0; i < Volucraft.SLOTS; i++) {
-            slotDefinition.addItemSlot(i + 1, i, 0);
+            addItemSlot(slotDefinition, i + 1, i, 0);
         }
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    protected void addItemSlot(RecipeViewMenu.SlotDefinition slotDefinition, int slotId, int x, int y) {
+        RecipeViewMenuAccessor.SlotDefinitionAccessor accessor = (RecipeViewMenuAccessor.SlotDefinitionAccessor) slotDefinition;
+        accessor.volucraft$getItemSlots().put(slotId, new RecipeSlotShovedIntoACorner(accessor.volucraft$getViewContainer(), slotId, x, y, accessor.volucraft$getHighlightWithoutContents()));
     }
 
     @Override
