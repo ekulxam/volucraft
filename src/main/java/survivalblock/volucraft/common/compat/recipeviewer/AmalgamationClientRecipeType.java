@@ -26,7 +26,6 @@ import org.jspecify.annotations.Nullable;
 import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.block.AmalgamationTableBlock;
 import survivalblock.volucraft.common.init.VolucraftItems;
-import survivalblock.volucraft.mixin.compat.recipeviewer.RecipeViewMenuAccessor;
 
 public class AmalgamationClientRecipeType implements ReliableClientRecipeType {
     public static final AmalgamationClientRecipeType INSTANCE = new AmalgamationClientRecipeType();
@@ -67,8 +66,7 @@ public class AmalgamationClientRecipeType implements ReliableClientRecipeType {
 
     @SuppressWarnings("SameParameterValue")
     protected void addItemSlot(RecipeViewMenu.SlotDefinition slotDefinition, int slotId, int x, int y) {
-        RecipeViewMenuAccessor.SlotDefinitionAccessor accessor = (RecipeViewMenuAccessor.SlotDefinitionAccessor) slotDefinition;
-        accessor.volucraft$getItemSlots().put(slotId, new RecipeSlotShovedIntoACorner(accessor.volucraft$getViewContainer(), slotId, x, y, accessor.volucraft$getHighlightWithoutContents()));
+        slotDefinition.addItemSlot(slotId, x, y, RecipeSlotShovedIntoACorner::new);
     }
 
     @Override
@@ -86,8 +84,13 @@ public class AmalgamationClientRecipeType implements ReliableClientRecipeType {
      */
     @SuppressWarnings("InnerClassMayBeStatic")
     public class RecipeSlotShovedIntoACorner extends RecipeSlot {
+        @SuppressWarnings("unused")
         public RecipeSlotShovedIntoACorner(Container viewContainer, int index, int x, int y, boolean highlightWithoutContents) {
             super(viewContainer, index, x, y, highlightWithoutContents);
+        }
+
+        public RecipeSlotShovedIntoACorner(Properties properties) {
+            super(properties);
         }
 
         @Override

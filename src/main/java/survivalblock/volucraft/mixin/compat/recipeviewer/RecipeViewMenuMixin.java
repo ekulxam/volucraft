@@ -41,12 +41,4 @@ public abstract class RecipeViewMenuMixin {
         }
         return original;
     }
-
-    @WrapOperation(method = "updateByPage", at = @At(value = "NEW", target = "(Lnet/minecraft/world/Container;IIIZ)Lcc/cassian/rrv/common/recipe/inventory/RecipeSlot;", ordinal = 0))
-    private RecipeSlot getShovedIntoTheCorner(Container viewContainer, int index, int x, int y, boolean highlightWithoutContents, Operation<RecipeSlot> original, @Local(name = "slot") Slot slot) {
-        if (this.getClientRecipeType() == AmalgamationClientRecipeType.INSTANCE && slot instanceof AmalgamationClientRecipeType.RecipeSlotShovedIntoACorner) {
-            return AmalgamationClientRecipeType.INSTANCE.new RecipeSlotShovedIntoACorner(viewContainer, index, x, y, highlightWithoutContents);
-        }
-        return original.call(viewContainer, index, x, y, highlightWithoutContents);
-    }
 }
