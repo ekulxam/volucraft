@@ -16,7 +16,6 @@
 package survivalblock.volucraft.common.recipe.specific.wrapper;
 
 import com.mojang.serialization.MapCodec;
-import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
@@ -40,13 +39,9 @@ public class FlattenedAmalgamationRecipe extends ExtrudedAmalgamationRecipe {
         return SERIALIZER;
     }
 
-    protected PlacementInfo createPlacementInfo() {
-        return this.delegate.placementInfo();
-    }
-
     @Override
     public boolean matches(final AmalgamationInput input, final Level level) {
-        for (CraftingInput craftingInput : input.asPossibleCraftInputs()) {
+        for (CraftingInput craftingInput : input.asPossibleCraftInputs().values()) {
             if (this.delegate.matches(craftingInput, level)) {
                 return true;
             }
@@ -56,27 +51,12 @@ public class FlattenedAmalgamationRecipe extends ExtrudedAmalgamationRecipe {
 
     public ItemStack assemble(final AmalgamationInput input) {
         ItemStack stack;
-        for (CraftingInput craftingInput : input.asPossibleCraftInputs()) {
+        for (CraftingInput craftingInput : input.asPossibleCraftInputs().values()) {
             stack = this.delegate.assemble(craftingInput);
             if (!stack.isEmpty()) {
                 return stack;
             }
         }
         return ItemStack.EMPTY;
-    }
-
-    @Override
-    public boolean isSpecial() {
-        return this.delegate.isSpecial();
-    }
-
-    /**
-     * From what I can tell, this is correct for Basically Shapeless but not for Flattened.
-     * By this, I mean that the correct remainders will be given, but it isn't guaranteed
-     * that they will end up in the correct locations for Flattened recipes.
-     */
-    @Override
-    public NonNullList<ItemStack> getRemainingItems(AmalgamationInput input) {
-        return super.getRemainingItems(input);
     }
 }

@@ -65,7 +65,7 @@ public class VolucraftRecipeGenerators {
 
         @Override
         public String getName() {
-            return "Example Recipes";
+            return "Recipes";
         }
     }
 

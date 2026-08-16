@@ -52,19 +52,14 @@ dependencies {
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
-    implementation "maven.modrinth:registrar:${project.registrar_version}"
-    include "maven.modrinth:registrar:${project.registrar_version}"
+    include(implementation("maven.modrinth:registrar:${project.registrar_version}"))
 
-    compileOnly "dev.isxander:yet-another-config-lib:${project.yacl_version}"
-    localRuntime "dev.isxander:yet-another-config-lib:${project.yacl_version}"
-    compileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
-    localRuntime "com.terraformersmc:modmenu:${project.modmenu_version}"
+    compileOnly(localRuntime("dev.isxander:yet-another-config-lib:${project.yacl_version}"))
+    compileOnly(localRuntime("com.terraformersmc:modmenu:${project.modmenu_version}"))
 
-    compileOnly "cc.cassian.rrv:reliable-recipe-viewer-fabric:${rrv_version}+${minecraft_version}"
-    localRuntime "cc.cassian.rrv:reliable-recipe-viewer-fabric:${rrv_version}+${minecraft_version}"
+    compileOnly(localRuntime("cc.cassian.rrv:reliable-recipe-viewer-fabric:${rrv_version}+${minecraft_version}"))
 
-    compileOnly "maven.modrinth:sodium:${project.sodium_version}"
-    localRuntime "maven.modrinth:sodium:${project.sodium_version}"
+    compileOnly(localRuntime("maven.modrinth:sodium:${project.sodium_version}"))
 }
 
 loom {

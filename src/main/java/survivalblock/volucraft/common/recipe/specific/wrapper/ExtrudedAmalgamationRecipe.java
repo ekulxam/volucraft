@@ -15,6 +15,7 @@
  */
 package survivalblock.volucraft.common.recipe.specific.wrapper;
 
+import com.mojang.math.OctahedralGroup;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.NonNullList;
@@ -28,9 +29,13 @@ import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.PlacementInfo;
 import org.jetbrains.annotations.ApiStatus;
+import org.joml.Matrix3fc;
+import org.joml.Vector3f;
+import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.recipe.AmalgamationInput;
 import survivalblock.volucraft.common.recipe.specific.NormalAmalgamationRecipe;
 
+import java.util.Map;
 import java.util.function.BiFunction;
 
 @ApiStatus.Internal
@@ -53,11 +58,40 @@ public abstract class ExtrudedAmalgamationRecipe extends NormalAmalgamationRecip
 
     @Override
     public NonNullList<ItemStack> getRemainingItems(AmalgamationInput input) {
-        NonNullList<ItemStack> stacks;
-        for (CraftingInput craftingInput : input.asPossibleCraftInputs()) {
-            stacks = this.delegate.getRemainingItems(craftingInput);
-            if (!stacks.isEmpty()) {
-                return stacks;
+        NonNullList<ItemStack> remaining2D;
+        for (Map.Entry<OctahedralGroup, CraftingInput> entry : input.asPossibleCraftInputs().entrySet()) {
+            remaining2D = this.delegate.getRemainingItems(entry.getValue());
+            if (!remaining2D.isEmpty()) {
+                Matrix3fc transform = entry.getKey().transformation();
+                NonNullList<ItemStack> stacks3D = NonNullList.withSize(input.length() * input.width() * input.height(), ItemStack.EMPTY);
+                Vector3f dimensions = new Vector3f(input.length(), input.width(), input.height()).mul(transform);
+                Vector3f coordinates = new Vector3f();
+
+                final int actualLength = Math.abs(Math.round(dimensions.x));
+                final int actualWidth = Math.abs(Math.round(dimensions.y));
+
+                final int offsetX = dimensions.x < 0 ? actualLength - 1 : 0;
+                final int offsetY = dimensions.y < 0 ? actualWidth - 1 : 0;
+                for (int z = 0; z < input.height(); z++) {
+                    for (int y = 0; y < input.width(); y++) {
+                        for (int x = 0; x < input.length(); x++) {
+                            coordinates.set(x, y, z).mul(transform);
+                            int finalX = Math.round(coordinates.x) + offsetX;
+                            int finalY = Math.round(coordinates.y) + offsetY;
+
+                            try {
+                                stacks3D.set(
+                                        x + y * input.length() + z * input.length() * input.width(),
+                                        remaining2D.get(finalX + (finalY * actualLength))
+                                );
+                            } catch (IndexOutOfBoundsException e) {
+                                Volucraft.LOGGER.error("An exception was thrown when gathering crafting remainders for a 3D recipe!", e);
+                            }
+                        }
+                    }
+                }
+
+                return stacks3D;
             }
         }
         return super.getRemainingItems(input);

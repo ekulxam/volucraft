@@ -16,14 +16,8 @@
 package survivalblock.volucraft.mixin.compat.recipeviewer;
 
 import cc.cassian.rrv.api.recipe.ReliableClientRecipeType;
-import cc.cassian.rrv.common.recipe.inventory.RecipeSlot;
 import cc.cassian.rrv.common.recipe.inventory.RecipeViewMenu;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.llamalad7.mixinextras.sugar.Local;
-import net.minecraft.world.Container;
-import net.minecraft.world.inventory.Slot;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;

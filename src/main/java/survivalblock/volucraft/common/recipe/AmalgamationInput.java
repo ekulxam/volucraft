@@ -42,7 +42,7 @@ public class AmalgamationInput implements RecipeInput, ThirdDimensionalStacksCon
     @Nullable
     private CraftingInput basicallyShapelessCraftInput = null;
     @Nullable
-    private List<CraftingInput> possibleCraftInputs = null;
+    private Map<OctahedralGroup, CraftingInput> possibleCraftInputs = null;
 
 	private AmalgamationInput(final int length, final int width, final int height, final List<ItemStack> items) {
         this.length = length;
@@ -222,10 +222,10 @@ public class AmalgamationInput implements RecipeInput, ThirdDimensionalStacksCon
 
     /**
      * May output an incorrect result
-     * @return a list of inputs that could be a correct 2D input
+     * @return a Map of transformations to inputs that could be a correct 2D input
      */
     @ApiStatus.Experimental
-    public List<CraftingInput> asPossibleCraftInputs() {
+    public Map<OctahedralGroup, CraftingInput> asPossibleCraftInputs() {
         if (this.possibleCraftInputs == null) {
             this.possibleCraftInputs = this.computePossibleCraftInputs();
         }
@@ -237,15 +237,15 @@ public class AmalgamationInput implements RecipeInput, ThirdDimensionalStacksCon
      * @see survivalblock.volucraft.common.recipe.specific.ShapedAmalgamationRecipePattern#computeTransformsPreservingDimensions()
      */
     @SuppressWarnings("JavadocReference")
-    private List<CraftingInput> computePossibleCraftInputs() {
+    private Map<OctahedralGroup, CraftingInput> computePossibleCraftInputs() {
         if (this == EMPTY || this.length == 0 || this.width == 0 || this.height == 0) {
-            return List.of(CraftingInput.EMPTY);
+            return Map.of(OctahedralGroup.IDENTITY, CraftingInput.EMPTY);
         }
         if (this.length != 1 && this.width != 1 && this.height != 1) {
-            return List.of();
+            return Map.of(OctahedralGroup.IDENTITY, CraftingInput.EMPTY);
         }
 
-        List<CraftingInput> uniques = new ArrayList<>();
+        Map<OctahedralGroup, CraftingInput> uniques = new TreeMap<>(Comparator.comparing(OctahedralGroup::ordinal));
         Vector3f dimensions = new Vector3f();
         Vector3f coordinates = new Vector3f();
         List<ItemStack> stacks2D;
@@ -282,8 +282,8 @@ public class AmalgamationInput implements RecipeInput, ThirdDimensionalStacksCon
 
             //noinspection SuspiciousNameCombination
             CraftingInput craftingInput = CraftingInput.of(actualLength, actualWidth, stacks2D);
-            if (!uniques.contains(craftingInput)) {
-                uniques.add(craftingInput);
+            if (!uniques.containsValue(craftingInput)) {
+                uniques.put(symmetry, craftingInput);
             }
         }
         return uniques;
