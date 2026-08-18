@@ -203,7 +203,7 @@ public class AmalgamationMenu extends AbstractContainerMenu {
             return ItemStack.EMPTY;
         }
 
-        slot.onTake(player, stack);
+        slot.onTake(player, clicked);
         if (slotIndex == RESULT_SLOT_INDEX) {
             player.drop(stack, false);
         }
