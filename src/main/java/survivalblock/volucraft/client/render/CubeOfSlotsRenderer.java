@@ -152,7 +152,6 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
         poseStack.scale(0.9F, 0.9F, 0.9F);
         ItemStackRenderState state = threeDimensional.itemStackRenderState();
         state.submit(poseStack, submitNodeStorage, FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0);
-        state.clear();
         poseStack.popPose();
     }
 

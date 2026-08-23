@@ -95,19 +95,21 @@ public record CubeOfSlotsRenderState(
     }
 
     public static List<ItemStackWith3DSlot> create3DSlots(NonNullList<ItemStack> items, Minecraft client, CubeModel model, CubeModel modelWithItem, float anim) {
-        final int size = items.size();
-        final List<ItemStackWith3DSlot> list = NonNullList.createWithCapacity(size);
+        if (items.isEmpty()) {
+            return NonNullList.create();
+        }
+
+        final List<ItemStackWith3DSlot> list = NonNullList.createWithCapacity(items.size());
         final ItemDisplayContext displayContext = ItemDisplayContext.NONE;
 
         ItemStack stack;
         boolean empty;
-        for (int i = 0; i < items.size(); i++) {
-            stack = items.get(i);
+        for (ItemStack item : items) {
+            stack = item;
             empty = stack.isEmpty();
-            ItemStackRenderState state = new TrackingItemStackRenderState();
+            ItemStackRenderState state = new ItemStackRenderState();
             client.getItemModelResolver().updateForTopItem(state, stack, displayContext, client.level, client.player, 0);
-            list.set(
-                    i,
+            list.add(
                     new ItemStackWith3DSlot(
                             state,
                             empty ? model : modelWithItem,
@@ -120,8 +122,5 @@ public record CubeOfSlotsRenderState(
     }
 
     public record ItemStackWith3DSlot(ItemStackRenderState itemStackRenderState, CubeModel modelToUse, int color, boolean shouldRender) {
-    }
-
-    public record Colors(int color, int colorWithItem) {
     }
 }

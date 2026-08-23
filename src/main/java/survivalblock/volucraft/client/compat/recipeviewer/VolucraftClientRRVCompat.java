@@ -49,9 +49,14 @@ public class VolucraftClientRRVCompat implements ReliableRecipeViewerClientPlugi
             if (anim < 1.0F) {
                 return colorComputer.getColor(stack, anim);
             }
-            //noinspection ConstantValue
-            if (ItemViewOverlay.INSTANCE.isItemFilterMode() && ItemFiltersAccessor.volucraft$getTooltipMatch(stack, ItemViewOverlay.INSTANCE.getCurrentQuery()) == 0) {
-                return 0x88000000;
+            if (ItemViewOverlay.INSTANCE.isItemFilterMode()) {
+                var item = stack.getItem();
+                //noinspection ConstantValue
+                if (ItemViewOverlay.INSTANCE.availableItems().stream().noneMatch(itemStack -> itemStack.getItem() == item)
+                        && ItemFiltersAccessor.volucraft$getTooltipMatch(stack, ItemViewOverlay.INSTANCE.getCurrentQuery()) == 0
+                ) {
+                    return 0x44888888;
+                }
             }
             return colorComputer.getColor(stack, anim);
         };

@@ -1,6 +1,7 @@
 {
   "block.volucraft.amalgamation_table": "Amalgamation Table",
   "container.volucraft.amalgamating": "Amalgamation",
+  "container.volucraft.amalgamating.displaymultimatchbutton": "Display Multimatches",
   "container.volucraft.amalgamating.expandbutton": "Expansion",
   "container.volucraft.amalgamating.expandbutton.expand": "Expand",
   "container.volucraft.amalgamating.expandbutton.shrink": "Shrink",

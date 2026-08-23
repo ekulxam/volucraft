@@ -23,7 +23,7 @@
   "client": [
     "client.AbstractContainerScreenAccessor",
     "client.AbstractContainerScreenMixin",
-    "client.compat.recipeviewer.AbstractContainerScreenMixin",
+    "client.compat.recipeviewer.ContainerEventHandlerMixin",
     "client.compat.recipeviewer.RecipeViewScreenMixin",
     "client.multimatch.AbstractSelectionListMixin",
     "client.sodiumfix.PictureInPictureRendererMixin",
