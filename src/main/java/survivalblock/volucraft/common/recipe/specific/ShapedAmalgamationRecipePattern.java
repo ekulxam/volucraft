@@ -23,10 +23,6 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.chars.CharArraySet;
 import it.unimi.dsi.fastutil.chars.CharSet;
-
-import java.util.*;
-import java.util.function.Function;
-
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -39,6 +35,9 @@ import org.joml.Vector3f;
 import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.recipe.AmalgamationInput;
 import survivalblock.volucraft.common.recipe.ThirdDimensionalStacksContainer;
+
+import java.util.*;
+import java.util.function.Function;
 
 import static net.minecraft.world.item.crafting.ShapedRecipePattern.EMPTY_SLOT;
 import static survivalblock.volucraft.mixin.ShapedRecipePatternInvoker.volucraft$invokeFirstNonEmpty;

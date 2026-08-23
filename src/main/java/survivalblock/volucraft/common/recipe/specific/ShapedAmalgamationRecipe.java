@@ -17,8 +17,6 @@ package survivalblock.volucraft.common.recipe.specific;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.List;
-import java.util.Optional;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
@@ -33,6 +31,9 @@ import net.minecraft.world.level.Level;
 import survivalblock.volucraft.common.init.VolucraftItems;
 import survivalblock.volucraft.common.recipe.AmalgamationInput;
 import survivalblock.volucraft.common.recipe.display.ShapedAmalgamationRecipeDisplay;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * @see net.minecraft.world.item.crafting.ShapedRecipe

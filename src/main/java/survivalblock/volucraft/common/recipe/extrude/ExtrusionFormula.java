@@ -29,6 +29,9 @@ public final class ExtrusionFormula {
     private ExtrusionFormula() {
     }
 
+    @ApiStatus.Experimental
+    public static final String APPENDED = ".volucraft_autoextruded";
+
     @ApiStatus.Internal
     @VisibleForTesting
     public static final Map<RecipeSerializer<? extends CraftingRecipe>, Extruder<?, ?>> HANDLERS = new HashMap<>(2);
@@ -56,6 +59,7 @@ public final class ExtrusionFormula {
         return (Extruder<C, A>) HANDLERS.get(serializer);
     }
 
+    // TODO: data-drive?
     @ApiStatus.Internal
     public static void init() {
         ExtrusionFormula.register(ShapedRecipe.SERIALIZER, ShapedRecipeExtruder.INSTANCE);
@@ -100,7 +104,7 @@ public final class ExtrusionFormula {
          * @return the id of the created 3D amalgamation recipe
          */
         default Identifier translate(Identifier original) {
-            return original.withPath(s -> s + ".volucraft_autoextruded");
+            return original.withPath(s -> s + APPENDED);
         }
     }
 }

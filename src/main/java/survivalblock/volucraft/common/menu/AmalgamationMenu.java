@@ -31,17 +31,16 @@ import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.init.VolucraftBlocks;
 import survivalblock.volucraft.common.init.VolucraftMenuTypes;
 import survivalblock.volucraft.common.init.VolucraftRecipeTypes;
+import survivalblock.volucraft.common.menu.slot.AmalgamationResultSlot;
 import survivalblock.volucraft.common.networking.CancelMultimatchS2CPayload;
 import survivalblock.volucraft.common.networking.MultimatchS2CPayload;
 import survivalblock.volucraft.common.recipe.AmalgamationInput;
 import survivalblock.volucraft.common.recipe.AmalgamationRecipe;
-import survivalblock.volucraft.common.menu.slot.AmalgamationResultSlot;
 import survivalblock.volucraft.mixin.multimatch.RecipeManagerAccessor;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * @see AbstractCraftingMenu

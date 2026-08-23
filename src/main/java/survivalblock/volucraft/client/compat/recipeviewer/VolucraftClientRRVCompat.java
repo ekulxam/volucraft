@@ -18,16 +18,13 @@ package survivalblock.volucraft.client.compat.recipeviewer;
 import cc.cassian.rrv.api.ReliableRecipeViewerClientPlugin;
 import cc.cassian.rrv.api.recipe.ItemView;
 import cc.cassian.rrv.client.recipe.ClientRecipeManager;
-import net.minecraft.world.item.crafting.Ingredient;
-import survivalblock.volucraft.common.Volucraft;
+import cc.cassian.rrv.common.overlay.itemlist.view.ItemViewOverlay;
+import survivalblock.volucraft.client.render.CubeOfSlotsRenderer;
 import survivalblock.volucraft.common.init.VolucraftRecipeTypes;
 import survivalblock.volucraft.common.recipe.AmalgamationRecipe;
 import survivalblock.volucraft.common.recipe.specific.ShapedAmalgamationRecipe;
 import survivalblock.volucraft.common.recipe.specific.ShapelessAmalgamationRecipe;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import survivalblock.volucraft.mixin.compat.recipeviewer.ItemFiltersAccessor;
 
 public class VolucraftClientRRVCompat implements ReliableRecipeViewerClientPlugin {
     @Override
@@ -45,7 +42,18 @@ public class VolucraftClientRRVCompat implements ReliableRecipeViewerClientPlugi
         });
     }
 
-    /*static {
-        CubeOfSlotsRenderer.fillColor = () -> ItemViewOverlay.INSTANCE.isItemFilterMode() ? 0x000000 : 0xFFFFFF;
-    }*/
+    static {
+        var colorComputer = CubeOfSlotsRenderer.COLOR_COMPUTER;
+        // see ItemViewOverlay
+        CubeOfSlotsRenderer.COLOR_COMPUTER = (stack, anim) -> {
+            if (anim < 1.0F) {
+                return colorComputer.getColor(stack, anim);
+            }
+            //noinspection ConstantValue
+            if (ItemViewOverlay.INSTANCE.isItemFilterMode() && ItemFiltersAccessor.volucraft$getTooltipMatch(stack, ItemViewOverlay.INSTANCE.getCurrentQuery()) == 0) {
+                return 0x88000000;
+            }
+            return colorComputer.getColor(stack, anim);
+        };
+    }
 }

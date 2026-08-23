@@ -9,6 +9,7 @@
     "ResourceLoaderMixin",
     "ShapedRecipePatternInvoker",
     "client.compat.config.ColorControllerMixin",
+    "compat.recipeviewer.ItemFiltersAccessor",
     "compat.recipeviewer.RecipeViewMenuMixin",
     "extrude.NormalCraftingRecipeAccessor",
     "extrude.RecipeManagerMixin",

@@ -89,7 +89,9 @@ It comes with an optional config powered by YACL (you will need to install YACL 
 The YACL config controls slot translucency and the background color of the portion of the Amalgamation Table screen that contains the slots.
 
 ## For Mod Developers
-Want to contribute? Open a PR! (You'll need to add [registrar](https://github.com/ekulxam/registrar) to your mavenLocal, because I haven't set up a maven yet.)
+Want to contribute? Open a PR!
+
+To add this project as a dependency, use Modrinth's maven. You'll need to add [registrar](https://modrinth.com/mod/registrar) also.
 
 Otherwise, I would assume you want to add some sort of support for your recipes.
 See above to make 3D recipes; otherwise, (as of 0.2.1) see `survivalblock.volucraft.common.recipe.extrude.ExtrusionFormula` to register an `Extruder` that converts your 2D recipes to 3D.

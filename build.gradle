@@ -2,6 +2,7 @@ plugins {
 	id 'net.fabricmc.fabric-loom' version "${loom_version}"
 	id 'maven-publish'
     id("com.diffplug.spotless") version "7.0.2"
+    id("com.modrinth.minotaur") version "2.+"
 }
 
 version = project.mod_version
@@ -120,5 +121,22 @@ spotless {
     java {
         licenseHeaderFile(rootProject.file("HEADER"), "(\\/(\\*)*)?(package|\\/\\/)")
         target("src/**/*.java", "versions/*/src/**/*.java")
+    }
+}
+
+modrinth {
+    token = providers.environmentVariable("MODRINTH_TOKEN")
+    projectId = project.base.archivesName
+    version = project.version
+    //uploadFile.set(tasks.named("jar").get().archiveFile)
+    uploadFile = jar
+    //additionalFiles.add(tasks.named("sourcesJar").get().archiveFile)
+    additionalFiles = [sourcesJar]
+    gameVersions.addAll("${project.property("deps.compatibleVersions")}".split(", ").toList())
+    loaders.addAll("${project.property("deps.compatibleLoaders")}".split(", ").toList())
+    changelog = rootProject.file("changelog.md").text
+    syncBodyFrom = "<!--DO NOT EDIT MANUALLY: synced from gh readme-->\n" + rootProject.file("README.md").text
+    dependencies {
+        embedded.version "registrar", "${project.property("registrar_version")}"
     }
 }

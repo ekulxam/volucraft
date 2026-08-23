@@ -40,10 +40,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import survivalblock.volucraft.common.compat.recipeviewer.AmalgamationClientRecipeType;
 import survivalblock.volucraft.client.compat.recipeviewer.ScreenWithCubes;
 import survivalblock.volucraft.client.render.screen.AmalgamationScreen;
 import survivalblock.volucraft.common.Volucraft;
+import survivalblock.volucraft.common.compat.recipeviewer.AmalgamationClientRecipeType;
 
 import static survivalblock.volucraft.client.render.screen.AmalgamationScreen.PICTURE_IN_PICTURE_SCALE;
 

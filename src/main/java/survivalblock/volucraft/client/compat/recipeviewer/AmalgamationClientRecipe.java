@@ -15,10 +15,10 @@
  */
 package survivalblock.volucraft.client.compat.recipeviewer;
 
+import cc.cassian.rrv.api.client.RecipeScreenContext;
 import cc.cassian.rrv.api.recipe.ReliableClientRecipe;
 import cc.cassian.rrv.api.recipe.ReliableClientRecipeType;
 import cc.cassian.rrv.common.recipe.inventory.RecipeViewMenu;
-import cc.cassian.rrv.common.recipe.inventory.RecipeViewScreen;
 import cc.cassian.rrv.common.recipe.inventory.SlotContent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -129,10 +129,18 @@ public class AmalgamationClientRecipe implements ReliableClientRecipe {
     }
 
     @Override
-    public void renderRecipe(RecipeViewScreen screen, RecipePosition recipePosition, GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+    public void renderRecipe(RecipeScreenContext context) {
+        if (!(context.screen() instanceof ScreenWithCubes screenWithCubes)) {
+            return;
+        }
+
+        final int mouseX = context.mouseX();
+        final int mouseY = context.mouseY();
+
+        final RecipePosition recipePosition = context.recipePosition();
+
         final int cubeX0 = recipePosition.left();
         final int cubeY0 = recipePosition.top() + 16;
-        ScreenWithCubes screenWithCubes = (ScreenWithCubes) screen;
 
         final NonNullList<ItemStack> items = NonNullList.withSize(Volucraft.SLOTS, ItemStack.EMPTY);
         for (int i = 0; i < this.meAndMy27Slots.size(); i++) {
@@ -151,8 +159,11 @@ public class AmalgamationClientRecipe implements ReliableClientRecipe {
         rot.x = (float) (rot.x % (Math.PI * 2)); // simple mod 360 deg so the numbers don't explode
         final Quaternionfc rotation = new Quaternionf().rotateX(rot.y).rotateY(-rot.x);
 
+        final GuiGraphicsExtractor graphics = context.guiGraphics();
+
         graphics.guiRenderState.addPicturesInPictureState(
-                new CubeOfSlotsRenderState(
+                CubeOfSlotsRenderState.create(
+                        Minecraft.getInstance(),
                         screenWithCubes.volucraft$getCubeModel(),
                         screenWithCubes.volucraft$getCubeModelWithItem(),
                         SLOT_CUBE_TEXTURE,
@@ -166,6 +177,7 @@ public class AmalgamationClientRecipe implements ReliableClientRecipe {
                         cubeX0 + SLOTS_SIDE,
                         cubeY0 + SLOTS_SIDE,
                         PICTURE_IN_PICTURE_SCALE,
+                        1.0F,
                         graphics.scissorStack.peek()
                 )
         );

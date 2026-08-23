@@ -15,26 +15,31 @@
  */
 package survivalblock.volucraft.client.render;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.client.renderer.item.TrackingItemStackRenderState;
 import net.minecraft.client.renderer.state.gui.pip.PictureInPictureRenderState;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Quaternionfc;
 import org.jspecify.annotations.Nullable;
+import survivalblock.volucraft.client.compat.config.VolucraftClientConfig;
+
+import java.util.List;
 
 /**
  * Renders a 3x3x3 collection of slots as cubes
- * @param unit The 1x1x1 cube model to be used to render all 27 cubes
  * @param selected Denotes the index of the selected slot (to be highlighted)
  * @param lerpExpansion A value between 0 and 1 that represents how far the cube has been expanded
  */
 public record CubeOfSlotsRenderState(
-        CubeModel unit,
-        CubeModel unitWithItem,
         Identifier texture,
         Identifier highlightTexture,
-        NonNullList<ItemStack> items,
+        List<ItemStackWith3DSlot> items,
+        int highlightColor,
         int selected,
         float lerpExpansion,
         Quaternionfc rotation,
@@ -48,8 +53,28 @@ public record CubeOfSlotsRenderState(
         @Nullable ScreenRectangle bounds
 ) implements PictureInPictureRenderState {
     public CubeOfSlotsRenderState(
-            CubeModel model,
-            CubeModel model1,
+            Identifier texture,
+            Identifier highlightTexture,
+            List<ItemStackWith3DSlot> items,
+            int highlightColor,
+            int selected,
+            float lerpExpansion,
+            Quaternionfc rotation,
+            int x0,
+            int y0,
+            int x1,
+            int y1,
+            float scale,
+            float gameCubeAnimationProgress,
+            @Nullable ScreenRectangle scissorArea
+    ) {
+        this(texture, highlightTexture, items, highlightColor, selected, lerpExpansion, rotation, x0, y0, x1, y1, scale, gameCubeAnimationProgress, scissorArea, PictureInPictureRenderState.getBounds(x0, y0, x1, y1, scissorArea));
+    }
+
+    public static CubeOfSlotsRenderState create(
+            Minecraft client,
+            CubeModel cubeModel,
+            CubeModel cubeModelWithItem,
             Identifier texture,
             Identifier highlightTexture,
             NonNullList<ItemStack> items,
@@ -64,25 +89,39 @@ public record CubeOfSlotsRenderState(
             float gameCubeAnimationProgress,
             @Nullable ScreenRectangle scissorArea
     ) {
-        this(model, model1, texture, highlightTexture, items, selected, lerpExpansion, rotation, x0, y0, x1, y1, scale, gameCubeAnimationProgress, scissorArea, PictureInPictureRenderState.getBounds(x0, y0, x1, y1, scissorArea));
+        final int highlightColor = ((VolucraftClientConfig.INSTANCE.getCubeHighlightAlpha() & 0xFF) << 24) | 0xFFFFFF;
+        List<ItemStackWith3DSlot> itemStackRenderStates = create3DSlots(items, client, cubeModel, cubeModelWithItem, gameCubeAnimationProgress);
+        return new CubeOfSlotsRenderState(texture, highlightTexture, itemStackRenderStates, highlightColor, selected, lerpExpansion, rotation, x0, y0, x1, y1, scale, gameCubeAnimationProgress, scissorArea);
     }
 
-    public CubeOfSlotsRenderState(
-            CubeModel model,
-            CubeModel model1,
-            Identifier texture,
-            Identifier highlightTexture,
-            NonNullList<ItemStack> items,
-            int selected,
-            float lerpExpansion,
-            Quaternionfc rotation,
-            int x0,
-            int y0,
-            int x1,
-            int y1,
-            float scale,
-            @Nullable ScreenRectangle scissorArea
-    ) {
-        this(model, model1, texture, highlightTexture, items, selected, lerpExpansion, rotation, x0, y0, x1, y1, scale, 1.0F, scissorArea);
+    public static List<ItemStackWith3DSlot> create3DSlots(NonNullList<ItemStack> items, Minecraft client, CubeModel model, CubeModel modelWithItem, float anim) {
+        final int size = items.size();
+        final List<ItemStackWith3DSlot> list = NonNullList.createWithCapacity(size);
+        final ItemDisplayContext displayContext = ItemDisplayContext.NONE;
+
+        ItemStack stack;
+        boolean empty;
+        for (int i = 0; i < items.size(); i++) {
+            stack = items.get(i);
+            empty = stack.isEmpty();
+            ItemStackRenderState state = new TrackingItemStackRenderState();
+            client.getItemModelResolver().updateForTopItem(state, stack, displayContext, client.level, client.player, 0);
+            list.set(
+                    i,
+                    new ItemStackWith3DSlot(
+                            state,
+                            empty ? model : modelWithItem,
+                            CubeOfSlotsRenderer.COLOR_COMPUTER.getColor(stack, anim),
+                            !empty
+                    )
+            );
+        }
+        return list;
+    }
+
+    public record ItemStackWith3DSlot(ItemStackRenderState itemStackRenderState, CubeModel modelToUse, int color, boolean shouldRender) {
+    }
+
+    public record Colors(int color, int colorWithItem) {
     }
 }

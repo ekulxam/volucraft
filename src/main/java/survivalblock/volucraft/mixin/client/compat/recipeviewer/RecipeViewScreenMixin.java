@@ -15,12 +15,9 @@
  */
 package survivalblock.volucraft.mixin.client.compat.recipeviewer;
 
-import cc.cassian.rrv.common.recipe.inventory.RecipeViewMenu;
 import cc.cassian.rrv.common.recipe.inventory.RecipeViewScreen;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Inventory;
 import org.joml.Vector2f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -35,7 +32,7 @@ import survivalblock.volucraft.client.render.CubeModel;
 
 @SuppressWarnings("NullableProblems")
 @Mixin(RecipeViewScreen.class)
-public abstract class RecipeViewScreenMixin extends AbstractContainerScreen<RecipeViewMenu> implements ScreenWithCubes {
+public abstract class RecipeViewScreenMixin extends Screen implements ScreenWithCubes {
     @Shadow
     @Final
     private long timestamp;
@@ -47,8 +44,8 @@ public abstract class RecipeViewScreenMixin extends AbstractContainerScreen<Reci
     @Unique
     private final Vector2f volucraft$rotation = new Vector2f();
 
-    public RecipeViewScreenMixin(RecipeViewMenu menu, Inventory inventory, Component title) {
-        super(menu, inventory, title);
+    public RecipeViewScreenMixin() {
+        super(null);
     }
 
     @Inject(method = "<init>", at = @At("RETURN"))

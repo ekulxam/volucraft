@@ -15,8 +15,6 @@
  */
 package survivalblock.volucraft.common.recipe;
 
-import java.util.*;
-
 import com.mojang.math.OctahedralGroup;
 import net.minecraft.world.entity.player.StackedItemContents;
 import net.minecraft.world.item.ItemStack;
@@ -26,6 +24,8 @@ import org.jetbrains.annotations.ApiStatus;
 import org.joml.Matrix3fc;
 import org.joml.Vector3f;
 import org.jspecify.annotations.Nullable;
+
+import java.util.*;
 
 /**
  * Using x as length, y as width, and z as height

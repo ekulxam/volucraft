@@ -46,6 +46,11 @@ public class CubeModel extends Model<CubeModel.State> {
         return LayerDefinition.create(mesh, 128, 128);
     }
 
-    public record State() {
+    public static final class State {
+        @SuppressWarnings("InstantiationOfUtilityClass")
+        public static final State INSTANCE = new State();
+
+        private State() {
+        }
     }
 }

@@ -25,21 +25,20 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
 import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.client.renderer.feature.FeatureRenderDispatcher;
-import net.minecraft.client.renderer.item.TrackingItemStackRenderState;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.core.NonNullList;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Ease;
 import net.minecraft.util.Mth;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import org.joml.*;
+import org.joml.Quaternionf;
+import org.joml.Quaternionfc;
 import survivalblock.volucraft.client.compat.config.VolucraftClientConfig;
 import survivalblock.volucraft.common.Volucraft;
 
-import java.lang.Math;
+import java.util.List;
 
 import static net.minecraft.util.LightCoordsUtil.FULL_BRIGHT;
 
@@ -49,6 +48,14 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
     public static final float CUBE_CENTER_OFFSET = 9 / 16F; // cubes are 18x18 in blockbench, so half that and div by 16
 
     private static final int[] GAMECUBE_PATH = { 2, 5, 8, 7, 6, 15, 24, 21, 18, 19, 20, 11 }; // gotta love the magic numbers
+    public static final float BOUNCE_THRESHOLD = 0.8F;
+
+    public static ColorComputer COLOR_COMPUTER = (stack, gameCubeAnimationProgress) -> {
+        if (stack.isEmpty()) {
+            return getColor(gameCubeAnimationProgress);
+        }
+        return ((VolucraftClientConfig.INSTANCE.getCubeWithItemAlpha() & 0xFF) << 24) | 0xFFFFFF;
+    };
 
     private final Minecraft minecraft;
 
@@ -65,12 +72,10 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
     @SuppressWarnings({"Convert2MethodRef", "RedundantSuppression"})
     @Override
     protected void renderToTexture(CubeOfSlotsRenderState renderState, PoseStack poseStack) {
-        final CubeModel model = renderState.unit();
-        final CubeModel modelWithItem = renderState.unitWithItem();
         final Quaternionfc rot = renderState.rotation();
         final float expand = calculateExpansion(renderState.lerpExpansion());
         final Translator translator = (x, y, z) -> poseStack.translate(x * expand, y * expand, z * expand);
-        final NonNullList<ItemStack> items = renderState.items();
+        final List<CubeOfSlotsRenderState.ItemStackWith3DSlot> items = renderState.items();
         final int selected = renderState.selected();
         final Identifier texture = renderState.texture();
 
@@ -79,36 +84,19 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
         final FeatureRenderDispatcher featureRenderDispatcher = this.minecraft.gameRenderer.getFeatureRenderDispatcher();
         final SubmitNodeStorage submitNodeStorage = featureRenderDispatcher.getSubmitNodeStorage();
 
-        final CubeModel.State state = new CubeModel.State();
-
         poseStack.mulPose(FLIP); // because LivingEntity model(?)
         poseStack.translate(0, centerFromScale(renderState.scale()), 0); // translate to center
 
         float anim = renderState.gameCubeAnimationProgress();
 
-        final float bounceThres = 0.8F;
-
-        int color;
         if (anim < 1.0F) {
-            int purple = 0x6354C2;
-            int cubeAlpha = 255;
-            if (anim > bounceThres) {
-                float bounceTime = (anim - bounceThres) / (1 - bounceThres); // 0 to 1
+            if (anim > BOUNCE_THRESHOLD) {
+                float bounceTime = getBounceTime(anim);
                 float bounceScale = (float) (Math.sin(bounceTime * Math.PI) * 0.3F * (1.0F - bounceTime));
                 poseStack.mulPose(Axis.XN.rotation(bounceScale));
-                cubeAlpha = Mth.lerpInt(bounceTime, 255, VolucraftClientConfig.INSTANCE.getCubeAlpha()) & 0xFF;
-                purple = ARGB.srgbLerp(bounceTime, purple, 0xFFFFFF);
             }
-
-            color = (cubeAlpha << 24) | purple;
-
-            anim *= (1 / bounceThres);
-        } else {
-            color = ((VolucraftClientConfig.INSTANCE.getCubeAlpha() & 0xFF) << 24) | 0xFFFFFF;
+            anim *= (1 / BOUNCE_THRESHOLD);
         }
-
-        final int colorWithItem = ((VolucraftClientConfig.INSTANCE.getCubeWithItemAlpha() & 0xFF) << 24) | 0xFFFFFF;
-        final int highlightColor = ((VolucraftClientConfig.INSTANCE.getCubeHighlightAlpha() & 0xFF) << 24) | 0xFFFFFF;
 
         for (int i = 0; i < Volucraft.SLOTS; i++) {
             if (anim < 1.0F) {
@@ -125,8 +113,8 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
                 }
             }
 
-            ItemStack stack = items.get(i);
-            final CubeModel modelToUse = stack.isEmpty() ? model : modelWithItem;
+            CubeOfSlotsRenderState.ItemStackWith3DSlot threeDimensional = items.get(i);
+            final CubeModel modelToUse = threeDimensional.modelToUse();
             poseStack.pushPose(); // push0
             poseStack.pushPose(); // push1
             poseStack.translate(0, CUBE_CENTER_OFFSET, 0); // pivot point
@@ -136,7 +124,7 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
             transformByIndex(i, translator);
             {
                 RenderType renderType = modelToUse.renderType(texture);
-                submitNodeStorage.submitModel(modelToUse, state, poseStack, renderType, FULL_BRIGHT, OverlayTexture.NO_OVERLAY, stack.isEmpty() ? color : colorWithItem, null, 0, null);
+                submitNodeStorage.submitModel(modelToUse, CubeModel.State.INSTANCE, poseStack, renderType, FULL_BRIGHT, OverlayTexture.NO_OVERLAY, threeDimensional.color(), null, 0, null);
             }
             if (i == selected) {
                 poseStack.pushPose();
@@ -144,11 +132,11 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
                 poseStack.scale(1.1F, 1.1F, 1.1F);
                 poseStack.translate(0, -CUBE_CENTER_OFFSET, 0); // unpivot point
                 RenderType highlight = modelToUse.renderType(renderState.highlightTexture());
-                submitNodeStorage.submitModel(modelToUse, state, poseStack, highlight, -1, OverlayTexture.NO_OVERLAY, highlightColor, null, 0, null);
+                submitNodeStorage.submitModel(modelToUse, CubeModel.State.INSTANCE, poseStack, highlight, -1, OverlayTexture.NO_OVERLAY, renderState.highlightColor(), null, 0, null);
                 poseStack.popPose();
             }
-            if (!stack.isEmpty()) {
-                renderItem(poseStack, stack, submitNodeStorage);
+            if (threeDimensional.shouldRender()) {
+                renderItem(poseStack, threeDimensional, submitNodeStorage);
             }
             poseStack.popPose(); // pop1
             poseStack.popPose(); // pop0
@@ -157,15 +145,14 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
         featureRenderDispatcher.renderAllFeatures();
     }
 
-    private void renderItem(PoseStack poseStack, ItemStack stack, SubmitNodeStorage submitNodeStorage) {
+    private void renderItem(PoseStack poseStack, CubeOfSlotsRenderState.ItemStackWith3DSlot threeDimensional, SubmitNodeStorage submitNodeStorage) {
         poseStack.pushPose();
         poseStack.scale(1.0F, -1.0F, -1.0F);
         poseStack.translate(0, -0.5, 0);
         poseStack.scale(0.9F, 0.9F, 0.9F);
-        TrackingItemStackRenderState itemStackRenderState = new TrackingItemStackRenderState();
-        ItemDisplayContext displayContext = ItemDisplayContext.NONE;
-        this.minecraft.getItemModelResolver().updateForTopItem(itemStackRenderState, stack, displayContext, this.minecraft.level, this.minecraft.player, 0);
-        itemStackRenderState.submit(poseStack, submitNodeStorage, FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0);
+        ItemStackRenderState state = threeDimensional.itemStackRenderState();
+        state.submit(poseStack, submitNodeStorage, FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0);
+        state.clear();
         poseStack.popPose();
     }
 
@@ -212,8 +199,32 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
         return "volumetric slots model";
     }
 
+    public static int getColor(float anim) {
+        if (anim < 1.0F) {
+            int purple = 0x6354C2;
+            int cubeAlpha = 255;
+            if (anim > BOUNCE_THRESHOLD) {
+                float bounceTime = getBounceTime(anim);
+                cubeAlpha = Mth.lerpInt(bounceTime, 255, VolucraftClientConfig.INSTANCE.getCubeAlpha()) & 0xFF;
+                purple = ARGB.srgbLerp(bounceTime, purple, 0xFFFFFF);
+            }
+
+            return (cubeAlpha << 24) | purple;
+        }
+        return ((VolucraftClientConfig.INSTANCE.getCubeAlpha() & 0xFF) << 24) | 0xFFFFFF;
+    }
+
+    public static float getBounceTime(float anim) {
+        return (anim - BOUNCE_THRESHOLD) / (1 - BOUNCE_THRESHOLD); // 0 to 1;
+    }
+
     @FunctionalInterface
     public interface Translator {
         void translate(float x, float y, float z);
+    }
+
+    @FunctionalInterface
+    public interface ColorComputer {
+        int getColor(ItemStack stack, float gameCubeAnimationProgress);
     }
 }

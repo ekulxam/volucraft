@@ -30,15 +30,14 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.recipe.AmalgamationRecipe;
-import survivalblock.volucraft.common.recipe.extrude.ExtrusionFormula;
-import survivalblock.volucraft.common.recipe.specific.ShapedAmalgamationRecipe;
-import survivalblock.volucraft.common.recipe.specific.ShapedAmalgamationRecipePattern;
-import survivalblock.volucraft.common.recipe.specific.ShapelessAmalgamationRecipe;
 import survivalblock.volucraft.common.recipe.extrude.ExtrudedRecipes;
+import survivalblock.volucraft.common.recipe.extrude.ExtrusionFormula;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
 
 @Mixin(RecipeManager.class)
 public class RecipeManagerMixin implements ExtrudedRecipes {

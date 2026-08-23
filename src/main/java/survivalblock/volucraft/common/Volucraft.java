@@ -16,7 +16,6 @@
 package survivalblock.volucraft.common;
 
 import net.fabricmc.api.ModInitializer;
-
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
@@ -41,10 +40,10 @@ import survivalblock.volucraft.common.networking.SelectFromMultimatchC2SPayload;
 import survivalblock.volucraft.common.recipe.display.ShapedAmalgamationRecipeDisplay;
 import survivalblock.volucraft.common.recipe.display.ShapelessAmalgamationRecipeDisplay;
 import survivalblock.volucraft.common.recipe.extrude.ExtrusionFormula;
-import survivalblock.volucraft.common.recipe.specific.wrapper.BasicallyShapelessAmalgamationRecipe;
-import survivalblock.volucraft.common.recipe.specific.wrapper.FlattenedAmalgamationRecipe;
 import survivalblock.volucraft.common.recipe.specific.ShapedAmalgamationRecipe;
 import survivalblock.volucraft.common.recipe.specific.ShapelessAmalgamationRecipe;
+import survivalblock.volucraft.common.recipe.specific.wrapper.BasicallyShapelessAmalgamationRecipe;
+import survivalblock.volucraft.common.recipe.specific.wrapper.FlattenedAmalgamationRecipe;
 
 import java.util.function.Supplier;
 

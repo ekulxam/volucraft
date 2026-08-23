@@ -15,8 +15,6 @@
  */
 package survivalblock.volucraft.common.recipe.datagen;
 
-import java.util.ArrayList;
-import java.util.List;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.data.recipes.RecipeBuilder;
@@ -32,6 +30,9 @@ import net.minecraft.world.level.ItemLike;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 import survivalblock.volucraft.common.recipe.specific.ShapelessAmalgamationRecipe;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ShapelessAmalgamationRecipeBuilder extends AmalgamationRecipeBuilder {
     protected final List<Ingredient> ingredients = new ArrayList<>();

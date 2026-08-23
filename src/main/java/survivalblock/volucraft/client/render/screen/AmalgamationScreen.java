@@ -16,7 +16,10 @@
 package survivalblock.volucraft.client.render.screen;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.components.*;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.CycleButton;
+import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -29,11 +32,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4fStack;
-import org.joml.Quaternionf;
-import org.joml.Quaternionfc;
-import org.joml.Vector2f;
-import org.joml.Vector4f;
+import org.joml.*;
 import survivalblock.volucraft.client.VolucraftClient;
 import survivalblock.volucraft.client.compat.config.VolucraftClientConfig;
 import survivalblock.volucraft.client.render.CubeModel;
@@ -202,7 +201,8 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
         }
 
         graphics.guiRenderState.addPicturesInPictureState(
-                new CubeOfSlotsRenderState(
+                CubeOfSlotsRenderState.create(
+                        this.minecraft,
                         this.cubeModel,
                         this.cubeModelWithItem,
                         SLOT_CUBE_TEXTURE,
