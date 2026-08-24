@@ -68,8 +68,6 @@ public abstract class RecipeViewScreenMixin extends Screen implements ScreenWith
     @Unique
     private CubeModel volucraft$cubeModel = null;
     @Unique
-    private CubeModel volucraft$cubeModelWithItem = null;
-    @Unique
     private final Vector2f volucraft$rotation = new Vector2f();
 
     public RecipeViewScreenMixin() {
@@ -79,7 +77,6 @@ public abstract class RecipeViewScreenMixin extends Screen implements ScreenWith
     @Inject(method = "<init>", at = @At("RETURN"))
     private void initCubes(CallbackInfo ci) {
         this.volucraft$cubeModel = new CubeModel(this.minecraft.getEntityModels().bakeLayer(VolucraftClient.CUBE));
-        this.volucraft$cubeModelWithItem = new CubeModel(this.minecraft.getEntityModels().bakeLayer(VolucraftClient.CUBE), RenderTypes::entityTranslucentEmissive);
     }
 
     @Inject(method = "checkGui", at = @At("HEAD"))
@@ -92,10 +89,6 @@ public abstract class RecipeViewScreenMixin extends Screen implements ScreenWith
         return this.volucraft$cubeModel;
     }
 
-    @Override
-    public CubeModel volucraft$getCubeModelWithItem() {
-        return this.volucraft$cubeModelWithItem;
-    }
 
     @Override
     public long volucraft$calculateTimeOpen() {

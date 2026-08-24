@@ -15,6 +15,7 @@
  */
 package survivalblock.volucraft.client;
 
+import com.google.common.reflect.Reflection;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
@@ -33,6 +34,8 @@ import survivalblock.volucraft.common.menu.AmalgamationMenu;
 import survivalblock.volucraft.common.networking.CancelMultimatchS2CPayload;
 import survivalblock.volucraft.common.networking.MultimatchS2CPayload;
 
+import java.lang.invoke.MethodHandles;
+
 public class VolucraftClient implements ClientModInitializer {
     public static final ModelLayerLocation CUBE = new ModelLayerLocation(Volucraft.id("cube"), "main");
 
@@ -44,6 +47,8 @@ public class VolucraftClient implements ClientModInitializer {
         VolucraftClientConfig.init();
         ModelLayerRegistry.registerModelLayer(CUBE, CubeModel::createBodyLayer);
         PictureInPictureRendererRegistry.register(CubeOfSlotsRenderer::new);
+
+        Reflection.initialize(CubeModel.class);
 
         // compiler got mad at me
         //noinspection RedundantTypeArguments

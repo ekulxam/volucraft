@@ -15,6 +15,11 @@
  */
 package survivalblock.volucraft.client.render;
 
+import com.mojang.blaze3d.pipeline.BlendFunction;
+import com.mojang.blaze3d.pipeline.ColorTargetState;
+import com.mojang.blaze3d.pipeline.DepthStencilState;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.platform.CompareOp;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -22,19 +27,43 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Util;
+import survivalblock.volucraft.common.Volucraft;
 
 import java.util.function.Function;
 
 public class CubeModel extends Model<CubeModel.State> {
-    public CubeModel(ModelPart root, Function<Identifier, RenderType> renderType) {
-        super(root, renderType);
-    }
+    private static final RenderPipeline PIPELINE = RenderPipelines.register(
+            RenderPipeline.builder(RenderPipelines.ENTITY_SNIPPET)
+                    .withLocation(Volucraft.id("cube"))
+                    .withShaderDefine("ALPHA_CUTOUT", 0.1F)
+                    .withShaderDefine("PER_FACE_LIGHTING")
+                    .withSampler("Sampler1")
+                    .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+                    .withCull(false)
+                    //.withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+                    .build()
+    );
+    private static final Function<Identifier, RenderType> CUBE = Util.memoize(
+            texture -> {
+                RenderSetup state = RenderSetup.builder(PIPELINE)
+                        .withTexture("Sampler0", texture)
+                        .useOverlay()
+                        .useLightmap()
+                        .affectsCrumbling()
+                        .sortOnUpload()
+                        .setOutline(RenderSetup.OutlineProperty.AFFECTS_OUTLINE)
+                        .createRenderSetup();
+                return RenderType.create("volucraft:cube", state);
+            }
+    );
 
     public CubeModel(ModelPart root) {
-        super(root, RenderTypes::entityTranslucent);
+        super(root, CUBE);
     }
 
     public static LayerDefinition createBodyLayer() {
