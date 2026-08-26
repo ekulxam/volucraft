@@ -24,7 +24,6 @@ import survivalblock.volucraft.common.init.VolucraftRecipeTypes;
 import survivalblock.volucraft.common.recipe.AmalgamationRecipe;
 import survivalblock.volucraft.common.recipe.specific.ShapedAmalgamationRecipe;
 import survivalblock.volucraft.common.recipe.specific.ShapelessAmalgamationRecipe;
-import survivalblock.volucraft.mixin.compat.recipeviewer.ItemFiltersAccessor;
 
 public class VolucraftClientRRVCompat implements ReliableRecipeViewerClientPlugin {
     @Override
@@ -50,11 +49,7 @@ public class VolucraftClientRRVCompat implements ReliableRecipeViewerClientPlugi
                 return colorComputer.getColor(stack, anim);
             }
             if (ItemViewOverlay.INSTANCE.isItemFilterMode()) {
-                var item = stack.getItem();
-                //noinspection ConstantValue
-                if (ItemViewOverlay.INSTANCE.availableItems().stream().noneMatch(itemStack -> itemStack.getItem() == item)
-                        && ItemFiltersAccessor.volucraft$getTooltipMatch(stack, ItemViewOverlay.INSTANCE.getCurrentQuery()) == 0
-                ) {
+                if (ItemViewOverlay.INSTANCE.shouldDarkenSlot(stack)) {
                     return 0x44888888;
                 }
             }
