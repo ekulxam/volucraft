@@ -109,7 +109,7 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
         pass(poseStack, anim, items, rot, translator, (matrices, threeDimensional, submitNodeStorage, i) -> {
             {
                 final int color = threeDimensional.color();
-                RenderType renderType = modelToUse.renderType(texture, ARGB.alpha(color) == 255);
+                RenderType renderType = CubeModel.renderType(texture, color);
                 submitNodeStorage.submitModel(modelToUse, CubeModel.State.INSTANCE, matrices, renderType, FULL_BRIGHT, OverlayTexture.NO_OVERLAY, color, null, 0, null);
             }
             if (i == selected) {
@@ -118,7 +118,7 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
                 matrices.scale(1.1F, 1.1F, 1.1F);
                 matrices.translate(0, -CUBE_CENTER_OFFSET, 0); // unpivot point
                 final int highlightColor = renderState.highlightColor();
-                RenderType highlight = modelToUse.renderType(renderState.highlightTexture(), ARGB.alpha(highlightColor) == 255);
+                RenderType highlight = CubeModel.renderType(renderState.highlightTexture(), highlightColor);
                 submitNodeStorage.submitModel(modelToUse, CubeModel.State.INSTANCE, matrices, highlight, -1, OverlayTexture.NO_OVERLAY, highlightColor, null, 0, null);
                 matrices.popPose();
             }

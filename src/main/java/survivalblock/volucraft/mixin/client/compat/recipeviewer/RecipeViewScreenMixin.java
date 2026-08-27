@@ -24,7 +24,6 @@ import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.world.inventory.Slot;
 import org.joml.Quaternionf;
 import org.joml.Quaternionfc;

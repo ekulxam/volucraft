@@ -31,6 +31,7 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Util;
 import survivalblock.volucraft.common.Volucraft;
 
@@ -60,30 +61,32 @@ public class CubeModel extends Model<CubeModel.State> {
      * @see net.minecraft.client.renderer.rendertype.RenderTypes#ENTITY_TRANSLUCENT
      * @see net.minecraft.client.renderer.rendertype.RenderTypes#ENTITY_TRANSLUCENT_EMISSIVE
      */
-    private static final Function<Boolean, Function<Identifier, RenderType>> CUBE = Util.memoize(opaque ->
-            Util.memoize(texture -> {
-                RenderSetup state = RenderSetup.builder(PIPELINE.apply(opaque))
-                        .withTexture("Sampler0", texture)
-                        .useOverlay()
-                        .useLightmap()
-                        .affectsCrumbling()
-                        .sortOnUpload()
-                        .setOutline(RenderSetup.OutlineProperty.AFFECTS_OUTLINE)
-                        .createRenderSetup();
-                return RenderType.create("volucraft:cube", state);
-            })
-    );
+    private static final BiFunction<Identifier, Boolean, RenderType> CUBE = Util.memoize((texture, opaque) -> {
+        RenderSetup state = RenderSetup.builder(PIPELINE.apply(opaque))
+                .withTexture("Sampler0", texture)
+                .useOverlay()
+                .useLightmap()
+                .affectsCrumbling()
+                .sortOnUpload()
+                .setOutline(RenderSetup.OutlineProperty.AFFECTS_OUTLINE)
+                .createRenderSetup();
+        return RenderType.create("volucraft:cube", state);
+    });
 
     public CubeModel(ModelPart root, Function<Identifier, RenderType> renderTypeFunction) {
         super(root, renderTypeFunction);
     }
 
     public CubeModel(ModelPart root) {
-        this(root, CUBE.apply(false));
+        this(root, texture -> CUBE.apply(texture, false));
     }
 
-    public RenderType renderType(Identifier texture, boolean opaque) {
-        return CUBE.apply(opaque).apply(texture);
+    public static RenderType renderType(Identifier texture, boolean opaque) {
+        return CUBE.apply(texture, opaque);
+    }
+
+    public static RenderType renderType(Identifier texture, int color) {
+        return renderType(texture, ARGB.alpha(color) == 255);
     }
 
     public static LayerDefinition createBodyLayer() {

@@ -23,7 +23,6 @@ import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;

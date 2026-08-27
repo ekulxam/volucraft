@@ -18,7 +18,6 @@ package survivalblock.volucraft.client.render;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
-import net.minecraft.client.renderer.item.TrackingItemStackRenderState;
 import net.minecraft.client.renderer.state.gui.pip.PictureInPictureRenderState;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.Identifier;

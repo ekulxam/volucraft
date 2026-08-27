@@ -34,8 +34,6 @@ import survivalblock.volucraft.common.menu.AmalgamationMenu;
 import survivalblock.volucraft.common.networking.CancelMultimatchS2CPayload;
 import survivalblock.volucraft.common.networking.MultimatchS2CPayload;
 
-import java.lang.invoke.MethodHandles;
-
 public class VolucraftClient implements ClientModInitializer {
     public static final ModelLayerLocation CUBE = new ModelLayerLocation(Volucraft.id("cube"), "main");
 
