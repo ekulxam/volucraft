@@ -85,8 +85,8 @@ public class CubeModel extends Model<CubeModel.State> {
         return CUBE.apply(texture, opaque);
     }
 
-    public static RenderType renderType(Identifier texture, int color) {
-        return renderType(texture, ARGB.alpha(color) == 255);
+    public static RenderType renderType(Identifier texture, int argb) {
+        return renderType(texture, (argb >>> 24 & 0xFF) == 255);
     }
 
     public static LayerDefinition createBodyLayer() {
