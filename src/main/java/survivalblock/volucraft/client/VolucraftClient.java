@@ -60,7 +60,10 @@ public class VolucraftClient implements ClientModInitializer {
                                 : new AmalgamationScreen(menu, inventory, title)
         );
 
+        // TODO: fix when porting
+        //~ if >=26.2 'client().screen' -> 'client().gui.getScreen()' {
         ClientPlayNetworking.registerGlobalReceiver(CancelMultimatchS2CPayload.ID, (_, context) -> {
+            //noinspection resource
             if (!(context.player().containerMenu instanceof AmalgamationMenu) || !(context.client().screen instanceof AmalgamationScreen screen)) {
                 return;
             }
@@ -68,10 +71,12 @@ public class VolucraftClient implements ClientModInitializer {
         });
 
         ClientPlayNetworking.registerGlobalReceiver(MultimatchS2CPayload.ID, (payload, context) -> {
+            //noinspection resource
             if (!(context.player().containerMenu instanceof AmalgamationMenu) || !(context.client().screen instanceof AmalgamationScreen screen)) {
                 return;
             }
             screen.addToMatches(payload.castMatches());
         });
+        //~}
     }
 }

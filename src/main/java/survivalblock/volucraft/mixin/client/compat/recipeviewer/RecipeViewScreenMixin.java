@@ -89,7 +89,6 @@ public abstract class RecipeViewScreenMixin extends Screen implements ScreenWith
         return this.volucraft$cubeModel;
     }
 
-
     @Override
     public long volucraft$calculateTimeOpen() {
         return this.minecraft.player.level().getGameTime() - this.timestamp;

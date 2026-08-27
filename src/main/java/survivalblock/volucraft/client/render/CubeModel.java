@@ -34,23 +34,35 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
 import survivalblock.volucraft.common.Volucraft;
 
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
+@SuppressWarnings("JavadocReference")
 public class CubeModel extends Model<CubeModel.State> {
-    private static final RenderPipeline PIPELINE = RenderPipelines.register(
-            RenderPipeline.builder(RenderPipelines.ENTITY_SNIPPET)
-                    .withLocation(Volucraft.id("cube"))
-                    .withShaderDefine("ALPHA_CUTOUT", 0.1F)
-                    .withShaderDefine("PER_FACE_LIGHTING")
-                    .withSampler("Sampler1")
-                    .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
-                    .withCull(false)
-                    //.withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
-                    .build()
+    /**
+     * @see RenderPipelines#ENTITY_TRANSLUCENT
+     * @see RenderPipelines#ENTITY_TRANSLUCENT_EMISSIVE
+     */
+    private static final Function<Boolean, RenderPipeline> PIPELINE = Util.memoize(opaque ->
+            RenderPipelines.register(
+                    RenderPipeline.builder(RenderPipelines.ENTITY_SNIPPET)
+                        .withLocation(Volucraft.id("pipeline/cube_" + (opaque ? "opaque" : "translucent")))
+                        .withShaderDefine("ALPHA_CUTOUT", 0.1F)
+                        .withShaderDefine("PER_FACE_LIGHTING")
+                        .withSampler("Sampler1")
+                        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+                        .withCull(false)
+                        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, opaque))
+                        .build()
+            )
     );
-    private static final Function<Identifier, RenderType> CUBE = Util.memoize(
-            texture -> {
-                RenderSetup state = RenderSetup.builder(PIPELINE)
+    /**
+     * @see net.minecraft.client.renderer.rendertype.RenderTypes#ENTITY_TRANSLUCENT
+     * @see net.minecraft.client.renderer.rendertype.RenderTypes#ENTITY_TRANSLUCENT_EMISSIVE
+     */
+    private static final Function<Boolean, Function<Identifier, RenderType>> CUBE = Util.memoize(opaque ->
+            Util.memoize(texture -> {
+                RenderSetup state = RenderSetup.builder(PIPELINE.apply(opaque))
                         .withTexture("Sampler0", texture)
                         .useOverlay()
                         .useLightmap()
@@ -59,11 +71,19 @@ public class CubeModel extends Model<CubeModel.State> {
                         .setOutline(RenderSetup.OutlineProperty.AFFECTS_OUTLINE)
                         .createRenderSetup();
                 return RenderType.create("volucraft:cube", state);
-            }
+            })
     );
 
+    public CubeModel(ModelPart root, Function<Identifier, RenderType> renderTypeFunction) {
+        super(root, renderTypeFunction);
+    }
+
     public CubeModel(ModelPart root) {
-        super(root, CUBE);
+        this(root, CUBE.apply(false));
+    }
+
+    public RenderType renderType(Identifier texture, boolean opaque) {
+        return CUBE.apply(opaque).apply(texture);
     }
 
     public static LayerDefinition createBodyLayer() {
@@ -73,6 +93,11 @@ public class CubeModel extends Model<CubeModel.State> {
         root.addOrReplaceChild("body", CubeListBuilder.create().texOffs(0, 0).addBox(-9F, 0.0F, -9F, 18.0F, 18.0F, 18.0F), PartPose.ZERO);
 
         return LayerDefinition.create(mesh, 128, 128);
+    }
+
+    static {
+        PIPELINE.apply(true);
+        PIPELINE.apply(false);
     }
 
     public static final class State {

@@ -15,6 +15,7 @@
  */
 package survivalblock.volucraft.client.render;
 
+import com.mojang.blaze3d.ProjectionType;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
@@ -34,6 +35,7 @@ import net.minecraft.util.ARGB;
 import net.minecraft.util.Ease;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.ApiStatus;
 import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
 import survivalblock.volucraft.client.compat.config.VolucraftClientConfig;
@@ -106,16 +108,18 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
 
         pass(poseStack, anim, items, rot, translator, (matrices, threeDimensional, submitNodeStorage, i) -> {
             {
-                RenderType renderType = modelToUse.renderType(texture);
-                submitNodeStorage.submitModel(modelToUse, CubeModel.State.INSTANCE, matrices, renderType, FULL_BRIGHT, OverlayTexture.NO_OVERLAY, threeDimensional.color(), null, 0, null);
+                final int color = threeDimensional.color();
+                RenderType renderType = modelToUse.renderType(texture, ARGB.alpha(color) == 255);
+                submitNodeStorage.submitModel(modelToUse, CubeModel.State.INSTANCE, matrices, renderType, FULL_BRIGHT, OverlayTexture.NO_OVERLAY, color, null, 0, null);
             }
             if (i == selected) {
                 matrices.pushPose();
                 matrices.translate(0, CUBE_CENTER_OFFSET, 0); // pivot point
                 matrices.scale(1.1F, 1.1F, 1.1F);
                 matrices.translate(0, -CUBE_CENTER_OFFSET, 0); // unpivot point
-                RenderType highlight = modelToUse.renderType(renderState.highlightTexture());
-                submitNodeStorage.submitModel(modelToUse, CubeModel.State.INSTANCE, matrices, highlight, -1, OverlayTexture.NO_OVERLAY, renderState.highlightColor(), null, 0, null);
+                final int highlightColor = renderState.highlightColor();
+                RenderType highlight = modelToUse.renderType(renderState.highlightTexture(), ARGB.alpha(highlightColor) == 255);
+                submitNodeStorage.submitModel(modelToUse, CubeModel.State.INSTANCE, matrices, highlight, -1, OverlayTexture.NO_OVERLAY, highlightColor, null, 0, null);
                 matrices.popPose();
             }
         });
@@ -207,6 +211,11 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
     @Override
     protected String getTextureLabel() {
         return "volumetric slots model";
+    }
+
+    @ApiStatus.Internal
+    public ProjectionType getMaybeCustomProjectionType() {
+        return ProjectionType.VOLUCRAFT_ORTHOGRAPHIC;
     }
 
     public static int getColor(float anim) {
