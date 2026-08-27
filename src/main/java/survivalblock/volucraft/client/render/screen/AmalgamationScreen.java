@@ -23,7 +23,6 @@ import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -61,7 +60,6 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
     public static final int SLOTS_Y_OFFSET = 8;
 
     protected final CubeModel cubeModel;
-    protected final CubeModel cubeModelWithItem;
 
     public static final WidgetSprites MULTIMATCH = new WidgetSprites(Volucraft.id("multimatch"), Volucraft.id("multimatch_activated"));
 
@@ -83,7 +81,6 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
     public AmalgamationScreen(AmalgamationMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, 344, 166);
         this.cubeModel = new CubeModel(this.minecraft.getEntityModels().bakeLayer(VolucraftClient.CUBE));
-        this.cubeModelWithItem = new CubeModel(this.minecraft.getEntityModels().bakeLayer(VolucraftClient.CUBE), RenderTypes::entityTranslucentEmissive);
     }
 
     @Override
@@ -204,7 +201,6 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
                 CubeOfSlotsRenderState.create(
                         this.minecraft,
                         this.cubeModel,
-                        this.cubeModelWithItem,
                         SLOT_CUBE_TEXTURE,
                         HIGHLIGHTED_SLOT_CUBE,
                         items,

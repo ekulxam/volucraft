@@ -165,7 +165,6 @@ public class AmalgamationClientRecipe implements ReliableClientRecipe {
                 CubeOfSlotsRenderState.create(
                         Minecraft.getInstance(),
                         screenWithCubes.volucraft$getCubeModel(),
-                        screenWithCubes.volucraft$getCubeModelWithItem(),
                         SLOT_CUBE_TEXTURE,
                         HIGHLIGHTED_SLOT_CUBE,
                         items,

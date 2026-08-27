@@ -15,6 +15,7 @@
  */
 package survivalblock.volucraft.client;
 
+import com.google.common.reflect.Reflection;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
@@ -45,6 +46,8 @@ public class VolucraftClient implements ClientModInitializer {
         ModelLayerRegistry.registerModelLayer(CUBE, CubeModel::createBodyLayer);
         PictureInPictureRendererRegistry.register(CubeOfSlotsRenderer::new);
 
+        Reflection.initialize(CubeModel.class);
+
         // compiler got mad at me
         //noinspection RedundantTypeArguments
         MenuScreens.<AmalgamationMenu, AmalgamationScreen>register(
@@ -55,7 +58,10 @@ public class VolucraftClient implements ClientModInitializer {
                                 : new AmalgamationScreen(menu, inventory, title)
         );
 
+        // TODO: fix when porting
+        //~ if >=26.2 'client().screen' -> 'client().gui.getScreen()' {
         ClientPlayNetworking.registerGlobalReceiver(CancelMultimatchS2CPayload.ID, (_, context) -> {
+            //noinspection resource
             if (!(context.player().containerMenu instanceof AmalgamationMenu) || !(context.client().screen instanceof AmalgamationScreen screen)) {
                 return;
             }
@@ -63,10 +69,12 @@ public class VolucraftClient implements ClientModInitializer {
         });
 
         ClientPlayNetworking.registerGlobalReceiver(MultimatchS2CPayload.ID, (payload, context) -> {
+            //noinspection resource
             if (!(context.player().containerMenu instanceof AmalgamationMenu) || !(context.client().screen instanceof AmalgamationScreen screen)) {
                 return;
             }
             screen.addToMatches(payload.castMatches());
         });
+        //~}
     }
 }
