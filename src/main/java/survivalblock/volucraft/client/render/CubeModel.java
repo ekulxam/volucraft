@@ -31,47 +31,16 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.ARGB;
 import net.minecraft.util.Util;
 import survivalblock.volucraft.common.Volucraft;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-@SuppressWarnings("JavadocReference")
 public class CubeModel extends Model<CubeModel.State> {
-    /**
-     * @see RenderPipelines#ENTITY_TRANSLUCENT
-     * @see RenderPipelines#ENTITY_TRANSLUCENT_EMISSIVE
-     */
-    private static final Function<Boolean, RenderPipeline> PIPELINE = Util.memoize(opaque ->
-            RenderPipelines.register(
-                    RenderPipeline.builder(RenderPipelines.ENTITY_SNIPPET)
-                        .withLocation(Volucraft.id("pipeline/cube_" + (opaque ? "opaque" : "translucent")))
-                        .withShaderDefine("ALPHA_CUTOUT", 0.1F)
-                        .withShaderDefine("PER_FACE_LIGHTING")
-                        .withSampler("Sampler1")
-                        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
-                        .withCull(false)
-                        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, opaque))
-                        .build()
-            )
-    );
-    /**
-     * @see net.minecraft.client.renderer.rendertype.RenderTypes#ENTITY_TRANSLUCENT
-     * @see net.minecraft.client.renderer.rendertype.RenderTypes#ENTITY_TRANSLUCENT_EMISSIVE
-     */
-    private static final BiFunction<Identifier, Boolean, RenderType> CUBE = Util.memoize((texture, opaque) -> {
-        RenderSetup state = RenderSetup.builder(PIPELINE.apply(opaque))
-                .withTexture("Sampler0", texture)
-                .useOverlay()
-                .useLightmap()
-                .affectsCrumbling()
-                .sortOnUpload()
-                .setOutline(RenderSetup.OutlineProperty.AFFECTS_OUTLINE)
-                .createRenderSetup();
-        return RenderType.create("volucraft:cube", state);
-    });
+    private static final RenderPipeline CUBE_OPAQUE;
+    private static final RenderPipeline CUBE_TRANSLUCENT;
+    private static final BiFunction<Identifier, Boolean, RenderType> CUBE;
 
     public CubeModel(ModelPart root, Function<Identifier, RenderType> renderTypeFunction) {
         super(root, renderTypeFunction);
@@ -99,8 +68,32 @@ public class CubeModel extends Model<CubeModel.State> {
     }
 
     static {
-        PIPELINE.apply(true);
-        PIPELINE.apply(false);
+        Function<Boolean, RenderPipeline> pipelines = opaque ->
+                RenderPipelines.register(
+                        RenderPipeline.builder(RenderPipelines.ENTITY_SNIPPET)
+                            .withLocation(Volucraft.id("pipeline/cube_" + (opaque ? "opaque" : "translucent")))
+                            .withShaderDefine("ALPHA_CUTOUT", 0.1F)
+                            .withShaderDefine("PER_FACE_LIGHTING")
+                            .withSampler("Sampler1")
+                            .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+                            .withCull(false)
+                            .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, opaque))
+                            .build()
+                );
+        CUBE_OPAQUE = pipelines.apply(true);
+        CUBE_TRANSLUCENT = pipelines.apply(false);
+
+        CUBE = Util.memoize((texture, opaque) -> {
+            RenderSetup state = RenderSetup.builder(opaque ? CUBE_OPAQUE : CUBE_TRANSLUCENT)
+                    .withTexture("Sampler0", texture)
+                    .useOverlay()
+                    .useLightmap()
+                    .affectsCrumbling()
+                    .sortOnUpload()
+                    .setOutline(RenderSetup.OutlineProperty.AFFECTS_OUTLINE)
+                    .createRenderSetup();
+            return RenderType.create("volucraft:cube", state);
+        });
     }
 
     public static final class State {
