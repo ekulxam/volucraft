@@ -101,26 +101,28 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
         }
 
         pass(poseStack, anim, items, rot, translator, (matrices, threeDimensional, submitNodeStorage, _) -> {
-            if (threeDimensional.shouldRender()) {
-                renderItem(matrices, threeDimensional, submitNodeStorage);
-            }
+            final int color = threeDimensional.color();
+            RenderType renderType = CubeModel.renderType(texture, color);
+            submitNodeStorage.submitModel(modelToUse, CubeModel.State.INSTANCE, matrices, renderType, FULL_BRIGHT, OverlayTexture.NO_OVERLAY, color, null, 0, null);
         });
 
-        pass(poseStack, anim, items, rot, translator, (matrices, threeDimensional, submitNodeStorage, i) -> {
-            {
-                final int color = threeDimensional.color();
-                RenderType renderType = CubeModel.renderType(texture, color);
-                submitNodeStorage.submitModel(modelToUse, CubeModel.State.INSTANCE, matrices, renderType, FULL_BRIGHT, OverlayTexture.NO_OVERLAY, color, null, 0, null);
+        pass(poseStack, anim, items, rot, translator, (matrices, _, submitNodeStorage, i) -> {
+            if (i != selected) {
+                return;
             }
-            if (i == selected) {
-                matrices.pushPose();
-                matrices.translate(0, CUBE_CENTER_OFFSET, 0); // pivot point
-                matrices.scale(1.1F, 1.1F, 1.1F);
-                matrices.translate(0, -CUBE_CENTER_OFFSET, 0); // unpivot point
-                final int highlightColor = renderState.highlightColor();
-                RenderType highlight = CubeModel.renderType(renderState.highlightTexture(), highlightColor);
-                submitNodeStorage.submitModel(modelToUse, CubeModel.State.INSTANCE, matrices, highlight, -1, OverlayTexture.NO_OVERLAY, highlightColor, null, 0, null);
-                matrices.popPose();
+            matrices.pushPose();
+            matrices.translate(0, CUBE_CENTER_OFFSET, 0); // pivot point
+            matrices.scale(1.1F, 1.1F, 1.1F);
+            matrices.translate(0, -CUBE_CENTER_OFFSET, 0); // unpivot point
+            final int highlightColor = renderState.highlightColor();
+            RenderType highlight = CubeModel.renderType(renderState.highlightTexture(), highlightColor);
+            submitNodeStorage.submitModel(modelToUse, CubeModel.State.INSTANCE, matrices, highlight, -1, OverlayTexture.NO_OVERLAY, highlightColor, null, 0, null);
+            matrices.popPose();
+        });
+
+        pass(poseStack, anim, items, rot, translator, (matrices, threeDimensional, submitNodeStorage, _) -> {
+            if (threeDimensional.shouldRender()) {
+                renderItem(matrices, threeDimensional, submitNodeStorage);
             }
         });
     }
