@@ -129,10 +129,14 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
                 RenderType renderType = CubeModel.renderType(texture, color);
                 submitNodeStorage.submitModel(modelToUse, CubeModel.State.INSTANCE, poseStack, renderType, FULL_BRIGHT, OverlayTexture.NO_OVERLAY, color, null, 0, null);
             }
-            if (!selectorIsOpaque) {
-                renderSelector(renderState, poseStack, i, selected, highlightColor, submitNodeStorage, modelToUse);
-            }
         });
+
+        if (!selectorIsOpaque) {
+            //noinspection CodeBlock2Expr
+            pass(poseStack, anim, items, rot, translator, featureRenderDispatcher, (_, i) -> {
+                renderSelector(renderState, poseStack, i, selected, highlightColor, submitNodeStorage, modelToUse);
+            });
+        }
     }
 
     private static void renderSelector(CubeOfSlotsRenderState renderState, PoseStack matrices, int i, int selected, int highlightColor, SubmitNodeStorage submitNodeStorage, CubeModel modelToUse) {

@@ -1,3 +1,2 @@
-Volucraft 0.2.7
-- Fix translucency for real
-- Slots with items have their default translucency changed (127 -> 111)
+Volucraft 0.2.8
+- Fix translucency (for the third time)
