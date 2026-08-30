@@ -1,2 +1,3 @@
-Volucraft 0.2.6+26.1.2
-- Fix some translucency issues (that were identified while testing RRV itemFilterMode compat)
+Volucraft 0.2.7
+- Fix translucency for real
+- Slots with items have their default translucency changed (127 -> 111)

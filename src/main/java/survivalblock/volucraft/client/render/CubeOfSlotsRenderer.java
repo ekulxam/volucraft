@@ -33,6 +33,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Ease;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
@@ -100,37 +101,55 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
             anim *= (1 / BOUNCE_THRESHOLD);
         }
 
-        pass(poseStack, anim, items, rot, translator, (matrices, threeDimensional, submitNodeStorage, _) -> {
-            final int color = threeDimensional.color();
-            RenderType renderType = CubeModel.renderType(texture, color);
-            submitNodeStorage.submitModel(modelToUse, CubeModel.State.INSTANCE, matrices, renderType, FULL_BRIGHT, OverlayTexture.NO_OVERLAY, color, null, 0, null);
-        });
+        final int highlightColor = renderState.highlightColor();
+        final boolean selectorIsOpaque = CubeModel.isOpaque(highlightColor);
 
-        pass(poseStack, anim, items, rot, translator, (matrices, _, submitNodeStorage, i) -> {
-            if (i != selected) {
-                return;
-            }
-            matrices.pushPose();
-            matrices.translate(0, CUBE_CENTER_OFFSET, 0); // pivot point
-            matrices.scale(1.1F, 1.1F, 1.1F);
-            matrices.translate(0, -CUBE_CENTER_OFFSET, 0); // unpivot point
-            final int highlightColor = renderState.highlightColor();
-            RenderType highlight = CubeModel.renderType(renderState.highlightTexture(), highlightColor);
-            submitNodeStorage.submitModel(modelToUse, CubeModel.State.INSTANCE, matrices, highlight, -1, OverlayTexture.NO_OVERLAY, highlightColor, null, 0, null);
-            matrices.popPose();
-        });
-
-        pass(poseStack, anim, items, rot, translator, (matrices, threeDimensional, submitNodeStorage, _) -> {
+        FeatureRenderDispatcher featureRenderDispatcher = Minecraft.getInstance().gameRenderer.getFeatureRenderDispatcher();
+        SubmitNodeStorage submitNodeStorage = featureRenderDispatcher.getSubmitNodeStorage();
+        pass(poseStack, anim, items, rot, translator, featureRenderDispatcher, (threeDimensional, _) -> {
             if (threeDimensional.shouldRender()) {
-                renderItem(matrices, threeDimensional, submitNodeStorage);
+                renderItem(poseStack, threeDimensional, submitNodeStorage);
+            }
+        });
+
+        pass(poseStack, anim, items, rot, translator, featureRenderDispatcher, (threeDimensional, i) -> {
+            final int color = threeDimensional.color();
+            if (CubeModel.isOpaque(color)) {
+                RenderType renderType = CubeModel.renderType(texture, color);
+                submitNodeStorage.submitModel(modelToUse, CubeModel.State.INSTANCE, poseStack, renderType, FULL_BRIGHT, OverlayTexture.NO_OVERLAY, color, null, 0, null);
+            }
+            if (selectorIsOpaque) {
+                renderSelector(renderState, poseStack, i, selected, highlightColor, submitNodeStorage, modelToUse);
+            }
+        });
+
+        pass(poseStack, anim, items, rot, translator, featureRenderDispatcher, (threeDimensional, i) -> {
+            final int color = threeDimensional.color();
+            if (!CubeModel.isOpaque(color)) {
+                RenderType renderType = CubeModel.renderType(texture, color);
+                submitNodeStorage.submitModel(modelToUse, CubeModel.State.INSTANCE, poseStack, renderType, FULL_BRIGHT, OverlayTexture.NO_OVERLAY, color, null, 0, null);
+            }
+            if (!selectorIsOpaque) {
+                renderSelector(renderState, poseStack, i, selected, highlightColor, submitNodeStorage, modelToUse);
             }
         });
     }
 
-    private void pass(PoseStack poseStack, float anim, List<CubeOfSlotsRenderState.ItemStackWith3DSlot> items, Quaternionfc rot, Translator translator, SlotRenderer action) {
-        final FeatureRenderDispatcher featureRenderDispatcher = this.minecraft.gameRenderer.getFeatureRenderDispatcher();
-        final SubmitNodeStorage submitNodeStorage = featureRenderDispatcher.getSubmitNodeStorage();
+    private static void renderSelector(CubeOfSlotsRenderState renderState, PoseStack matrices, int i, int selected, int highlightColor, SubmitNodeStorage submitNodeStorage, CubeModel modelToUse) {
+        if (i != selected) {
+            return;
+        }
+        matrices.pushPose();
+        matrices.translate(0, CUBE_CENTER_OFFSET, 0); // pivot point
+        matrices.scale(1.1F, 1.1F, 1.1F);
+        matrices.translate(0, -CUBE_CENTER_OFFSET, 0); // unpivot point
 
+        RenderType highlight = CubeModel.renderType(renderState.highlightTexture(), highlightColor);
+        submitNodeStorage.submitModel(modelToUse, CubeModel.State.INSTANCE, matrices, highlight, FULL_BRIGHT, OverlayTexture.NO_OVERLAY, highlightColor, null, 0, null);
+        matrices.popPose();
+    }
+
+    private void pass(PoseStack poseStack, float anim, List<CubeOfSlotsRenderState.ItemStackWith3DSlot> items, Quaternionfc rot, Translator translator, FeatureRenderDispatcher featureRenderDispatcher, SlotRenderer action) {
         for (int i = 0; i < Volucraft.SLOTS; i++) {
             if (anim < 1.0F) {
                 float appearanceThreshold = 1.0F;
@@ -147,28 +166,29 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
             }
 
             CubeOfSlotsRenderState.ItemStackWith3DSlot threeDimensional = items.get(i);
-            poseStack.pushPose(); // push0
-            poseStack.pushPose(); // push1
+            poseStack.pushPose();
             poseStack.translate(0, CUBE_CENTER_OFFSET, 0); // pivot point
             poseStack.mulPose(FLIP);
             poseStack.mulPose(rot); // rotate around pivot point
             poseStack.translate(0, -CUBE_CENTER_OFFSET, 0); // unpivot point
             transformByIndex(i, translator);
-            action.render(poseStack, threeDimensional, submitNodeStorage, i);
-            poseStack.popPose(); // pop1
-            poseStack.popPose(); // pop0
+            action.render(threeDimensional, i);
+            poseStack.popPose();
         }
 
         featureRenderDispatcher.renderAllFeatures();
+        this.bufferSource.endBatch();
     }
 
     private void renderItem(PoseStack poseStack, CubeOfSlotsRenderState.ItemStackWith3DSlot threeDimensional, SubmitNodeCollector renderQueue) {
         poseStack.pushPose();
         poseStack.scale(1.0F, -1.0F, -1.0F);
-        poseStack.translate(0, -0.5, 0);
+        poseStack.translate(0, -0.5 / 0.9, 0);
+        poseStack.pushPose();
         poseStack.scale(0.9F, 0.9F, 0.9F);
         ItemStackRenderState state = threeDimensional.itemStackRenderState();
         state.submit(poseStack, renderQueue, FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0);
+        poseStack.popPose();
         poseStack.popPose();
     }
 
@@ -246,7 +266,7 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
 
     @FunctionalInterface
     public interface SlotRenderer {
-        void render(PoseStack poseStack, CubeOfSlotsRenderState.ItemStackWith3DSlot threeDimensional, SubmitNodeCollector renderQueue, int index);
+        void render(CubeOfSlotsRenderState.ItemStackWith3DSlot threeDimensional, int index);
     }
 
     @FunctionalInterface

@@ -120,11 +120,11 @@ public class VolucraftYACLClientConfig implements VolucraftClientConfig {
     @SerialEntry
     public boolean displayARGB = true;
     @SerialEntry
-    public Color cubeBackgroundColor = Color.BLACK;
+    public Color cubeBackgroundColor = new Color(Defaults.CUBE_BACKGROUND_COLOR, true);
     @SerialEntry
-    public int cubeAlpha = 255;
+    public int cubeAlpha = Defaults.CUBE_ALPHA;
     @SerialEntry
-    public int cubeWithItemAlpha = 127;
+    public int cubeWithItemAlpha = Defaults.CUBE_WITH_ITEM_ALPHA;
     @SerialEntry
-    public int cubeHighlightAlpha = 95;
+    public int cubeHighlightAlpha = Defaults.CUBE_HIGHLIGHT_ALPHA;
 }

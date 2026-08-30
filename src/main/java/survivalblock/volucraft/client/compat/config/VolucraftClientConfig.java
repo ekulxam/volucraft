@@ -19,6 +19,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.screens.Screen;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import survivalblock.volucraft.common.Volucraft;
 
@@ -32,19 +33,19 @@ public interface VolucraftClientConfig {
     }
 
     default int getCubeBackgroundColor() {
-        return 0xFF000000;
+        return Defaults.CUBE_BACKGROUND_COLOR;
     }
 
     default int getCubeAlpha() {
-        return 255;
+        return Defaults.CUBE_ALPHA;
     }
 
     default int getCubeWithItemAlpha() {
-        return 127;
+        return Defaults.CUBE_WITH_ITEM_ALPHA;
     }
 
     default int getCubeHighlightAlpha() {
-        return 95;
+        return Defaults.CUBE_HIGHLIGHT_ALPHA;
     }
 
     private static VolucraftClientConfig getInstance() {
@@ -57,5 +58,13 @@ public interface VolucraftClientConfig {
 
     static void init() {
         // NO-OP
+    }
+
+    @ApiStatus.Internal
+    class Defaults {
+        public static final int CUBE_BACKGROUND_COLOR = 0xFF000000;
+        public static final int CUBE_ALPHA = 255;
+        public static final int CUBE_WITH_ITEM_ALPHA = 111;
+        public static final int CUBE_HIGHLIGHT_ALPHA = 95;
     }
 }
