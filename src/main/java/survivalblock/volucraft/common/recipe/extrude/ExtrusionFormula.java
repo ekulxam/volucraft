@@ -64,5 +64,10 @@ public final class ExtrusionFormula {
         default Identifier translate(Identifier original) {
             return original.withPath(s -> s + APPENDED);
         }
+
+        @ApiStatus.Experimental
+        default Identifier translateSerializer(Identifier original) {
+            return original;
+        }
     }
 }

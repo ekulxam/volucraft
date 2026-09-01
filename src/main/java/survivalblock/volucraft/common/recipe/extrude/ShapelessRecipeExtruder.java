@@ -15,10 +15,8 @@
  */
 package survivalblock.volucraft.common.recipe.extrude;
 
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
 import org.jetbrains.annotations.Nullable;
-import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.recipe.specific.ShapelessAmalgamationRecipe;
 import survivalblock.volucraft.mixin.extrude.NormalCraftingRecipeAccessor;
 import survivalblock.volucraft.mixin.extrude.ShapelessRecipeAccessor;

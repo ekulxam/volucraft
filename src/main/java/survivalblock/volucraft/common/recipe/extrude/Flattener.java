@@ -15,11 +15,9 @@
  */
 package survivalblock.volucraft.common.recipe.extrude;
 
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
 import org.jetbrains.annotations.Nullable;
-import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.recipe.specific.wrapper.FlattenedAmalgamationRecipe;
 
 /**

@@ -65,14 +65,16 @@ public class RecipeManagerMixin implements ExtrudedRecipes {
         SortedMap<Identifier, Identifier> extruders = new TreeMap<>();
         SimpleJsonResourceReloadListener.scanDirectory(manager, volucraft$FORMULA_LISTER, this.registries.createSerializationContext(JsonOps.INSTANCE), Identifier.CODEC, extruders);
         extruders.forEach((id, extruderId) -> {
-            Identifier serializerId = id;
+            ExtrusionFormula.Extruder<?, ?> extruder = VolucraftRegistries.EXTRUDER.getValue(extruderId);
+            if (extruder == null) {
+                Volucraft.LOGGER.error("No extruder with id {} for serializer {} was found!", extruderId, id);
+                return;
+            }
+            Identifier serializerId = extruder.translateSerializer(id);
             RecipeSerializer<?> serializer = BuiltInRegistries.RECIPE_SERIALIZER.getValue(serializerId);
             if (serializer == null) {
                 Volucraft.LOGGER.error("No recipe serializer with id {} was found!", serializerId);
-            }
-            ExtrusionFormula.Extruder<?, ?> extruder = VolucraftRegistries.EXTRUDER.getValue(extruderId);
-            if (extruder == null) {
-                Volucraft.LOGGER.error("No extruder with id {} for serializer {} was found!", extruderId, serializerId);
+                return;
             }
             this.volucraft$extruders.put(serializer, extruder);
         });
