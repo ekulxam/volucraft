@@ -10,6 +10,7 @@
     "ShapedRecipePatternInvoker",
     "client.compat.config.ColorControllerMixin",
     "compat.recipeviewer.RecipeViewMenuMixin",
+    "extrude.BuiltinRegistriesMixin",
     "extrude.NormalCraftingRecipeAccessor",
     "extrude.RecipeManagerMixin",
     "extrude.ServerPlayerMixin",

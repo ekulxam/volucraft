@@ -30,15 +30,9 @@ import survivalblock.volucraft.common.recipe.specific.wrapper.BasicallyShapeless
  */
 public class BasicallyShapelessRecipeExtruder implements ExtrusionFormula.Extruder<CraftingRecipe, BasicallyShapelessAmalgamationRecipe> {
     public static final BasicallyShapelessRecipeExtruder INSTANCE = new BasicallyShapelessRecipeExtruder();
-    public static final Identifier ID = Volucraft.id("basically_shapeless");
 
     @Override
     public @Nullable BasicallyShapelessAmalgamationRecipe create(CraftingRecipe craftingRecipe) {
         return new BasicallyShapelessAmalgamationRecipe(new Recipe.CommonInfo(false), craftingRecipe);
-    }
-
-    @Override
-    public Identifier id() {
-        return ID;
     }
 }

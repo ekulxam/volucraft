@@ -27,6 +27,7 @@ public class VolucraftDataGenerator implements DataGeneratorEntrypoint {
         pack.addProvider(VolucraftEnUsLangGenerator::new);
         pack.addProvider(VolucraftLootTableGenerator::new);
         pack.addProvider(VolucraftRecipeGenerators.Actual::new);
+        pack.addProvider(VolucraftExtrusionFormulaGenerator::new);
         FabricDataGenerator.Pack exampleRecipes = Volucraft.wrapDatapack(
                 () -> fabricDataGenerator.createBuiltinResourcePack(Volucraft.EXAMPLE_RECIPES_PACK)
         );

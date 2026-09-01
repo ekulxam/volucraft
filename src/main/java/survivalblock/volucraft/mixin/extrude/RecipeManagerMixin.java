@@ -20,33 +20,62 @@ import com.google.common.collect.HashBiMap;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
+import com.mojang.serialization.JsonOps;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.crafting.*;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import survivalblock.volucraft.common.Volucraft;
+import survivalblock.volucraft.common.init.VolucraftRegistries;
 import survivalblock.volucraft.common.recipe.AmalgamationRecipe;
 import survivalblock.volucraft.common.recipe.extrude.ExtrudedRecipes;
 import survivalblock.volucraft.common.recipe.extrude.ExtrusionFormula;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
+import java.util.*;
 
 @Mixin(RecipeManager.class)
 public class RecipeManagerMixin implements ExtrudedRecipes {
+    @Shadow
+    @Final
+    private HolderLookup.Provider registries;
     @Unique
     private final BiMap<ResourceKey<Recipe<?>>, ResourceKey<Recipe<?>>> volucraft$recipePairs = HashBiMap.create();
+
+    @Unique
+    private static final FileToIdConverter volucraft$FORMULA_LISTER = FileToIdConverter.json(ExtrusionFormula.DIRECTORY);
+    @Unique
+    private final Map<RecipeSerializer<?>, ExtrusionFormula.Extruder<?, ?>> volucraft$extruders = new HashMap<>();
 
     @Inject(method = "prepare(Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)Lnet/minecraft/world/item/crafting/RecipeMap;", at = @At("HEAD"))
     private void resetRecipePairs(ResourceManager manager, ProfilerFiller profiler, CallbackInfoReturnable<RecipeMap> cir) {
         this.volucraft$recipePairs.clear();
+        this.volucraft$extruders.clear();
+        SortedMap<Identifier, Identifier> extruders = new TreeMap<>();
+        SimpleJsonResourceReloadListener.scanDirectory(manager, volucraft$FORMULA_LISTER, this.registries.createSerializationContext(JsonOps.INSTANCE), Identifier.CODEC, extruders);
+        extruders.forEach((id, extruderId) -> {
+            Identifier serializerId = id;
+            RecipeSerializer<?> serializer = BuiltInRegistries.RECIPE_SERIALIZER.getValue(serializerId);
+            if (serializer == null) {
+                Volucraft.LOGGER.error("No recipe serializer with id {} was found!", serializerId);
+            }
+            ExtrusionFormula.Extruder<?, ?> extruder = VolucraftRegistries.EXTRUDER.getValue(extruderId);
+            if (extruder == null) {
+                Volucraft.LOGGER.error("No extruder with id {} for serializer {} was found!", extruderId, serializerId);
+            }
+            this.volucraft$extruders.put(serializer, extruder);
+        });
     }
 
     @SuppressWarnings("DiscouragedShift")
@@ -60,7 +89,7 @@ public class RecipeManagerMixin implements ExtrudedRecipes {
             }
 
             //noinspection rawtypes
-            ExtrusionFormula.Extruder extruder = ExtrusionFormula.getHandler(recipe.getSerializer());
+            ExtrusionFormula.Extruder extruder = this.volucraft$extruders.get(recipe.getSerializer());
             if (extruder == null) {
                 continue; // not translatable
             }

@@ -31,15 +31,9 @@ import survivalblock.volucraft.common.recipe.specific.wrapper.FlattenedAmalgamat
 @SuppressWarnings("JavadocReference")
 public class Flattener implements ExtrusionFormula.Extruder<CraftingRecipe, FlattenedAmalgamationRecipe> {
     public static final Flattener INSTANCE = new Flattener();
-    public static final Identifier ID = Volucraft.id("flattened");
 
     @Override
     public @Nullable FlattenedAmalgamationRecipe create(CraftingRecipe craftingRecipe) {
         return new FlattenedAmalgamationRecipe(new Recipe.CommonInfo(false), craftingRecipe);
-    }
-
-    @Override
-    public Identifier id() {
-        return ID;
     }
 }

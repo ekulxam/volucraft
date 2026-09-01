@@ -15,7 +15,6 @@
  */
 package survivalblock.volucraft.common.recipe.extrude;
 
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapedRecipePattern;
 import org.jetbrains.annotations.Nullable;
@@ -35,7 +34,6 @@ import java.util.Optional;
  */
 public class ShapedRecipeExtruder implements Extruder<ShapedRecipe, ShapedAmalgamationRecipe> {
     public static final ShapedRecipeExtruder INSTANCE = new ShapedRecipeExtruder();
-    public static final Identifier ID = Volucraft.id("shaped");
 
     @Override
     public @Nullable ShapedAmalgamationRecipe create(ShapedRecipe shapedRecipe) {
@@ -60,10 +58,5 @@ public class ShapedRecipeExtruder implements Extruder<ShapedRecipe, ShapedAmalga
         }
 
         return null;
-    }
-
-    @Override
-    public Identifier id() {
-        return ID;
     }
 }

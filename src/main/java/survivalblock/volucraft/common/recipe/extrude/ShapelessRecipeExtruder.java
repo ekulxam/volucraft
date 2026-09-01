@@ -28,7 +28,6 @@ import survivalblock.volucraft.mixin.extrude.ShapelessRecipeAccessor;
  */
 public class ShapelessRecipeExtruder implements ExtrusionFormula.Extruder<ShapelessRecipe, ShapelessAmalgamationRecipe> {
     public static final ShapelessRecipeExtruder INSTANCE = new ShapelessRecipeExtruder();
-    public static final Identifier ID = Volucraft.id("shapeless");
 
     @Override
     public @Nullable ShapelessAmalgamationRecipe create(ShapelessRecipe shapelessRecipe) {
@@ -37,10 +36,5 @@ public class ShapelessRecipeExtruder implements ExtrusionFormula.Extruder<Shapel
                 ((ShapelessRecipeAccessor) shapelessRecipe).volucraft$getResult(),
                 ((ShapelessRecipeAccessor) shapelessRecipe).volucraft$getIngredients()
         );
-    }
-
-    @Override
-    public Identifier id() {
-        return ID;
     }
 }

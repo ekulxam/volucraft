@@ -30,10 +30,7 @@ import net.minecraft.stats.StatFormatter;
 import net.minecraft.stats.Stats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import survivalblock.volucraft.common.init.VolucraftBlocks;
-import survivalblock.volucraft.common.init.VolucraftItems;
-import survivalblock.volucraft.common.init.VolucraftMenuTypes;
-import survivalblock.volucraft.common.init.VolucraftRecipeTypes;
+import survivalblock.volucraft.common.init.*;
 import survivalblock.volucraft.common.networking.CancelMultimatchS2CPayload;
 import survivalblock.volucraft.common.networking.MultimatchS2CPayload;
 import survivalblock.volucraft.common.networking.SelectFromMultimatchC2SPayload;
@@ -73,7 +70,7 @@ public class Volucraft implements ModInitializer {
         Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, Volucraft.id("amalgamation_flattened"), FlattenedAmalgamationRecipe.SERIALIZER);
         Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, Volucraft.id("amalgamation_basically_shapeless"), BasicallyShapelessAmalgamationRecipe.SERIALIZER);
 
-        ExtrusionFormula.init();
+        ExtrusionFormula.bootstrap();
 
         registerNetworking();
 
