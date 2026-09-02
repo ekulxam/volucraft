@@ -105,11 +105,6 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
 
         FeatureRenderDispatcher featureRenderDispatcher = Minecraft.getInstance().gameRenderer.getFeatureRenderDispatcher();
         SubmitNodeStorage submitNodeStorage = featureRenderDispatcher.getSubmitNodeStorage();
-        pass(poseStack, anim, items, rot, translator, featureRenderDispatcher, (threeDimensional, _) -> {
-            if (threeDimensional.shouldRender()) {
-                renderItem(poseStack, threeDimensional, submitNodeStorage);
-            }
-        });
 
         pass(poseStack, anim, items, rot, translator, featureRenderDispatcher, (threeDimensional, i) -> {
             final int color = threeDimensional.color();
@@ -119,6 +114,12 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
             }
             if (selectorIsOpaque) {
                 renderSelector(renderState, poseStack, i, selected, highlightColor, submitNodeStorage, modelToUse);
+            }
+        });
+
+        pass(poseStack, anim, items, rot, translator, featureRenderDispatcher, (threeDimensional, _) -> {
+            if (threeDimensional.shouldRender()) {
+                renderItem(poseStack, threeDimensional, submitNodeStorage);
             }
         });
 
