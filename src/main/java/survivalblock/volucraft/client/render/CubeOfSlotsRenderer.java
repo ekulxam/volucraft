@@ -75,7 +75,7 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
 
     @SuppressWarnings({"Convert2MethodRef", "RedundantSuppression"})
     @Override
-    //~ if >=26.2 'PoseStack poseStack)' -> 'PoseStack poseStack, SubmitNodeCollector submitNodeCollector)'
+    //~ if >=26.2 'PoseStack poseStack)' -> 'PoseStack poseStack, SubmitNodeCollector unused)'
     protected void renderToTexture(CubeOfSlotsRenderState renderState, PoseStack poseStack, SubmitNodeCollector unused) {
         final Quaternionfc rot = renderState.rotation();
         final float expand = calculateExpansion(renderState.lerpExpansion());
