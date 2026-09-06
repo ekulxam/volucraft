@@ -8,7 +8,7 @@ plugins {
     id("com.diffplug.spotless") version "7.0.2"
 }
 
-stonecutter active "26.1.2-fabric"
+stonecutter active "26.2-fabric"
 
 spotless {
     lineEndings = com.diffplug.spotless.LineEnding.UNIX

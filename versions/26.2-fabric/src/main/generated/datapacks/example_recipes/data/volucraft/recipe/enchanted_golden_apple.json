@@ -1,0 +1,27 @@
+{
+  "type": "volucraft:amalgamation",
+  "key": {
+    "A": "minecraft:apple",
+    "G": "minecraft:gold_block"
+  },
+  "pattern": [
+    [
+      "GGG",
+      "GGG",
+      "GGG"
+    ],
+    [
+      "GGG",
+      "GAG",
+      "GGG"
+    ],
+    [
+      "GGG",
+      "GGG",
+      "GGG"
+    ]
+  ],
+  "result": {
+    "id": "minecraft:enchanted_golden_apple"
+  }
+}

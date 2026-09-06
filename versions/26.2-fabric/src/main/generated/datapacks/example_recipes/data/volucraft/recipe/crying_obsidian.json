@@ -1,0 +1,24 @@
+{
+  "type": "volucraft:amalgamation",
+  "key": {
+    "B": "minecraft:ghast_tear",
+    "O": "minecraft:obsidian",
+    "T": "minecraft:dragon_breath"
+  },
+  "pattern": [
+    [
+      "OO",
+      "TB",
+      "OO"
+    ],
+    [
+      "OO",
+      "BT",
+      "OO"
+    ]
+  ],
+  "result": {
+    "count": 4,
+    "id": "minecraft:crying_obsidian"
+  }
+}

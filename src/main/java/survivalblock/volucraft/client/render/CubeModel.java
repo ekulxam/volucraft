@@ -27,6 +27,8 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
+//? if >=26.2
+import net.minecraft.client.renderer.BindGroupLayouts;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
@@ -78,10 +80,15 @@ public class CubeModel extends Model<CubeModel.State> {
                             .withLocation(Volucraft.id("pipeline/cube_" + (opaque ? "opaque" : "translucent")))
                             .withShaderDefine("ALPHA_CUTOUT", 0.1F)
                             .withShaderDefine("PER_FACE_LIGHTING")
-                            .withSampler("Sampler1")
+                            //? if >=26.2 {
+                            .withBindGroupLayout(BindGroupLayouts.SAMPLER1)
+                            //?} else {
+                            /*.withSampler("Sampler1")
+                            *///?}
                             .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
                             .withCull(false)
-                            .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, opaque))
+                            //~ if >=26.2 'LESS_THAN_OR_EQUAL' -> 'GREATER_THAN_OR_EQUAL'
+                            .withDepthStencilState(new DepthStencilState(CompareOp.GREATER_THAN_OR_EQUAL, opaque))
                             .build()
                 );
         CUBE_OPAQUE = pipelines.apply(true);

@@ -8,7 +8,6 @@
     "RecipeProviderAccessor",
     "ResourceLoaderMixin",
     "ShapedRecipePatternInvoker",
-    "client.compat.config.ColorControllerMixin",
     "compat.recipeviewer.RecipeViewMenuMixin",
     "extrude.BuiltinRegistriesMixin",
     "extrude.NormalCraftingRecipeAccessor",
@@ -21,8 +20,8 @@
     "multimatch.RecipeManagerAccessor"
   ],
   "client": [
-    "client.AbstractContainerScreenAccessor",
     "client.AbstractContainerScreenMixin",
+    "client.compat.config.ColorControllerMixin",
     "client.compat.recipeviewer.ContainerEventHandlerMixin",
     "client.compat.recipeviewer.RecipeViewScreenMixin",
     "client.multimatch.AbstractSelectionListMixin",

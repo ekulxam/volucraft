@@ -63,7 +63,8 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
     private final Minecraft minecraft;
 
     public CubeOfSlotsRenderer(PictureInPictureRendererRegistry.Context context) {
-        super(context.bufferSource());
+        //~ if >=26.2 'super(context.bufferSource());' -> 'super();'
+        super();
         this.minecraft = context.minecraft();
     }
 
@@ -74,7 +75,8 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
 
     @SuppressWarnings({"Convert2MethodRef", "RedundantSuppression"})
     @Override
-    protected void renderToTexture(CubeOfSlotsRenderState renderState, PoseStack poseStack) {
+    //~ if >=26.2 'PoseStack poseStack)' -> 'PoseStack poseStack, SubmitNodeCollector submitNodeCollector)'
+    protected void renderToTexture(CubeOfSlotsRenderState renderState, PoseStack poseStack, SubmitNodeCollector unused) {
         final Quaternionfc rot = renderState.rotation();
         final float expand = calculateExpansion(renderState.lerpExpansion());
         final Translator translator = (x, y, z) -> poseStack.translate(x * expand, y * expand, z * expand);
@@ -84,7 +86,8 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
 
         final CubeModel modelToUse = renderState.model();
 
-        this.minecraft.gameRenderer.getLighting().setupFor(Lighting.Entry.ENTITY_IN_UI);
+        //~ if >=26.2 'getLighting()' -> 'lighting()'
+        this.minecraft.gameRenderer.lighting().setupFor(Lighting.Entry.ENTITY_IN_UI);
 
         poseStack.mulPose(FLIP); // because LivingEntity model(?)
         poseStack.translate(0, centerFromScale(renderState.scale()), 0); // translate to center
@@ -103,10 +106,21 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
         final int highlightColor = renderState.highlightColor();
         final boolean selectorIsOpaque = CubeModel.isOpaque(highlightColor);
 
-        FeatureRenderDispatcher featureRenderDispatcher = Minecraft.getInstance().gameRenderer.getFeatureRenderDispatcher();
-        SubmitNodeStorage submitNodeStorage = featureRenderDispatcher.getSubmitNodeStorage();
+        //~ if >=26.2 'getFeatureRenderDispatcher()' -> 'featureRenderDispatcher()'
+        FeatureRenderDispatcher featureRenderDispatcher = Minecraft.getInstance().gameRenderer.featureRenderDispatcher();
+        //~ if >=26.2 'featureRenderDispatcher.getSubmitNodeStorage()' -> 'new SubmitNodeStorage()'
+        SubmitNodeStorage submitNodeStorage = new SubmitNodeStorage();
 
-        pass(poseStack, anim, items, rot, translator, featureRenderDispatcher, (threeDimensional, i) -> {
+        final Runnable draw = () -> {
+            //? if >=26.2 {
+            featureRenderDispatcher.renderAllFeatures(submitNodeStorage);
+            //?} else {
+            /*featureRenderDispatcher.renderAllFeatures();
+            this.bufferSource.endBatch();
+            *///?}
+        };
+
+        pass(poseStack, anim, items, rot, translator, draw, (threeDimensional, i) -> {
             final int color = threeDimensional.color();
             if (CubeModel.isOpaque(color)) {
                 RenderType renderType = CubeModel.renderType(texture, color);
@@ -117,13 +131,13 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
             }
         });
 
-        pass(poseStack, anim, items, rot, translator, featureRenderDispatcher, (threeDimensional, _) -> {
+        pass(poseStack, anim, items, rot, translator, draw, (threeDimensional, _) -> {
             if (threeDimensional.shouldRender()) {
                 renderItem(poseStack, threeDimensional, submitNodeStorage);
             }
         });
 
-        pass(poseStack, anim, items, rot, translator, featureRenderDispatcher, (threeDimensional, i) -> {
+        pass(poseStack, anim, items, rot, translator, draw, (threeDimensional, i) -> {
             final int color = threeDimensional.color();
             if (!CubeModel.isOpaque(color)) {
                 RenderType renderType = CubeModel.renderType(texture, color);
@@ -133,7 +147,7 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
 
         if (!selectorIsOpaque) {
             //noinspection CodeBlock2Expr
-            pass(poseStack, anim, items, rot, translator, featureRenderDispatcher, (_, i) -> {
+            pass(poseStack, anim, items, rot, translator, draw, (_, i) -> {
                 renderSelector(renderState, poseStack, i, selected, highlightColor, submitNodeStorage, modelToUse);
             });
         }
@@ -153,7 +167,7 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
         matrices.popPose();
     }
 
-    private void pass(PoseStack poseStack, float anim, List<CubeOfSlotsRenderState.ItemStackWith3DSlot> items, Quaternionfc rot, Translator translator, FeatureRenderDispatcher featureRenderDispatcher, SlotRenderer action) {
+    private void pass(PoseStack poseStack, float anim, List<CubeOfSlotsRenderState.ItemStackWith3DSlot> items, Quaternionfc rot, Translator translator, Runnable draw, SlotRenderer action) {
         for (int i = 0; i < Volucraft.SLOTS; i++) {
             if (anim < 1.0F) {
                 float appearanceThreshold = 1.0F;
@@ -180,8 +194,7 @@ public class CubeOfSlotsRenderer extends PictureInPictureRenderer<CubeOfSlotsRen
             poseStack.popPose();
         }
 
-        featureRenderDispatcher.renderAllFeatures();
-        this.bufferSource.endBatch();
+        draw.run();
     }
 
     private void renderItem(PoseStack poseStack, CubeOfSlotsRenderState.ItemStackWith3DSlot threeDimensional, SubmitNodeCollector renderQueue) {

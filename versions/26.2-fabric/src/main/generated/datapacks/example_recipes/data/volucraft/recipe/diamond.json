@@ -1,0 +1,35 @@
+{
+  "type": "volucraft:amalgamation_shapeless",
+  "ingredients": [
+    "minecraft:coal_block",
+    "minecraft:coal_block",
+    "minecraft:coal_block",
+    "minecraft:coal_block",
+    "minecraft:coal_block",
+    "minecraft:coal_block",
+    "minecraft:coal_block",
+    "minecraft:coal_block",
+    "minecraft:coal_block",
+    "minecraft:coal_block",
+    "minecraft:coal_block",
+    "minecraft:coal_block",
+    "minecraft:coal_block",
+    "minecraft:coal_block",
+    "minecraft:coal_block",
+    "minecraft:coal_block",
+    "minecraft:coal_block",
+    "minecraft:coal_block",
+    "minecraft:coal_block",
+    "minecraft:coal_block",
+    "minecraft:coal_block",
+    "minecraft:coal_block",
+    "minecraft:coal_block",
+    "minecraft:coal_block",
+    "minecraft:coal_block",
+    "minecraft:coal_block",
+    "minecraft:coal_block"
+  ],
+  "result": {
+    "id": "minecraft:diamond"
+  }
+}

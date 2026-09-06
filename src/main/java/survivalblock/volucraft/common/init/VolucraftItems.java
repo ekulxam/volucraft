@@ -26,7 +26,10 @@ public final class VolucraftItems {
     private static final ItemRegistrant REGISTRANT = new ItemRegistrant(Volucraft.MOD_ID);
 
     public static final Item AMALGAMATION_TABLE = REGISTRANT.register(
-            VolucraftBlocks.AMALGAMATION_TABLE, new Item.Properties().useBlockDescriptionPrefix()
+            //? if >=26.2 {
+            VolucraftBlocks.Ids.AMALGAMATION_TABLE,
+            //?}
+            VolucraftBlocks.AMALGAMATION_TABLE
     );
 
     public static void init() {

@@ -15,7 +15,8 @@
  */
 package survivalblock.volucraft.common.recipe.datagen;
 
-import net.minecraft.advancements.Criterion;
+//~ if >=26.2 'advancements.Criterion' -> 'advancements.triggers.Criterion'
+import net.minecraft.advancements.triggers.Criterion;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;

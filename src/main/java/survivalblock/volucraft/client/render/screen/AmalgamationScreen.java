@@ -41,7 +41,6 @@ import survivalblock.volucraft.common.Volucraft;
 import survivalblock.volucraft.common.menu.AmalgamationMenu;
 import survivalblock.volucraft.common.recipe.AmalgamationInput;
 import survivalblock.volucraft.common.recipe.AmalgamationRecipe;
-import survivalblock.volucraft.mixin.client.AbstractContainerScreenAccessor;
 
 import java.lang.Math;
 import java.util.ArrayList;
@@ -86,12 +85,13 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
     @Override
     public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
         boolean original = super.mouseDragged(event, dx, dy);
-        // handle rotation if within bounds of cube area
-        if (((AbstractContainerScreenAccessor) this).volucraft$getClickedSlot() != null || !((AbstractContainerScreenAccessor) this).volucraft$getDraggingItem().isEmpty()) {
+        if (this.hoveredSlot != null) {
             return original;
         }
+
         final double x = event.x();
         final int xo = this.leftPos + SLOTS_X_OFFSET;
+        // handle rotation only if within bounds of cube area
         if (x >= xo && x <= xo + SLOTS_SIDE) {
             final double y = event.y();
             final int yo = (this.height - this.imageHeight) / 2 + SLOTS_Y_OFFSET;

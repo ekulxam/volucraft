@@ -41,7 +41,7 @@
     "accessWidener": "volucraft.classtweaker",
 	"depends": {
 		"fabricloader": ">=0.19.0",
-		"minecraft": "26.1.2",
+		"minecraft": ">=26.1.2",
 		"java": ">=25",
 		"fabric-api": "*"
 	},

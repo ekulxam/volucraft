@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "C": "minecraft:crafting_table",
+    "H": "minecraft:hopper",
+    "I": "minecraft:iron_ingot",
+    "R": "#minecraft:shulker_boxes"
+  },
+  "pattern": [
+    "III",
+    "CRC",
+    "HCH"
+  ],
+  "result": {
+    "id": "volucraft:amalgamation_table"
+  }
+}

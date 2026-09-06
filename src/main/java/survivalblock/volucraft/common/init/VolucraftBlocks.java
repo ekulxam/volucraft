@@ -16,6 +16,8 @@
 package survivalblock.volucraft.common.init;
 
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
+//? if >=26.2
+import net.minecraft.references.BlockItemId;
 import net.minecraft.resources.Identifier;
 import net.minecraft.stats.StatFormatter;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -36,7 +38,8 @@ public final class VolucraftBlocks {
     private static final BlockRegistrant REGISTRANT = new BlockRegistrant(Volucraft.MOD_ID);
 
     public static final Block AMALGAMATION_TABLE = REGISTRANT.register(
-            "amalgamation_table",
+            //~ if >=26.2 '"amalgamation_table"' -> 'Ids.AMALGAMATION_TABLE'
+            Ids.AMALGAMATION_TABLE,
             AmalgamationTableBlock::new,
             BlockBehaviour.Properties.of()
                     .mapColor(MapColor.WOOD)
@@ -54,4 +57,10 @@ public final class VolucraftBlocks {
                     output.insertAfter(Blocks.CRAFTING_TABLE, AMALGAMATION_TABLE);
                 });
     }
+
+    //? if >=26.2 {
+    public static class Ids {
+        public static final BlockItemId AMALGAMATION_TABLE = REGISTRANT.createId("amalgamation_table");
+    }
+    //?}
 }

@@ -30,6 +30,7 @@ import net.minecraft.stats.StatFormatter;
 import net.minecraft.stats.Stats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import survivalblock.atmosphere.registrar.Registrant;
 import survivalblock.volucraft.common.init.VolucraftBlocks;
 import survivalblock.volucraft.common.init.VolucraftItems;
 import survivalblock.volucraft.common.init.VolucraftMenuTypes;
@@ -64,18 +65,12 @@ public class Volucraft implements ModInitializer {
         VolucraftBlocks.init();
         VolucraftItems.init();
         VolucraftMenuTypes.init();
-        Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, Volucraft.id("amalgamation"), ShapedAmalgamationRecipe.SERIALIZER);
-        Registry.register(BuiltInRegistries.RECIPE_DISPLAY, Volucraft.id("amalgamation"), ShapedAmalgamationRecipeDisplay.TYPE);
 
-        Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, Volucraft.id("amalgamation_shapeless"), ShapelessAmalgamationRecipe.SERIALIZER);
-        Registry.register(BuiltInRegistries.RECIPE_DISPLAY, Volucraft.id("amalgamation_shapeless"), ShapelessAmalgamationRecipeDisplay.TYPE);
-
-        Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, Volucraft.id("amalgamation_flattened"), FlattenedAmalgamationRecipe.SERIALIZER);
-        Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, Volucraft.id("amalgamation_basically_shapeless"), BasicallyShapelessAmalgamationRecipe.SERIALIZER);
+        this.registerRecipes();
 
         ExtrusionFormula.bootstrap();
 
-        registerNetworking();
+        this.registerNetworking();
 
         FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent(modContainer ->
                 wrapDatapack(
@@ -83,6 +78,20 @@ public class Volucraft implements ModInitializer {
                 )
         );
 	}
+
+    private void registerRecipes() {
+        final var recipeSerializers = new Registrant<>(Volucraft.MOD_ID, BuiltInRegistries.RECIPE_SERIALIZER);
+        final var recipeDisplays = new Registrant<>(Volucraft.MOD_ID, BuiltInRegistries.RECIPE_DISPLAY);
+
+        recipeSerializers.register("amalgamation", ShapedAmalgamationRecipe.SERIALIZER);
+        recipeDisplays.register("amalgamation", ShapedAmalgamationRecipeDisplay.TYPE);
+
+        recipeSerializers.register("amalgamation_shapeless", ShapelessAmalgamationRecipe.SERIALIZER);
+        recipeDisplays.register("amalgamation_shapeless", ShapelessAmalgamationRecipeDisplay.TYPE);
+
+        recipeSerializers.register("amalgamation_flattened", FlattenedAmalgamationRecipe.SERIALIZER);
+        recipeSerializers.register("amalgamation_basically_shapeless", BasicallyShapelessAmalgamationRecipe.SERIALIZER);
+    }
 
     private void registerNetworking() {
         PayloadTypeRegistry<RegistryFriendlyByteBuf> s2c = PayloadTypeRegistry.clientboundPlay();

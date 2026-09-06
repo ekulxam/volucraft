@@ -74,7 +74,7 @@ dependencies {
 loom {
     runConfigs.configureEach {
         generateRunConfig = true
-        runDirectory = rootProject.file("../../run")
+        runDirectory = rootProject.file("run")
     }
 
     runConfigs.named("client") {
@@ -86,6 +86,20 @@ loom {
         rootProject.file("src/main/resources/volucraft.classtweaker"),
         "build/processed.classtweaker"
     )
+}
+
+fletchingTable {
+    mixins.create("main") {
+        // Default matches the default value in the annotation
+        mixin("default", "${project.property("archives_base_name")}.mixins.json") {
+            env("CLIENT",
+                "survivalblock.volucraft.mixin.client"
+            )
+        }
+    }
+    mixins.all {
+        automatic = true
+    }
 }
 
 tasks.processResources {
