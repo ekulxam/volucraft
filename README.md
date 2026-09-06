@@ -88,13 +88,36 @@ The YACL config controls the color of the background of the portion of the Amalg
 It comes with an optional config powered by YACL (you will need to install YACL to access the config).
 The YACL config controls slot translucency and the background color of the portion of the Amalgamation Table screen that contains the slots.
 
-## For Mod Developers
+## Compatibility
+To translate 2D recipes to 3D, Volucraft uses Extrusion Formulas and Extruders.
+
+Extrusion Formulas are data-driven and located at `data/namespace/volucraft_extrusion_formula/path.json`,
+where `namespace` and `path` correspond to the namespace and path of the registered `RecipeSerializer`.
+
+Extrusion Formulas have the following format:
+```json
+"extruder_namespace:extruder_path"
+```
+
+where `extruder_namespace` and `extruder_path` correspond to the namespace and path of the registered `ExtrusionFormula$Extruder`.
+A table of default extruders can be found below.
+
+By default, all vanilla `RecipeSerializer`s that can be translated have an extrusion formula.
+
+Extruders are the real translators from 2D to 3D and convert 2D `CraftingRecipe`s to 3D `AmalgamationRecipe`s.
+These need to be registered by a mod (see `VolucraftRegistries` and `ExtrusionFormula`).
+
+| Class Name                      | Id                            | Conversion                                             | Details                                                                                                                                                                                                 | Used for                                                                                                                                                                                                                                                                                                                                   |
+|---------------------------------|-------------------------------|--------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ShapedRecipeExtruder            | volucraft:shaped              | ShapedRecipe to ShapedAmalgamationRecipe               | Applied to normal shaped crafting recipes.                                                                                                                                                              | minecraft:crafting_shaped                                                                                                                                                                                                                                                                                                                  |
+| ShapelessRecipeExtruder         | volucraft:shapeless           | ShapelessRecipe to ShapelessAmalgamationRecipe         | Applied to normal shapeless crafting recipes.                                                                                                                                                           | minecraft:crafting_shapeless                                                                                                                                                                                                                                                                                                               |
+| Flattener                       | volucraft:flattened           | CraftingRecipe to FlattenedAmalgamationRecipe          | Applied to special recipes, (functionally) producing an 3x3x1 AmalgamationRecipe.                                                                                                                       | minecraft:crafting_decorated_pot, minecraft:crafting_imbue                                                                                                                                                                                                                                                                                 |
+| BasicallyShaplessRecipeExtruder | volucraft:basically_shapeless | CraftingRecipe to BasicallyShapelessAmalgamationRecipe | Applied to special recipes, where the number of slots doesn't matter. This usually occurs when the recipe searches through all the given ingredients and doesn't care about their relative positioning. | minecraft:crafting_dye, minecraft:crafting_bannerduplicate, minecraft:crafting_bookcloning, minecraft:crafting_firework_rocket, minecraft:crafting_firework_star, minecraft:crafting_firework_star_fade, minecraft:crafting_mapextending, minecraft:crafting_repairitem, minecraft:crafting_shielddecoration, minecraft:crafting_transmute |
+
+### For Mod Developers
 Want to contribute? Open a PR!
 
-To add this project as a dependency, use Modrinth's maven. You'll need to add [registrar](https://modrinth.com/mod/registrar) also.
-
-Otherwise, I would assume you want to add some sort of support for your recipes.
-See above to make 3D recipes; otherwise, (as of 0.2.1) see `survivalblock.volucraft.common.recipe.extrude.ExtrusionFormula` to register an `Extruder` that converts your 2D recipes to 3D.
+Otherwise, to add this project as a dependency, use Modrinth's maven. You'll also need to add [registrar](https://modrinth.com/mod/registrar).
 
 ## Background
 This mod was originally made with the intention of bringing it to Modfest 26.<br>
