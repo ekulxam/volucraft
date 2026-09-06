@@ -85,9 +85,6 @@ public class AmalgamationScreen extends AbstractContainerScreen<AmalgamationMenu
     @Override
     public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
         boolean original = super.mouseDragged(event, dx, dy);
-        if (this.hoveredSlot != null) {
-            return original;
-        }
 
         final double x = event.x();
         final int xo = this.leftPos + SLOTS_X_OFFSET;
